@@ -1,0 +1,102 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type UserProfile {
+  userId: ID!
+  name: String!
+  placeName: String!
+  preferredCyclingTypes: [CyclingType!]!
+  createdAt: Date!
+  updatedAt: Date!
+}
+
+enum CyclingType {
+  ROAD_BIKE
+  MOUNTAIN_BIKE
+  CYCLO_CROSS
+}
+
+"""Date custom scalar type"""
+scalar Date
+
+type File {
+  id: ID!
+  userId: ID!
+}
+
+type PlatformConnection {
+  id: ID!
+  userId: ID!
+  platform: Platform!
+  accessToken: String!
+  accessTokenSecret: String
+  entityId: String!
+  entityName: String!
+}
+
+enum Platform {
+  FACEBOOK
+  TWITTER
+}
+
+type PostMedia {
+  postId: ID!
+  fileId: ID!
+  image: File!
+  post: Post!
+}
+
+type Post {
+  id: ID!
+  text: String!
+  userId: ID!
+  createdAt: Date
+  updatedAt: Date!
+  media: [PostMedia!]!
+  platforms: [PostPlatform!]!
+}
+
+type PostPlatform {
+  id: ID!
+  postId: ID!
+  platformConnectionId: ID!
+  platform: Platform!
+  platformEntityId: String
+  platformEntityUrl: String
+  platformConnection: PlatformConnection
+  post: Post!
+}
+
+type PostComment {
+  id: ID!
+  postId: ID!
+  postPlatformId: ID!
+  timestamp: Date!
+  message: String!
+  replyingToId: ID
+  postPlatform: PostPlatform!
+  post: Post!
+  replyingTo: PostComment
+}
+
+type Query {
+  profile(id: ID!): UserProfile!
+}
+
+type Mutation {
+  sendFeedback(email: String, feedback: SendFeebackInput!): Boolean!
+  createUserProfile(userProfile: UserProfileInput!): UserProfile!
+}
+
+input SendFeebackInput {
+  message: String!
+}
+
+input UserProfileInput {
+  exactLocationLongitude: Float!
+  exactLocationLatitude: Float!
+  name: String!
+  placeName: String!
+  preferredCyclingTypes: [CyclingType!]!
+}
