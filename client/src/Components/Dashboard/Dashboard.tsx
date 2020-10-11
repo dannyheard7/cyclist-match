@@ -1,13 +1,13 @@
-import React, { useContext } from "react";
-import { AuthenticationContext } from "../Authentication/AuthenticationContextProvider";
+import React from "react";
+import { useAuthentication } from "../Authentication/AuthenticationContext";
 
 
 const Dashboard: React.FC = () => {
-  const { user } = useContext(AuthenticationContext);
+  const { user } = useAuthentication();
 
   return (
     <p>
-      Hello {user?.given_name} {user?.family_name}
+      Hello {user?.profile.given_name} {user?.profile.family_name}
     </p>
   );
 };

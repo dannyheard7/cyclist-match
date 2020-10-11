@@ -1,12 +1,18 @@
-import React, { useContext, useEffect } from "react";
-import { AuthenticationContext } from "../Authentication/AuthenticationContextProvider";
+import React, { useEffect } from "react";
+import { useHistory } from "react-router-dom";
+// import { useAuthentication } from "../Authentication/AuthenticationContextProvider";
 
 const LoginCallback: React.FC = () => {
-  const { loading, handleRedirectCallback } = useContext(AuthenticationContext);
+  // const { loading, signinCallback, isAuthenticated } = useAuthentication();
+  const { push } = useHistory();
 
-  useEffect(() => {
-    if (!loading) handleRedirectCallback();
-  }, [loading, handleRedirectCallback]);
+  // useEffect(() => {
+  //   if (isAuthenticated) push("/dashboard")
+  // }, [isAuthenticated])
+
+  // useEffect(() => {
+  //   if (!loading && !isAuthenticated) signinCallback();
+  // }, [isAuthenticated, loading])
 
   return null;
 };

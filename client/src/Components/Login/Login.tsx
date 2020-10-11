@@ -1,9 +1,9 @@
 import { Grid, Link, Typography } from "@material-ui/core";
-import React, { useContext } from "react";
-import { AuthenticationContext } from "../Authentication/AuthenticationContextProvider";
+import React from "react";
+import { useAuthentication } from "../Authentication/AuthenticationContext";
 
 const Login: React.FC = () => {
-  const { loginWithRedirect } = useContext(AuthenticationContext);
+  const { login } = useAuthentication()
 
   return (
     <Grid container spacing={2}>
@@ -17,7 +17,7 @@ const Login: React.FC = () => {
         <Typography>We are currently integrated with Facebook and Twitter, and will continue adding more networks</Typography>
       </Grid>
       <Grid item xs={12}>
-        <Typography><Link href="#" onClick={loginWithRedirect}>Log in</Link> to get started</Typography>
+        <Typography><Link href="#" onClick={() => login()}>Log in</Link> to get started</Typography>
       </Grid>
     </Grid>
   );
