@@ -1,14 +1,12 @@
-using System.Security.Claims;
 using Auth;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.IdentityModel.Tokens;
 using Persistence.SQL;
+using RuntimeService.Services;
 
 namespace RuntimeService
 {
@@ -19,31 +17,19 @@ namespace RuntimeService
             Configuration = configuration;
         }
 
-        public IConfiguration Configuration { get; }
+        private IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddPersistence();
-            
             services.AddControllers();
-
-            services.AddScoped(s => new User(
-                s.GetService<IHttpContextAccessor>().HttpContext.User
-            ));
+            services.AddHttpContextAccessor();
+            services.AddHttpClient();
             
-            string domain = $"https://{Configuration["Auth0:Domain"]}/";
-            services
-                .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(options =>
-                {
-                    options.Authority = domain;
-                    options.Audience = Configuration["Auth0:Audience"];
-                    options.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        NameClaimType = ClaimTypes.NameIdentifier
-                    };
-                });
+            services.AddPersistence();
+            services.AddAuth(Configuration);
+            
+            services.AddScoped<IProfileService, ProfileService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -58,7 +44,9 @@ namespace RuntimeService
 
             app.UseRouting();
 
-            app.UseAuthorization();
+            app
+                .UseAuthentication()
+                .UseAuthorization();
 
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
         }

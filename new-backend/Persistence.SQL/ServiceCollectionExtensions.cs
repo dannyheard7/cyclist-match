@@ -1,4 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Persistence.Repository;
+using Persistence.SQL.Repository;
 
 namespace Persistence.SQL
 {
@@ -7,7 +9,9 @@ namespace Persistence.SQL
         public static IServiceCollection AddPersistence(this IServiceCollection services)
         {
             return services
-                .AddSingleton<ConnectionFactory>();
+                .AddSingleton<ConnectionFactory>()
+                .AddScoped<IProfileRepository, ProfileRepository>()
+                .AddScoped<IUserRepository, UserRepository>();
         }
     }
 }

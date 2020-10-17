@@ -11,7 +11,7 @@ const useStyles = makeStyles(styles);
 const AppMenu: React.FC = () => {
   const classes = useStyles();
   const theme = useTheme();
-  const { user, logout, login } = useAuthentication();
+  const { user, signout: logout, signin: login } = useAuthentication();
   const anchorEl = useRef(null);
   const [userMenuOpen, setUserMenuOpen] = useState<boolean>(false);
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);

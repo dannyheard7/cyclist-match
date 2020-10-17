@@ -6,9 +6,10 @@ interface AuthenticationContext {
     user: User | null,
     loading: boolean,
     error?: Error,
-    logout: () => void,
+    signout: () => void,
     signinSilent: () => void,
-    login: (url?: string) => void
+    signin: (url?: string) => void,
+    signinCallback: () => void,
 }
 
 export const AuthContext = React.createContext<AuthenticationContext | undefined>(undefined);
@@ -23,6 +24,7 @@ export const AuthenticationContextProvider: React.FC<Props> = ({ children, setti
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<Error | undefined>();
     const [user, setUser] = useState<User | null>(null);
+    console.log(user?.access_token);
 
     const setUserCallback = useCallback((user: User | null) => {
         setUser(user);
@@ -81,6 +83,10 @@ export const AuthenticationContextProvider: React.FC<Props> = ({ children, setti
         await userManagerRef.current.signinSilentCallback();
     }, []);
 
+    const signinCallback = useCallback(async () => {
+        await userManagerRef.current.signinCallback();
+    }, []);
+
     const signinRedirect = useCallback(async (url: string | undefined) => {
         await userManagerRef.current.signinRedirect({ state: { referrer: url } });
     }, []);
@@ -90,9 +96,10 @@ export const AuthenticationContextProvider: React.FC<Props> = ({ children, setti
         user,
         loading,
         error,
-        logout: logoutCallback,
+        signout: logoutCallback,
         signinSilent: signinSilentCallback,
-        login: signinRedirect
+        signin: signinRedirect,
+        signinCallback
     }
     return (
         <AuthContext.Provider value={authentication}>
@@ -109,7 +116,7 @@ export const useAuthentication = () => {
 }
 
 export const SignoutCallback: React.FC = () => {
-    const { logout } = useAuthentication();
+    const { signout: logout } = useAuthentication();
     logout();
 
     return null;

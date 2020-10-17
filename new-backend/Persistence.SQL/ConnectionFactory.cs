@@ -14,6 +14,6 @@ namespace Persistence.SQL
         }
 
         public NpgsqlConnection Create() =>
-            new NpgsqlConnection(_configuration.GetConnectionString("DefaultConnection"));
+            new NpgsqlConnection(_configuration["ConnectionStrings:DefaultConnection"]);
     }
 }

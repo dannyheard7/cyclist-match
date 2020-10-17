@@ -1,9 +1,11 @@
 import { Grid, Link, Typography } from "@material-ui/core";
 import React from "react";
+import { useLocation } from "react-router-dom";
 import { useAuthentication } from "../Authentication/AuthenticationContext";
 
 const Login: React.FC = () => {
-  const { login } = useAuthentication()
+  const { signin } = useAuthentication();
+  const { state } = useLocation<{ referrer: string | undefined }>();
 
   return (
     <Grid container spacing={2}>
@@ -17,7 +19,7 @@ const Login: React.FC = () => {
         <Typography>We are currently integrated with Facebook and Twitter, and will continue adding more networks</Typography>
       </Grid>
       <Grid item xs={12}>
-        <Typography><Link href="#" onClick={() => login()}>Log in</Link> to get started</Typography>
+        <Typography><Link href="#" onClick={() => signin(state.referrer)}>Sign in</Link> to get started</Typography>
       </Grid>
     </Grid>
   );

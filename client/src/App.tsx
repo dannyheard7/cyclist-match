@@ -6,12 +6,11 @@ import styles from "./App.styles";
 import AppBar from "./Components/AppBar/AppBar";
 import { AppContextProvider } from "./Components/AppContext/AppContextProvider";
 import { AuthenticatedRoute } from "./Components/Authentication/AuthenticatedRoute";
-import { AuthenticationContextProvider, SilentRenew, useAuthentication } from "./Components/Authentication/AuthenticationContext";
+import { AuthenticationContextProvider, SilentRenew } from "./Components/Authentication/AuthenticationContext";
 import Dashboard from "./Components/Dashboard/Dashboard";
 import Feedback from "./Components/Feedback/Feedback";
-import Loading from "./Components/Loading/Loading";
 import Login from "./Components/Login/Login";
-import LoginCallback from "./Components/Login/LoginCallback";
+import LoginCallback from "./Components/Login/SigninCallback";
 import PrivacyPolicy from "./Components/PrivacyPolicy/PrivacyPolicy";
 import config from './config';
 
@@ -67,7 +66,7 @@ function App() {
     <AppContextProvider>
       <AuthenticationContextProvider
         settings={{
-          response_type: "code",
+          response_type: "token id_token",
           scope: "openid profile email",
           filterProtocolClaims: true,
           loadUserInfo: true,
@@ -77,6 +76,9 @@ function App() {
           redirect_uri: `${window.location.protocol}//${config.CLIENT_ADDRESS}/oidc-signin`,
           silent_redirect_uri: `${window.location.protocol}//${config.CLIENT_ADDRESS}/oidc-silent-renew`,
           post_logout_redirect_uri: `${window.location.protocol}//${config.CLIENT_ADDRESS}`,
+          extraQueryParams: {
+            "audience": config.AUTH0_API_AUDIENCE
+          }
         }}
       >
         <BrowserRouter>

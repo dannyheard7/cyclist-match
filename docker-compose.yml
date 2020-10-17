@@ -1,13 +1,10 @@
 version: "3.7"
 
 volumes:
-  redis_data: {}
-  redis_conf: {}
   postgres_data: {}
-  pgadmin: {}
 services:
   postgres:
-    image: kartoza/postgis:12.1
+    image: kartoza/postgis:13.0
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
@@ -21,22 +18,10 @@ services:
     build:
       context: ./migrations
       dockerfile: Dockerfile
-    volumes:
-      - ./migrations/sql:/flyway/sql
+    command: migrate
     environment:
       FLYWAY_URL: jdbc:postgresql://postgres:5432/cycling_buddies
       FLYWAY_USER: postgres
       FLYWAY_PASSWORD: postgres
       FLYWAY_BASELINE_ON_MIGRATE: "true"
     depends_on: ["postgres"]
-
-  pgadmin:
-    container_name: pgadmin
-    image: dpage/pgadmin4
-    environment:
-      PGADMIN_DEFAULT_EMAIL: pgadmin@pgadmin.org
-      PGADMIN_DEFAULT_PASSWORD: admin
-    volumes:
-      - pgadmin:/root/.pgadmin
-    ports:
-      - "5050:80"
