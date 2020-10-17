@@ -1,3 +1,4 @@
+using System;
 using Auth;
 
 using Microsoft.AspNetCore.Builder;
@@ -12,16 +13,33 @@ namespace RuntimeService
 {
     public class Startup
     {
+        readonly string AllowSpecificOriginsCors = "_AllowSpecificOrigins";
+        private readonly string CORSOriginsVariable = "CORS_ORIGINS";
+        
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
         }
 
         private IConfiguration Configuration { get; }
-
-        // This method gets called by the runtime. Use this method to add services to the container.
+        
         public void ConfigureServices(IServiceCollection services)
         {
+            if(String.IsNullOrEmpty(Configuration[CORSOriginsVariable]))
+                throw new ArgumentNullException(CORSOriginsVariable);
+            
+            services.AddCors(options =>
+            {
+                options.AddPolicy(name: AllowSpecificOriginsCors,
+                    builder =>
+                    {
+                        builder
+                            .WithOrigins(Configuration[CORSOriginsVariable].Split(";"))
+                            .AllowAnyHeader()
+                            .AllowAnyMethod();
+                    });
+            });
+            
             services.AddControllers();
             services.AddHttpContextAccessor();
             services.AddHttpClient();
@@ -39,9 +57,12 @@ namespace RuntimeService
             {
                 app.UseDeveloperExceptionPage();
             }
+            else
+            {
+                app.UseHttpsRedirection();
+            }
 
-            app.UseHttpsRedirection();
-
+            app.UseCors(AllowSpecificOriginsCors);
             app.UseRouting();
 
             app

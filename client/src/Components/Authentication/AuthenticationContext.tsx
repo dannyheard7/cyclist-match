@@ -24,7 +24,6 @@ export const AuthenticationContextProvider: React.FC<Props> = ({ children, setti
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<Error | undefined>();
     const [user, setUser] = useState<User | null>(null);
-    console.log(user?.access_token);
 
     const setUserCallback = useCallback((user: User | null) => {
         setUser(user);
@@ -76,7 +75,10 @@ export const AuthenticationContextProvider: React.FC<Props> = ({ children, setti
         sessionStorage.clear();
         await userManagerRef.current.removeUser();
         removeUserCallback();
-        await userManagerRef.current.signoutRedirect();
+
+        try {
+            await userManagerRef.current.signoutRedirect();
+        } catch { }
     }, [removeUserCallback])
 
     const signinSilentCallback = useCallback(async () => {
