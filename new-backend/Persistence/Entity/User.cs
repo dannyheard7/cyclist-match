@@ -1,7 +1,10 @@
-﻿namespace Persistence
+﻿using System;
+
+namespace Persistence
 {
     public interface IUser
     {
+        public Guid? Id { get; }
         public string ExternalId { get; }
         
         public string GivenName { get; }

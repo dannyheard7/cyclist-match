@@ -1,8 +1,10 @@
 import CyclingType from "../Enums/CyclingType";
 
 export interface Profile {
-    name: string
+    givenName: string,
+    familyName: string,
     placeName: string
-    preferredCyclingTypes: [CyclingType]
+    preferredCyclingTypes: CyclingType[]
+    picture?: string,
     createdAt: Date
 }

@@ -4,4 +4,10 @@ enum CyclingType {
     CYCLO_CROSS = "CYCLO_CROSS"
 }
 
+export const CyclingTypeName = {
+    [CyclingType.ROAD_BIKE]: "Road",
+    [CyclingType.MOUNTAIN_BIKE]: "Mountain",
+    [CyclingType.CYCLO_CROSS]: "Cylo-Cross"
+}
+
 export default CyclingType;

@@ -35,7 +35,7 @@ const AppMenu: React.FC = () => {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" className={classes.title}>
-            Elevait
+            BuddyUp!
           </Typography>
           <Drawer
             className={classes.drawer}

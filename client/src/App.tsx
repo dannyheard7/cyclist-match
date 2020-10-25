@@ -9,10 +9,11 @@ import { AuthenticatedRoute } from "./Components/Authentication/AuthenticatedRou
 import { AuthenticationContextProvider, SilentRenew } from "./Components/Authentication/AuthenticationContext";
 import Dashboard from "./Components/Dashboard/Dashboard";
 import Feedback from "./Components/Feedback/Feedback";
-import Login from "./Components/Login/Login";
-import LoginCallback from "./Components/Login/SigninCallback";
+import Login from "./Pages/Login/Login";
+import LoginCallback from "./Pages/Login/SigninCallback";
 import PrivacyPolicy from "./Components/PrivacyPolicy/PrivacyPolicy";
 import config from './config';
+import CreateProfile from "./Pages/CreateProfile/CreateProfile";
 
 const useStyles = makeStyles(styles);
 
@@ -28,6 +29,9 @@ const Routes: React.FC = () => {
       <Route exact path="/oidc-silent-renew">
         <SilentRenew />
       </Route>
+      <AuthenticatedRoute exact path="/profile/create">
+        <CreateProfile />
+      </AuthenticatedRoute>
       {/* <AuthenticatedRoute exact path="/profile/:id">
         <Profile />
       </AuthenticatedRoute> */}

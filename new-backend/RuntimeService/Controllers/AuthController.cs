@@ -10,6 +10,7 @@ namespace RuntimeService.Controllers
 {
     [ApiController]
     [Route("auth")]
+    [Authorize]
     public class AuthController : ControllerBase
     {
         private readonly ICurrentUserService _currentUserService;
@@ -22,7 +23,6 @@ namespace RuntimeService.Controllers
         }
 
         [HttpPost("login")]
-        [Authorize]
         public async Task<ActionResult> Login()
         {
             var user = await _currentUserService.GetUser();
@@ -32,6 +32,14 @@ namespace RuntimeService.Controllers
 
             var hasProfile = await _userRepository.ExternalUserHasProfile(user.ExternalId);
             return Ok(new LoginResponse(hasProfile));
+        }
+        
+        [HttpGet("user")]
+        public async Task<ActionResult> GetUserDetails()
+        {
+            var userId = await _currentUserService.GetExternalUserId();
+            var user = await _userRepository.GetUserDetails(userId);
+            return Ok(user);
         }
 
         private class LoginResponse

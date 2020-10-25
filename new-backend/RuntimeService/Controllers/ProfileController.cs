@@ -9,6 +9,7 @@ namespace RuntimeService.Controllers
 {
     [ApiController]
     [Route("profiles")]
+    [Authorize]
     public class ProfileController : ControllerBase
     {
         private readonly IProfileService _profileService;
@@ -19,7 +20,6 @@ namespace RuntimeService.Controllers
         }
 
         [HttpGet("{userId}")]
-        [Authorize]
         public async Task<IActionResult> Get(Guid userId)
         {
             var profile = await _profileService.Get(userId);

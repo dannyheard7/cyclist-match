@@ -1,7 +1,7 @@
 import { Grid, Link, Typography } from "@material-ui/core";
 import React from "react";
 import { useLocation } from "react-router-dom";
-import { useAuthentication } from "../Authentication/AuthenticationContext";
+import { useAuthentication } from "../../Components/Authentication/AuthenticationContext";
 
 const Login: React.FC = () => {
   const { signin } = useAuthentication();

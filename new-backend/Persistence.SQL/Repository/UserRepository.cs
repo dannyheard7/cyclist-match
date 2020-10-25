@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Dapper;
 using Persistence.Entity;
 using Persistence.Repository;
+using Persistence.SQL.Objects;
 
 namespace Persistence.SQL.Repository
 {
@@ -23,6 +24,18 @@ namespace Persistence.SQL.Repository
                 new
                 {
                     ExternalUserId = externalUserId
+                }
+            );
+        }
+        
+        public async Task<IUser> GetUserDetails(string externalUserId)
+        {
+            await using var connection = _connectionFactory.Create();
+            return await connection.QueryFirstAsync<DBUser>(
+                @"SELECT * FROM ""user"" WHERE external_id=@ExternalUserId",
+                new
+                {
+                    ExternalUserId=externalUserId
                 }
             );
         }

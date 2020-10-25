@@ -11,6 +11,7 @@ namespace Persistence.SQL
         public ConnectionFactory(IConfiguration configuration)
         {
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+            Dapper.DefaultTypeMap.MatchNamesWithUnderscores = true;
         }
 
         public NpgsqlConnection Create() =>

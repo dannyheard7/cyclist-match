@@ -1,10 +1,13 @@
-﻿using System.Text.Json.Serialization;
+﻿using System;
+using System.Text.Json.Serialization;
 using Persistence;
 
 namespace Auth
 {
     public class Auth0User : IUser
     {
+        public Guid? Id => null;
+        
         [JsonPropertyName("sub")]
         [JsonInclude]
         public string ExternalId { get; private set; }

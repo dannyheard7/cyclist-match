@@ -1,15 +1,15 @@
-import ky from "ky";
 import React, { useEffect } from "react";
-import { QueryStatus, useMutation } from "react-query";
+import { useMutation } from "react-query";
 import { useHistory } from "react-router-dom";
-import { useApi } from "../../Hooks/Api";
-import { useAuthentication } from "../Authentication/AuthenticationContext";
-import Loading from "../Loading/Loading";
+import { useAuthentication } from "../../Components/Authentication/AuthenticationContext";
+import ErrorMessage from "../../Components/ErrorMessage/ErrorMessage";
+import Loading from "../../Components/Loading/Loading";
+import { useApi } from "../../Hooks/useApi";
 
 const LoginCallback: React.FC = () => {
   const { loading, signinCallback, isAuthenticated } = useAuthentication();
   const api = useApi();
-  const [mutate, { status, data, error }] = useMutation(() => api.post("http://localhost:5000/auth/login").json<{ hasProfile: boolean }>())
+  const [mutate, { isLoading, data, isError }] = useMutation(() => api.post("auth/login").json<{ hasProfile: boolean }>())
 
   const { push } = useHistory();
 
@@ -19,20 +19,17 @@ const LoginCallback: React.FC = () => {
 
   useEffect(() => {
     if (isAuthenticated) mutate()
-  }, [isAuthenticated])
-
+  }, [isAuthenticated, mutate])
 
   useEffect(() => {
     if (data) {
       if (data.hasProfile) push("/dashboard");
       else push("profile/create");
     }
-  }, [data]);
+  }, [data, push]);
 
-  if (loading || status === QueryStatus.Loading) return <Loading />;
-  else if (status == QueryStatus.Error) return <p>Sorry, an error occured</p>;
-
-
+  if (loading || isLoading) return <Loading />;
+  else if (isError) return <ErrorMessage />;
 
   return null;
 };
