@@ -27,10 +27,22 @@ namespace Persistence.SQL.Repository
             );
         }
 
-        public async Task<IUser> GetUserDetails(string externalUserId)
+        public async Task<bool> ExternalUserExists(string externalUserId)
         {
             await using var connection = _connectionFactory.Create();
-            return await connection.QueryFirstAsync<DBUser>(
+            return await connection.QueryFirstOrDefaultAsync<bool>(
+                @"SELECT EXISTS(SELECT 1 FROM ""user"" u WHERE u.external_id=@ExternalUserId)",
+                new
+                {
+                    ExternalUserId = externalUserId
+                }
+            );
+        }
+
+        public async Task<IUser?> GetUserDetails(string externalUserId)
+        {
+            await using var connection = _connectionFactory.Create();
+            return await connection.QueryFirstOrDefaultAsync<DBUser>(
                 @"SELECT * FROM ""user"" WHERE external_id=@ExternalUserId",
                 new
                 {

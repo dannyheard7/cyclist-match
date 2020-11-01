@@ -13,19 +13,21 @@ namespace RuntimeService.Controllers
     [Authorize]
     public class AuthController : ControllerBase
     {
+        private readonly IExternalUserService _externalUserService;
         private readonly ICurrentUserService _currentUserService;
         private readonly IUserRepository _userRepository;
         
-        public AuthController(ICurrentUserService currentUserService, IUserRepository userRepository)
+        public AuthController(IExternalUserService externalUserService, IUserRepository userRepository, ICurrentUserService currentUserService)
         {
-            _currentUserService = currentUserService ?? throw new ArgumentNullException(nameof(currentUserService));
+            _externalUserService = externalUserService ?? throw new ArgumentNullException(nameof(externalUserService));
             _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+            _currentUserService = currentUserService ?? throw new ArgumentNullException(nameof(currentUserService));
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult> Login()
+        public async Task<ActionResult> Login([FromHeader]string authorization)
         {
-            var user = await _currentUserService.GetUser();
+            var user = await _externalUserService.GetUser(User, authorization);
             var updateResult = await _userRepository.UpdateUserDetails(user);
 
             if (!updateResult) return StatusCode(StatusCodes.Status500InternalServerError);
@@ -37,9 +39,7 @@ namespace RuntimeService.Controllers
         [HttpGet("user")]
         public async Task<ActionResult> GetUserDetails()
         {
-            var userId = await _currentUserService.GetExternalUserId();
-            var user = await _userRepository.GetUserDetails(userId);
-            return Ok(user);
+            return Ok(await _currentUserService.GetUser());
         }
 
         private class LoginResponse

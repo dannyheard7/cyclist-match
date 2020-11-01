@@ -46,8 +46,11 @@ namespace RuntimeService
             
             services.AddPersistence();
             services.AddAuth(Configuration);
-            
-            services.AddScoped<IProfileService, ProfileService>();
+
+            services
+                .AddScoped<IProfileService, ProfileService>()
+                .AddScoped<ICurrentUserService, CurrentUserService>()
+                .AddScoped<IProfileMatchService, ProfileMatchService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

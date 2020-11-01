@@ -22,7 +22,7 @@ namespace Auth
                     options.Audience = settings.Audience;
                 });
             return services
-                .AddScoped<ICurrentUserService, CurrentUserService>();
+                .AddScoped<IExternalUserService, Auth0UserService>();
         }
     }
 }

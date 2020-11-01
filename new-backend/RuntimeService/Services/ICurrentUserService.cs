@@ -6,7 +6,6 @@ namespace Auth
 {
     public interface ICurrentUserService
     {
-        public Task<ClaimsPrincipal> GetClaimsPrincipal();
         Task<string> GetExternalUserId();
         public Task<IUser> GetUser();
     }
