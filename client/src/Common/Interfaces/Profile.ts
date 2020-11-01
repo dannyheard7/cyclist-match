@@ -1,7 +1,7 @@
 import CyclingType from "../Enums/CyclingType";
 
 export interface Profile {
-    givenName: string,
+    givenNames: string,
     familyName: string,
     placeName: string
     preferredCyclingTypes: CyclingType[]

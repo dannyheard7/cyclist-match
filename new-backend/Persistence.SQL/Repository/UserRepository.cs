@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Dapper;
-using Persistence.Entity;
 using Persistence.Repository;
 using Persistence.SQL.Objects;
 
@@ -10,12 +9,12 @@ namespace Persistence.SQL.Repository
     internal class UserRepository : IUserRepository
     {
         private readonly ConnectionFactory _connectionFactory;
-        
+
         public UserRepository(ConnectionFactory connectionFactory)
         {
             _connectionFactory = connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
         }
-        
+
         public async Task<bool> ExternalUserHasProfile(string externalUserId)
         {
             await using var connection = _connectionFactory.Create();
@@ -27,7 +26,7 @@ namespace Persistence.SQL.Repository
                 }
             );
         }
-        
+
         public async Task<IUser> GetUserDetails(string externalUserId)
         {
             await using var connection = _connectionFactory.Create();
@@ -35,7 +34,7 @@ namespace Persistence.SQL.Repository
                 @"SELECT * FROM ""user"" WHERE external_id=@ExternalUserId",
                 new
                 {
-                    ExternalUserId=externalUserId
+                    ExternalUserId = externalUserId
                 }
             );
         }
@@ -44,18 +43,18 @@ namespace Persistence.SQL.Repository
         {
             await using var connection = _connectionFactory.Create();
             var result = await connection.ExecuteAsync(
-                @"INSERT INTO ""user"" (external_id, given_name, family_name, email, picture)
-                    VALUES(@ExternalId, @GivenName, @FamilyName, @Email, @Picture) 
+                @"INSERT INTO ""user"" (external_id, given_names, family_name, email, picture)
+                    VALUES(@ExternalId, @GivenNames, @FamilyName, @Email, @Picture) 
                     ON CONFLICT (external_id) 
                     DO 
-                    UPDATE SET given_name = @GivenName,
+                    UPDATE SET given_names = @GivenNames,
                     family_name=@FamilyName,
                     email=@Email,
                     picture=@Picture",
                 new
                 {
                     user.ExternalId,
-                    user.GivenName,
+                    user.GivenNames,
                     user.FamilyName,
                     user.Email,
                     user.Picture

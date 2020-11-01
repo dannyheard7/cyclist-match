@@ -1,9 +1,10 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using RuntimeService.Services;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
-using System;
-using Auth;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Persistence.Entity;
+using RuntimeService.Services;
 
 namespace RuntimeService.Controllers
 {
@@ -26,6 +27,28 @@ namespace RuntimeService.Controllers
 
             if (profile == null) return NotFound();
             return Ok(profile);
+        }
+        
+        [HttpPut("{userId}")]
+        public async Task<IActionResult> PutProfile(Guid userId, [FromBody] ProfileObject input)
+        {
+            var profile = new Profile(userId, input.DisplayName, input.LocationName, input.Location, input.CyclingTypes,
+                input.Availability, input.MinDistance, input.MaxDistance, input.Speed);
+
+            var updatedProfile = await _profileService.UpsertProfile(profile);
+            return Ok(updatedProfile);
+        }
+
+        public class ProfileObject
+        {
+            public string DisplayName { get; set; }
+            public string LocationName { get; set; }
+            public int MinDistance { get; set; }
+            public int MaxDistance { get; set; }
+            public int Speed { get; set;  }
+            public Location Location { get; set; }
+            public ICollection<AvailabilityItem> Availability { get; set; }
+            public ICollection<CyclingType> CyclingTypes { get; set; }
         }
     }
 }

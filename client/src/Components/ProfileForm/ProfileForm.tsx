@@ -5,8 +5,8 @@ import { MyLocation as GetLocationIcon } from "@material-ui/icons";
 import React, { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import * as zod from 'zod';
-import Availability, { AvailabilityName } from "../../Common/Enums/Availability";
-import CyclingType, { CyclingTypeName } from "../../Common/Enums/CyclingType";
+import Availability from "../../Common/Enums/Availability";
+import CyclingType from "../../Common/Enums/CyclingType";
 import { useApi } from "../../Hooks/useApi";
 import usePosition from "../../Hooks/usePosition";
 
@@ -18,12 +18,11 @@ const useStyles = makeStyles((theme: Theme) => ({
 }))
 
 const schema = zod.object({
-    givenName: zod.string().nonempty('Required'),
-    familyName: zod.string().nonempty('Required'),
+    displayName: zod.string().nonempty('Required'),
     locationName: zod.string().nonempty('Required'),
     cyclingTypes: zod.array(
         zod.object({
-            key: zod.string().refine(key => Object.keys(CyclingTypeName).includes(key)),
+            key: zod.string(),
             name: zod.string().nonempty(),
             selected: zod.boolean()
         })
@@ -32,7 +31,7 @@ const schema = zod.object({
     }),
     availability: zod.array(
         zod.object({
-            key: zod.string().refine(key => Object.keys(AvailabilityName).includes(key)),
+            key: zod.string(),
             name: zod.string().nonempty(),
             selected: zod.boolean()
         })
@@ -51,42 +50,46 @@ type SchemaType = zod.infer<typeof schema>;
 
 interface Props {
     defaultValues?: {
-        givenName: string,
-        familyName: string,
+        displayName: string,
         locationName?: string
-        cyclingTypes?: Array<keyof typeof CyclingType>,
-        availability?: Array<keyof typeof Availability>,
+        cyclingTypes?: Array<CyclingType>,
+        availability?: Array<Availability>,
         minDistance?: number,
         maxDistance?: number,
         speed?: number,
         picture?: string
     },
     onSubmit: (values: {
-        givenName: string,
-        familyName: string,
+        displayName: string,
         locationName: string,
-        location: Coordinates,
-        cyclingTypes: Array<keyof typeof CyclingType>,
-        availability: Array<keyof typeof Availability>,
+        location: {
+            latitude: number,
+            longitude: number
+        },
+        cyclingTypes: Array<CyclingType>,
+        availability: Array<Availability>,
         minDistance: number,
         maxDistance: number,
         speed: number,
         picture?: string
-    }) => void
+    }) => void,
+    disabled?: boolean
 }
 
 
-const ProfileForm: React.FC<Props> = ({ defaultValues, onSubmit: onSubmitCallback }) => {
+const ProfileForm: React.FC<Props> = ({ defaultValues, onSubmit: onSubmitCallback, disabled }) => {
     const classes = useStyles();
+
     const resolver = zodResolver(schema);
     const { handleSubmit, register, setValue, control, errors, setError } = useForm({
         defaultValues: {
             ...defaultValues,
-            cyclingTypes: Object.values(CyclingType).map((key) => ({ key, name: CyclingTypeName[key], selected: false })),
-            availability: Object.values(Availability).map((key) => ({ key, name: AvailabilityName[key], selected: false }))
+            cyclingTypes: Object.entries(CyclingType).map(([key, value]) => ({ key, name: value, selected: false })),
+            availability: Object.entries(Availability).map(([key, value]) => ({ key, name: value, selected: false }))
         },
         resolver
     });
+
     const [getPosition, { position, error: positionError }] = usePosition();
     const api = useApi();
 
@@ -105,23 +108,23 @@ const ProfileForm: React.FC<Props> = ({ defaultValues, onSubmit: onSubmitCallbac
     }, [positionError, setError]);
 
     const onSubmit = (data: SchemaType) => {
+        console.log("here");
         const { availability, cyclingTypes, ...rest } = data;
 
-        const mappedAvailability = availability.reduce<Array<keyof typeof Availability>>((arr, entry) => {
-            if (!entry.selected) return arr;
-            return [...arr, entry.key as Availability];
-        }, []);
+        const mappedAvailability = availability.filter(type => type.selected).map(type => Availability[type.key as keyof typeof Availability]);
+        const mappedCyclingTypes = cyclingTypes.filter(type => type.selected).map(type => CyclingType[type.key as keyof typeof CyclingType]);
 
-        const mappedCyclingTypes = cyclingTypes.reduce<Array<keyof typeof CyclingType>>((arr, entry) => {
-            if (!entry.selected) return arr;
-            return [...arr, entry.key as CyclingType];
-        }, []);
+        console.log(mappedAvailability);
+        console.log(mappedCyclingTypes);
 
         onSubmitCallback({
             ...rest,
             availability: mappedAvailability,
             cyclingTypes: mappedCyclingTypes,
-            location: position!
+            location: {
+                latitude: position!.latitude,
+                longitude: position!.longitude
+            }
         })
     };
 
@@ -131,23 +134,15 @@ const ProfileForm: React.FC<Props> = ({ defaultValues, onSubmit: onSubmitCallbac
                 <Grid container item xs={12} justify="center">
                     <Avatar alt="Profile picture" src={defaultValues?.picture} className={classes.avatar} />
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid item xs={12}>
                     <TextField
-                        name="givenName"
-                        label="Given Names"
+                        name="displayName"
+                        label="Display Name (Public)"
                         inputRef={register()}
                         fullWidth
+                        disabled={disabled}
                     />
-                    <ErrorMessage name="givenName" errors={errors} />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                    <TextField
-                        name="familyName"
-                        label="Family Name"
-                        inputRef={register()}
-                        fullWidth
-                    />
-                    <ErrorMessage name="familyName" errors={errors} />
+                    <ErrorMessage name="displayName" errors={errors} />
                 </Grid>
                 <Grid item xs={12}>
                     <Controller
@@ -161,7 +156,7 @@ const ProfileForm: React.FC<Props> = ({ defaultValues, onSubmit: onSubmitCallbac
                                 InputProps={{
                                     endAdornment: (
                                         <InputAdornment position="start">
-                                            <IconButton onClick={() => getPosition()}>
+                                            <IconButton onClick={() => getPosition()} disabled={disabled}>
                                                 <GetLocationIcon />
                                             </IconButton>
                                         </InputAdornment>),
@@ -176,7 +171,7 @@ const ProfileForm: React.FC<Props> = ({ defaultValues, onSubmit: onSubmitCallbac
                 <Grid item xs={12}>
                     <Grid container item xs={12} justify="flex-start">
                         {
-                            Object.entries(CyclingTypeName).map(([key, name], index) => (
+                            Object.entries(CyclingType).map(([key, name], index) => (
                                 <FormControlLabel
                                     key={key}
                                     control={
@@ -186,6 +181,7 @@ const ProfileForm: React.FC<Props> = ({ defaultValues, onSubmit: onSubmitCallbac
                                                     color="primary"
                                                     onChange={(e) => props.onChange({ ...props.value, selected: e.target.checked })}
                                                     checked={props.value.selected || false}
+                                                    disabled={disabled}
                                                 />
                                             )}
                                             control={control}
@@ -205,7 +201,7 @@ const ProfileForm: React.FC<Props> = ({ defaultValues, onSubmit: onSubmitCallbac
                 <Grid item xs={12}>
                     <Grid container item xs={12} justify="flex-start">
                         {
-                            Object.entries(AvailabilityName).map(([key, name], index) => (
+                            Object.entries(Availability).map(([key, name], index) => (
                                 <FormControlLabel
                                     key={key}
                                     control={
@@ -215,6 +211,7 @@ const ProfileForm: React.FC<Props> = ({ defaultValues, onSubmit: onSubmitCallbac
                                                     color="primary"
                                                     onChange={(e) => props.onChange({ ...props.value, selected: e.target.checked })}
                                                     checked={props.value.selected || false}
+                                                    disabled={disabled}
                                                 />
                                             )}
                                             control={control}
@@ -242,6 +239,7 @@ const ProfileForm: React.FC<Props> = ({ defaultValues, onSubmit: onSubmitCallbac
                                 error={errors.minDistance !== undefined}
                                 label="Minumum Distance (Km)"
                                 type="number"
+                                disabled={disabled}
                                 fullWidth />
                         )}
                         defaultValue={5}
@@ -259,6 +257,7 @@ const ProfileForm: React.FC<Props> = ({ defaultValues, onSubmit: onSubmitCallbac
                                 error={errors.minDistance !== undefined}
                                 label="Maximum Distance (Km)"
                                 type="number"
+                                disabled={disabled}
                                 fullWidth />
                         )}
                         defaultValue={20}
@@ -276,6 +275,7 @@ const ProfileForm: React.FC<Props> = ({ defaultValues, onSubmit: onSubmitCallbac
                                 error={errors.speed !== undefined}
                                 label="Preferred Speed (Km/H)"
                                 type="number"
+                                disabled={disabled}
                                 fullWidth />
                         )}
                         defaultValue={12}
@@ -283,7 +283,7 @@ const ProfileForm: React.FC<Props> = ({ defaultValues, onSubmit: onSubmitCallbac
                     <ErrorMessage name="speed" errors={errors} />
                 </Grid>
                 <Grid container item justify="flex-end">
-                    <Button type="submit" color="primary" variant="contained">Save</Button>
+                    <Button type="submit" color="primary" variant="contained" disabled={disabled}>Save</Button>
                 </Grid>
             </Grid>
         </form>

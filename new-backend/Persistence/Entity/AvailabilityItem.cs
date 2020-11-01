@@ -3,13 +3,10 @@
 namespace Persistence.Entity
 {
     [JsonConverter(typeof(JsonStringEnumConverter))]
-    public enum CyclingType
+    public enum AvailabilityItem
     {
-        Road,
-        Mountain,
-        Touring,
-        CyloCross,
-        BMX,
-        Track
+        Weekday,
+        Evening,
+        Weekend
     }
 }

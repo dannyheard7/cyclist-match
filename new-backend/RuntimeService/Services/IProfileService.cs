@@ -7,5 +7,6 @@ namespace RuntimeService.Services
     public interface IProfileService
     {
         public Task<Profile?> Get(Guid userId);
+        public Task<Profile> UpsertProfile(Profile profile);
     }
 }
