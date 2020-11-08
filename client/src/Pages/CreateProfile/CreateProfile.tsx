@@ -29,7 +29,7 @@ const CreateProfile: React.FC = () => {
     const api = useApi();
     const { data, status } = useQuery('fetchUser', () => api.get("auth/user").json<User>());
 
-    const [mutate, { data: mutationData, status: mutationStatus }] = useMutation((input: CreateProfileVariables) =>
+    const [mutate, { status: mutationStatus }] = useMutation((input: CreateProfileVariables) =>
         api
             .put(`profiles/${data!.id}`, { json: input })
             .json<{ hasProfile: boolean }>()

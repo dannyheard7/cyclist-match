@@ -2,8 +2,7 @@ import { Theme } from "@material-ui/core/styles";
 
 
 const drawerWidth = 240;
-
-export default (theme: Theme) => ({
+const theme = (theme: Theme) => ({
   root: {
     flexGrow: 1
   },
@@ -45,3 +44,4 @@ export default (theme: Theme) => ({
     justifyContent: 'flex-end',
   }
 });
+export default theme;

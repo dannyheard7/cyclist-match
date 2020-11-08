@@ -41,6 +41,7 @@ const GoogleAnalytics: React.FC = () => {
                 location.search
             );
         }
+        // eslint-disable-next-line 
     }, [location, previous])
 
     return null;

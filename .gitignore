@@ -392,3 +392,5 @@ dist
 
 backend/files/
 client/public/config.js
+
+client/build

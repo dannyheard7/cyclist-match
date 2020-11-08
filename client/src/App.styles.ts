@@ -1,6 +1,6 @@
 import { Theme } from "@material-ui/core/styles";
 
-export default (theme: Theme) => ({
+const styles = (theme: Theme) => ({
   toolbar: theme.mixins.toolbar,
   main: {
     maxWidth: theme.breakpoints.width('md'),
@@ -10,3 +10,4 @@ export default (theme: Theme) => ({
     },
   }
 });
+export default styles;

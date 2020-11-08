@@ -4,14 +4,13 @@ import { Button, FormGroup, Grid, TextField, Typography } from '@material-ui/cor
 import React, { useContext, useRef } from 'react';
 import ReCAPTCHA from "react-google-recaptcha";
 import { useForm } from 'react-hook-form';
-import { useHistory } from 'react-router-dom';
 import { AppContext } from '../AppContext/AppContextProvider';
 import { useAuthentication } from '../Authentication/AuthenticationContext';
 
 const Feedback: React.FC = () => {
      const { recaptchaSiteKey } = useContext(AppContext);
-     const { goBack } = useHistory();
-     const { register, handleSubmit, errors, getValues } = useForm();
+     // const { goBack } = useHistory();
+     const { register, handleSubmit, errors } = useForm();
      const recaptchaRef = useRef<ReCAPTCHA>(null);
      const { isAuthenticated } = useAuthentication();
 
@@ -22,7 +21,7 @@ const Feedback: React.FC = () => {
      const onSubmit = (values: Record<string, any>) => recaptchaRef.current!.execute();
 
      const onCaptchaVerify = () => {
-          const { email, message } = getValues();
+          // const { email, message } = getValues();
 
           // sendFeedback({
           //      variables: {
