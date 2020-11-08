@@ -108,14 +108,10 @@ const ProfileForm: React.FC<Props> = ({ defaultValues, onSubmit: onSubmitCallbac
     }, [positionError, setError]);
 
     const onSubmit = (data: SchemaType) => {
-        console.log("here");
         const { availability, cyclingTypes, ...rest } = data;
 
         const mappedAvailability = availability.filter(type => type.selected).map(type => Availability[type.key as keyof typeof Availability]);
         const mappedCyclingTypes = cyclingTypes.filter(type => type.selected).map(type => CyclingType[type.key as keyof typeof CyclingType]);
-
-        console.log(mappedAvailability);
-        console.log(mappedCyclingTypes);
 
         onSubmitCallback({
             ...rest,

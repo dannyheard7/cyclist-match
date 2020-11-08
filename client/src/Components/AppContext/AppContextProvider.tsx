@@ -3,7 +3,6 @@ import config from '../../config';
 
 interface IAppContext {
   apiHost: string;
-  clientHost: string;
   recaptchaSiteKey: string;
 }
 
@@ -16,7 +15,6 @@ export const AppContextProvider: React.FC = ({
     <AppContext.Provider
       value={{
         apiHost: config.API_HOST,
-        clientHost: `${window.location.protocol}//${config.CLIENT_HOST}`,
         recaptchaSiteKey: config.RECAPTCHA_SITE_KEY
       }}
     >
