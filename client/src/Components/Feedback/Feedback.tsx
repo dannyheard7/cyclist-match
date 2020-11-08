@@ -1,14 +1,14 @@
 
 import { ErrorMessage } from '@hookform/error-message';
 import { Button, FormGroup, Grid, TextField, Typography } from '@material-ui/core';
-import React, { useContext, useRef } from 'react';
+import React, { useRef } from 'react';
 import ReCAPTCHA from "react-google-recaptcha";
 import { useForm } from 'react-hook-form';
-import { AppContext } from '../AppContext/AppContextProvider';
+import { useAppContext } from '../AppContext/AppContextProvider';
 import { useAuthentication } from '../Authentication/AuthenticationContext';
 
 const Feedback: React.FC = () => {
-     const { recaptchaSiteKey } = useContext(AppContext);
+     const { recaptchaSiteKey } = useAppContext();
      // const { goBack } = useHistory();
      const { register, handleSubmit, errors } = useForm();
      const recaptchaRef = useRef<ReCAPTCHA>(null);

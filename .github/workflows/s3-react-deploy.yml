@@ -5,9 +5,20 @@ on:
     branches:
       - master
 
+env:
+  REACT_APP_AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
+  REACT_APP_AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
+  REACT_APP_AUTH0_API_AUDIENCE: ${{ secrets._AUTH0_API_AUDIENCE }}
+  REACT_APP_CLIENT_HOST: ${{ secrets.CLIENT_HOST }}
+  REACT_APP_API_HOST: ${{ secrets.API_HOST }}
+  REACT_APP_GA_TRACKING_ID: ${{ secrets.GA_TRACKING_ID }}
+  REACT_APP_RECAPTCHA_SITE_KEY: ${{ secrets.RECAPTCHA_SITE_KEY }}
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      working-directory: ./client
     steps:
       - uses: actions/checkout@v2
       - name: Configure AWS Credentials
@@ -16,7 +27,9 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
+      - name: Install Dependencies
+        run: npm ci
       - name: Build React App
-        run: cd client && npm install && npm run build
+        run: npm run build
       - name: Deploy app build to S3 bucket
-        run: aws s3 sync ./client/build/ s3://cycling-buddy-react-app --delete
+        run: aws s3 sync ./build/ s3://cycling-buddy-react-app --delete

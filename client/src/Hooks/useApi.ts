@@ -1,13 +1,15 @@
 import ky from "ky";
 import { useMemo } from "react";
+import { useAppContext } from "../Components/AppContext/AppContextProvider";
 import { useAuthentication } from "../Components/Authentication/AuthenticationContext"
 
 export const useApi = () => {
+    const { apiHost } = useAppContext();
     const { user } = useAuthentication();
 
     const api = useMemo(() => {
         return ky.extend({
-            prefixUrl: "http://localhost:5000/",
+            prefixUrl: apiHost,
             hooks: {
                 beforeRequest: [
                     request => {
@@ -18,7 +20,7 @@ export const useApi = () => {
                 ]
             }
         })
-    }, [user]);
+    }, [user, apiHost]);
 
     return api;
 }

@@ -77,9 +77,9 @@ function App() {
           automaticSilentRenew: true,
           authority: config.AUTH0_DOMAIN,
           client_id: config.AUTH0_CLIENT_ID,
-          redirect_uri: `${window.location.protocol}//${config.CLIENT_ADDRESS}/oidc-signin`,
-          silent_redirect_uri: `${window.location.protocol}//${config.CLIENT_ADDRESS}/oidc-silent-renew`,
-          post_logout_redirect_uri: `${window.location.protocol}//${config.CLIENT_ADDRESS}`,
+          redirect_uri: `${window.location.protocol}//${config.CLIENT_HOST}/oidc-signin`,
+          silent_redirect_uri: `${window.location.protocol}//${config.CLIENT_HOST}/oidc-silent-renew`,
+          post_logout_redirect_uri: `${window.location.protocol}//${config.CLIENT_HOST}`,
           extraQueryParams: {
             "audience": config.AUTH0_API_AUDIENCE
           }
