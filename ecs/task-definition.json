@@ -16,15 +16,7 @@
                 }
             ],
             "memory": 500,
-            "essential": true,
-            "logConfiguration": {
-                "logDriver": "awslogs",
-                "options": {
-                    "awslogs-group": "/ecs/cycling-buddies",
-                    "awslogs-region": "eu-west-1",
-                    "awslogs-stream-prefix": "ecs"
-                }
-            }
+            "essential": true
         }
     ],
     "volumes": [],
