@@ -18,7 +18,7 @@
             "environment": [
                 {
                     "name": "CORS_ORIGINS",
-                    "value": "http://localhost:3000"
+                    "value": "http://dg8sodd9vm96c.cloudfront.net"
                 }
             ],
             "memory": 500,
