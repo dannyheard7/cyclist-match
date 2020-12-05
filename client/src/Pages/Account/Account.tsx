@@ -1,6 +1,6 @@
 import { Button, Divider, Grid, Typography, useTheme } from "@material-ui/core";
 import React, { useEffect } from "react";
-import { QueryStatus, useMutation } from "react-query";
+import { useMutation } from "react-query";
 import { useAuthentication } from "../../Components/Authentication/AuthenticationContext";
 import ErrorMessage from "../../Components/ErrorMessage/ErrorMessage";
 import Loading from "../../Components/Loading/Loading";

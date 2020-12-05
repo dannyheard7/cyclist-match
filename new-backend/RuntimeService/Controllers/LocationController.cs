@@ -5,10 +5,9 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using System.Web;
-using Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 
 namespace RuntimeService.Controllers
 {
@@ -18,10 +17,12 @@ namespace RuntimeService.Controllers
     public class LocationController : ControllerBase
     {
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IConfiguration _configuration;
         
-        public LocationController(IHttpClientFactory httpClientFactory)
+        public LocationController(IHttpClientFactory httpClientFactory, IConfiguration configuration)
         {
-            _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
+            _httpClientFactory = httpClientFactory;
+            _configuration = configuration;
         }
 
         [HttpGet("name")]
@@ -31,7 +32,7 @@ namespace RuntimeService.Controllers
         {
             var client = _httpClientFactory.CreateClient();
 
-            var accessToken = "pk.eyJ1IjoiZGFubnloZWFyZDciLCJhIjoiY2tnZjk2N213MHZnajJ2cXoycTh2anN4bCJ9.rwgWg42fnpap7SfVUEl-Tg";
+            var accessToken = _configuration["MAPBOX:TOKEN"];
             var uri =
                 $"https://api.mapbox.com/geocoding/v5/mapbox.places/{longitude}%2C{latitude}.json?access_token={accessToken}";
                 
