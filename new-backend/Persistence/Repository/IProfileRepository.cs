@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Persistence.Entity;
-using Persistence.Objects;
+using RuntimeService.DTO;
 
 namespace Persistence.Repository
 {
@@ -13,6 +12,6 @@ namespace Persistence.Repository
 
         public Task<bool> UpsertProfile(Profile profile);
         
-        public Task<IEnumerable<MatchingProfile>> GetMatchingProfiles(IUser user);
+        public Task<IEnumerable<ProfileMatch>> GetMatchingProfiles(IUser user);
     }
 }

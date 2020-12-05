@@ -55,19 +55,9 @@ const AppMenu: React.FC = () => {
             <List>
               {user && (
                 <Fragment>
-                  <Link to="/posts" component={RouterLink} onClick={() => { setDrawerOpen(false) }}>
+                  <Link to="/" component={RouterLink} onClick={() => { setDrawerOpen(false) }}>
                     <ListItem button>
-                      <ListItemText>Posts</ListItemText>
-                    </ListItem>
-                  </Link>
-                  <Link to="/post/new" component={RouterLink} onClick={() => { setDrawerOpen(false) }}>
-                    <ListItem button>
-                      <ListItemText>New Post</ListItemText>
-                    </ListItem>
-                  </Link>
-                  <Link to="/platforms" component={RouterLink} onClick={() => { setDrawerOpen(false) }}>
-                    <ListItem button>
-                      <ListItemText>Platforms</ListItemText>
+                      <ListItemText>Top Matches</ListItemText>
                     </ListItem>
                   </Link>
                   <Divider />

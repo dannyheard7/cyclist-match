@@ -2,7 +2,6 @@ CREATE OR REPLACE FUNCTION location_diff(location1 geography, location2 geograph
     SELECT  1 / GREATEST(ST_Distance(location1, location2), 0.1) 
 $$ LANGUAGE SQL IMMUTABLE;
 
-
 CREATE OR REPLACE FUNCTION availability_diff(
     availability1 VARCHAR(30) [],
     availability2 VARCHAR(30) []
@@ -58,14 +57,27 @@ SELECT
 $$ LANGUAGE SQL IMMUTABLE;
 
 
+DROP FUNCTION get_profiles_by_rank;
 CREATE OR REPLACE FUNCTION get_profiles_by_rank(_user_id uuid) RETURNS table (
     user_id uuid,
     display_name TEXT,
-    location_name TEXT
+    location_name TEXT,
+    distance_from_user_meters INT,
+    availability VARCHAR(30) [],
+    cycling_types VARCHAR(30)[],
+    min_distance INT,
+    max_distance INT,
+    speed INT
 ) AS $$
     WITH u as (
         SELECT
-            *
+            user_id,
+            location, 
+            availability,
+            cycling_types,
+            speed, 
+            min_distance,
+            max_distance
         FROM
             user_profile
         WHERE
@@ -74,11 +86,22 @@ CREATE OR REPLACE FUNCTION get_profiles_by_rank(_user_id uuid) RETURNS table (
     SELECT
         up.user_id,
         up.display_name,
-        up.location_name
+        up.location_name,
+        ST_Distance(up.location, u.location),
+        up.availability,
+        up.cycling_types,
+        up.min_distance,
+        up.max_distance,
+        up.speed
     FROM
         user_profile up,
         u
-    WHERE up.user_id <>u.user_id
+    WHERE
+        up.user_id <> u.user_id
+        AND cardinality(array(select unnest(up.cycling_types) intersect select unnest(u.cycling_types))) > 0
+        AND cardinality(array(select unnest(up.availability) intersect select unnest(u.availability))) > 0
+        AND up.max_distance > u.min_distance 
+        AND up.min_distance < u.max_distance
     ORDER BY
     ranking(
         up.location,

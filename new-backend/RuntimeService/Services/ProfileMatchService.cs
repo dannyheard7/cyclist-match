@@ -18,13 +18,7 @@ namespace RuntimeService.Services
 
         public async Task<IEnumerable<ProfileMatch>> GetProfileMatches(IUser user, int maxResults=15, int? page=null)
         {
-            var matchingProfiles = await _profileRepository.GetMatchingProfiles(user);
-            return matchingProfiles.Select(mp => new ProfileMatch()
-            {
-                UserId = mp.UserId,
-                DisplayName = mp.DisplayName,
-                LocationName = mp.LocationName
-            });
+            return await _profileRepository.GetMatchingProfiles(user);
         }
     }
 }

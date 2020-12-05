@@ -5,8 +5,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
 using Persistence.Entity;
-using Persistence.Objects;
 using Persistence.Repository;
+using RuntimeService.DTO;
 
 namespace Persistence.SQL.Repository
 {
@@ -50,16 +50,8 @@ namespace Persistence.SQL.Repository
             public Profile ToProfile()
             {
                 var location = new Location(Longitude, Latitude);
-                var cyclingTypes = CyclingTypes.Select(value =>
-                {
-                    Enum.TryParse(value, out CyclingType type);
-                    return type;
-                }).ToList();
-                var availability = Availability.Select(value =>
-                {
-                    Enum.TryParse(value, out AvailabilityItem type);
-                    return type;
-                }).ToList();
+                var cyclingTypes = CyclingTypes.Select(Enum.Parse<CyclingType>).ToList();
+                var availability = Availability.Select(Enum.Parse<AvailabilityItem>).ToList();
                 return new Profile(UserId, DisplayName, LocationName, location, cyclingTypes, availability, MinDistance,
                     MaxDistance, Speed)
                 {
@@ -149,17 +141,51 @@ namespace Persistence.SQL.Repository
                 }
             ) == 1;
         }
+        
+        private class ProfileMatchQueryResult
+        {
+            public Guid UserId { get; set; }
+            public string DisplayName { get; set; }
+            public string LocationName { get; set; }
+            public ICollection<string> CyclingTypes { get; set; }
+            public ICollection<string> Availability { get; set; }
+            public int DistanceFromUserMeters { get; set; }
+            public int MinDistance { get; set; }
+            public int MaxDistance { get; set; }
+            public int Speed { get; set;  }
 
-        public async Task<IEnumerable<MatchingProfile>> GetMatchingProfiles(IUser user)
+            public ProfileMatch ToProfileMatch()
+            {
+                var cyclingTypes = CyclingTypes.Select(Enum.Parse<CyclingType>).ToList();
+                var availability = Availability.Select(Enum.Parse<AvailabilityItem>).ToList();
+
+                var distanceInKm = DistanceFromUserMeters / (decimal)1000;
+                
+                return new ProfileMatch(
+                    UserId,
+                    DisplayName,
+                    LocationName,
+                    Math.Round(distanceInKm, 1),
+                    cyclingTypes,
+                    availability,
+                    MinDistance,
+                    MaxDistance,
+                    Speed);
+            }
+        }
+
+        public async Task<IEnumerable<ProfileMatch>> GetMatchingProfiles(IUser user)
         {
             await using var connection = _connectionFactory.Create();
-            return await connection.QueryAsync<MatchingProfile>(
+            var results = await connection.QueryAsync<ProfileMatchQueryResult>(
                 @"SELECT  * FROM get_profiles_by_rank(@UserId) LIMIT 10",
                 new
                 {
                     UserId = user.Id
                 }
             );
+
+            return results.Select(x => x.ToProfileMatch());
         }
     }
 }
