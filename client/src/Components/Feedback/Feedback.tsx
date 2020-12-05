@@ -1,93 +1,88 @@
 
-import { ErrorMessage } from '@hookform/error-message';
 import { Button, FormGroup, Grid, TextField, Typography } from '@material-ui/core';
 import React, { useRef } from 'react';
 import ReCAPTCHA from "react-google-recaptcha";
 import { useForm } from 'react-hook-form';
+import { ErrorMessage as FormErrorMessage } from '@hookform/error-message';
+import { useMutation } from 'react-query';
+import { useApi } from '../../Hooks/useApi';
 import { useAppContext } from '../AppContext/AppContextProvider';
 import { useAuthentication } from '../Authentication/AuthenticationContext';
+import ErrorMessage from '../ErrorMessage/ErrorMessage';
+import Loading from '../Loading/Loading';
+
+interface FeedbackFormValues {
+     message: string,
+     email?: string
+}
 
 const Feedback: React.FC = () => {
      const { recaptchaSiteKey } = useAppContext();
-     // const { goBack } = useHistory();
-     const { register, handleSubmit, errors } = useForm();
+     const { register, handleSubmit, errors, getValues } = useForm<FeedbackFormValues>();
      const recaptchaRef = useRef<ReCAPTCHA>(null);
      const { isAuthenticated } = useAuthentication();
+     const api = useApi();
 
-     // const [sendFeedback, { data, loading }] = useMutation<SendFeedbackMutationData, SendFeedbackMutationVars>(SEND_FEEDBACK_MUTATION);
+     const [sendFeedback, { isSuccess, isLoading, isError }] = useMutation((input: FeedbackFormValues) => api.post(`feedback`, { json: input }))
 
-     // if (loading) return <Loading />;
+     if (isLoading) return <Loading />;
 
-     const onSubmit = (values: Record<string, any>) => recaptchaRef.current!.execute();
+     const onSubmit = () => recaptchaRef.current!.execute();
 
      const onCaptchaVerify = () => {
-          // const { email, message } = getValues();
-
-          // sendFeedback({
-          //      variables: {
-          //           email: isAuthenticated ? user.email : email,
-          //           feedback: {
-          //                message: message,
-          //           }
-          //      }
-          // })
+          const values = getValues();
+          sendFeedback(values);
      }
 
-     // if (data && data.sendFeedback) {
-     //      return (
-     //           <Grid container direction="column" spacing={2}>
-     //                <Grid item md={12}>
-     //                     <Typography variant="h2" component="h1">Submit Feedback</Typography>
-     //                </Grid>
-     //                <Grid item md={12}>
-     //                     <Typography>
-     //                          Thank you for submitting feedback.
-     //                     </Typography>
-     //                     <Button variant="contained" color="primary" onClick={() => goBack()}>
-     //                          Go Back
-     //                     </Button>
-     //                </Grid>
-     //           </Grid>
-     //      )
-     // }
-     // else {
      return (
           <Grid container direction="column" spacing={2}>
                <Grid item md={12}>
-                    <Typography variant="h3" component="h1">Submit Feedback</Typography>
+                    <Typography variant="h2" component="h1">Submit Feedback</Typography>
                </Grid>
-               <form onSubmit={handleSubmit(onSubmit)}>
-                    <Grid container direction="column" spacing={3}>
-                         <Grid item md={12}>
-                              <Typography>Any feedback is appreciated, including new features you would like or bugs you have seen</Typography>
-                         </Grid>
-                         {!isAuthenticated &&
-                              <Grid item>
-                                   <FormGroup>
-                                        <TextField multiline={true} aria-label="Email" placeholder="Email Address" name="email" inputRef={register()} error={errors.email !== undefined} />
-                                   </FormGroup>
-                              </Grid>
-                         }
-                         <Grid item>
-                              <FormGroup>
-                                   <TextField multiline={true} rows={5} aria-label="Message" placeholder="Message" name="message" inputRef={register({ required: true })} error={errors.message !== undefined} />
-                                   <ErrorMessage name="message" message="Message is required" errors={errors} />
-                              </FormGroup>
-                         </Grid>
-                         <ReCAPTCHA
-                              ref={recaptchaRef}
-                              size="invisible"
-                              sitekey={recaptchaSiteKey}
-                              onChange={onCaptchaVerify}
-                         />
-                         <Grid item container justify="flex-end">
-                              <Button type="submit" variant="contained" color="primary">Submit</Button>
-                         </Grid>
+               {isSuccess ?
+                    <Grid item md={12}>
+                         <Typography>
+                              Thank you for submitting feedback.
+                         </Typography>
                     </Grid>
-               </form>
-          </Grid >
-     );
-     // }
+                    :
+                    isError ?
+                         <Grid item md={12}>
+                              <ErrorMessage />
+                         </Grid>
+                         :
+                         <form onSubmit={handleSubmit(onSubmit)}>
+                              <Grid container direction="column" spacing={3}>
+                                   <Grid item md={12}>
+                                        <Typography>Any feedback is appreciated, including new features you would like or bugs you have seen</Typography>
+                                   </Grid>
+                                   {!isAuthenticated &&
+                                        <Grid item>
+                                             <FormGroup>
+                                                  <TextField multiline={true} aria-label="Email" placeholder="Email Address" name="email" inputRef={register()} error={errors.email !== undefined} />
+                                             </FormGroup>
+                                        </Grid>
+                                   }
+                                   <Grid item>
+                                        <FormGroup>
+                                             <TextField multiline={true} rows={5} aria-label="Message" placeholder="Message" name="message" inputRef={register({ required: true })} error={errors.message !== undefined} />
+                                             <FormErrorMessage name="message" message="Message is required" errors={errors} />
+                                        </FormGroup>
+                                   </Grid>
+                                   <ReCAPTCHA
+                                        ref={recaptchaRef}
+                                        size="invisible"
+                                        sitekey={recaptchaSiteKey}
+                                        onChange={onCaptchaVerify}
+                                   />
+                                   <Grid item container justify="flex-end">
+                                        <Button type="submit" variant="contained" color="primary">Submit</Button>
+                                   </Grid>
+                              </Grid>
+                         </form>
+               }
+          </Grid>
+     )
 };
 
 export default Feedback;
