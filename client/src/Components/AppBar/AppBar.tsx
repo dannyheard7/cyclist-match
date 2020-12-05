@@ -77,6 +77,7 @@ const AppMenu: React.FC = () => {
           </Drawer>
           {user ? (
             <Fragment>
+              <Typography>{user.profile.given_name} {user.profile.family_name}</Typography>
               <IconButton
                 aria-label="account of current user"
                 aria-controls="menu-appbar"

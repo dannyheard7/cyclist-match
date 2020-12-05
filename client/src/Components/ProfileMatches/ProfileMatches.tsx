@@ -16,7 +16,7 @@ interface ProfileMatch {
     minDistance: number,
     maxDistance: number,
     speed: number,
-    distanceFromUserKM: string,
+    distanceFromUserKM: number,
     profileImage?: string
 }
 
@@ -35,7 +35,7 @@ const ProfileMatches: React.FC = () => {
     return (
         <Grid container spacing={2}>
             <Grid container item xs={12} justify="center">
-                <Typography variant="h4" component="h2">Matches</Typography>
+                <Typography variant="h4" component="h2">Top Matches</Typography>
             </Grid>
             <Divider style={{ margin: theme.spacing(1, 0), width: '100%' }} />
             <Grid container item xs={12} spacing={1}>
@@ -45,7 +45,11 @@ const ProfileMatches: React.FC = () => {
                             <Card>
                                 <CardHeader title={match.displayName} />
                                 <CardContent>
-                                    <Typography>{match.distanceFromUserKM} km away</Typography>
+                                    <Typography>{match.minDistance} - {match.maxDistance}Km</Typography>
+                                    <Typography>{match.speed}Km/H</Typography>
+                                    <Typography>{match.cyclingTypes.join(", ")}</Typography>
+                                    <Typography>{match.availability.join(", ")}</Typography>
+                                    <Typography>{match.locationName} - {match.distanceFromUserKM} km away</Typography>
                                 </CardContent>
                             </Card>
                         </Grid>
