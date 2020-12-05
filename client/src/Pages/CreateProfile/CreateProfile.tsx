@@ -1,6 +1,7 @@
 import { Divider, Grid, Typography, useTheme } from "@material-ui/core";
-import React from "react";
+import React, { useEffect } from "react";
 import { QueryStatus, useMutation, useQuery } from "react-query";
+import { useHistory } from "react-router-dom";
 import Availability from "../../Common/Enums/Availability";
 import CyclingType from "../../Common/Enums/CyclingType";
 import { User } from "../../Common/Interfaces/User";
@@ -27,6 +28,7 @@ interface CreateProfileVariables {
 const CreateProfile: React.FC = () => {
     const theme = useTheme();
     const api = useApi();
+    const { push } = useHistory();
     const { data, status } = useQuery('fetchUser', () => api.get("auth/user").json<User>());
 
     const [mutate, { status: mutationStatus }] = useMutation((input: CreateProfileVariables) =>
@@ -34,6 +36,10 @@ const CreateProfile: React.FC = () => {
             .put(`profiles/${data!.id}`, { json: input })
             .json<{ hasProfile: boolean }>()
     )
+
+    useEffect(() => {
+        if (mutationStatus === QueryStatus.Success) push("/")
+    }, [mutationStatus, push]);
 
     if (status === QueryStatus.Loading) return <Loading />;
     else if (status === QueryStatus.Error || !data) return <ErrorMessage />;

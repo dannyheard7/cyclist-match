@@ -57,7 +57,7 @@ SELECT
 $$ LANGUAGE SQL IMMUTABLE;
 
 
-DROP FUNCTION get_profiles_by_rank;
+DROP FUNCTION IF EXISTS get_profiles_by_rank;
 CREATE OR REPLACE FUNCTION get_profiles_by_rank(_user_id uuid) RETURNS table (
     user_id uuid,
     display_name TEXT,

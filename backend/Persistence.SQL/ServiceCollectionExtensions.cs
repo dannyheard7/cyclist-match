@@ -11,7 +11,8 @@ namespace Persistence.SQL
             return services
                 .AddSingleton<ConnectionFactory>()
                 .AddScoped<IProfileRepository, ProfileRepository>()
-                .AddScoped<IUserRepository, UserRepository>();
+                .AddScoped<IUserRepository, UserRepository>()
+                .AddScoped<IMessageRepository, MessageRepository>();
         }
     }
 }

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Persistence.Repository;
 using Persistence.SQL;
 using RuntimeService.Services;
 
@@ -50,7 +51,8 @@ namespace RuntimeService
             services
                 .AddScoped<IProfileService, ProfileService>()
                 .AddScoped<ICurrentUserService, CurrentUserService>()
-                .AddScoped<IProfileMatchService, ProfileMatchService>();
+                .AddScoped<IProfileMatchService, ProfileMatchService>()
+                .AddScoped<IMessageService, MessageService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
