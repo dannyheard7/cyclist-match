@@ -1,22 +1,19 @@
 
-import { makeStyles } from "@material-ui/core";
 import React from "react";
 import { BrowserRouter, Redirect, Route, Switch } from "react-router-dom";
-import styles from "./App.styles";
+import useAppStyles from "./App.styles";
 import AppBar from "./Components/AppBar/AppBar";
 import { AppContextProvider } from "./Components/AppContext/AppContextProvider";
 import { AuthenticatedRoute } from "./Components/Authentication/AuthenticatedRoute";
 import { AuthenticationContextProvider, SilentRenew } from "./Components/Authentication/AuthenticationContext";
-import Dashboard from "./Pages/Dashboard/Dashboard";
 import Feedback from "./Components/Feedback/Feedback";
-import Login from "./Pages/Login/Login";
-import LoginCallback from "./Pages/Login/SigninCallback";
 import PrivacyPolicy from "./Components/PrivacyPolicy/PrivacyPolicy";
 import config from './config';
+import Account from "./Pages/Account/Account";
 import CreateProfile from "./Pages/CreateProfile/CreateProfile";
-
-
-const useStyles = makeStyles(styles);
+import Dashboard from "./Pages/Dashboard/Dashboard";
+import Login from "./Pages/Login/Login";
+import LoginCallback from "./Pages/Login/SigninCallback";
 
 const Routes: React.FC = () => {
   return (
@@ -33,9 +30,9 @@ const Routes: React.FC = () => {
       <AuthenticatedRoute exact path="/profile/create">
         <CreateProfile />
       </AuthenticatedRoute>
-      {/* <AuthenticatedRoute exact path="/profile/:id">
-        <Profile />
-      </AuthenticatedRoute> */}
+      <AuthenticatedRoute exact path="/account">
+        <Account />
+      </AuthenticatedRoute>
       <Route exact path="/feedback">
         <Feedback />
       </Route>
@@ -53,7 +50,7 @@ const Routes: React.FC = () => {
 };
 
 const Layout: React.FC = ({ children }) => {
-  const classes = useStyles();
+  const classes = useAppStyles();
 
   return (
     <React.Fragment>

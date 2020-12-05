@@ -94,6 +94,9 @@ const AppMenu: React.FC = () => {
                 open={userMenuOpen}
                 onClose={() => setUserMenuOpen(false)}
               >
+                <MenuItem>
+                  <Link to="/account" component={RouterLink}>Account</Link>
+                </MenuItem>
                 <MenuItem onClick={() => logout()}> Logout</MenuItem>
               </Menu>
             </Fragment>

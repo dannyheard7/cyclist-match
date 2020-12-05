@@ -10,13 +10,10 @@ const Login: React.FC = () => {
   return (
     <Grid container spacing={2}>
       <Grid item xs={12}>
-        <Typography variant="h3" component="h1">Welcome to Elevait</Typography>
+        <Typography variant="h3" component="h1">Welcome to BuddyUp</Typography>
       </Grid>
       <Grid item xs={12}>
-        <Typography>At Elevait you can manage your social media presence in one location, creating posts quickly and understanding their impacts with our analytics</Typography>
-      </Grid>
-      <Grid item xs={12}>
-        <Typography>We are currently integrated with Facebook and Twitter, and will continue adding more networks</Typography>
+        <Typography>At BuddyUp you can find local cyclists to find buddy up with, whatever type of cycling you prefer</Typography>
       </Grid>
       <Grid item xs={12}>
         <Typography><Link href="#" onClick={() => signin(state.referrer)}>Sign in</Link> to get started</Typography>

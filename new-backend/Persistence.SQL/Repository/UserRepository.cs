@@ -74,5 +74,11 @@ namespace Persistence.SQL.Repository
             );
             return result == 1;
         }
+
+        public async Task DeleteUser(IUser user)
+        {
+            await using var connection = _connectionFactory.Create();
+            await connection.ExecuteAsync(@"DELETE FROM ""user"" WHERE id=@UserId", new {UserId=user.Id});
+        }
     }
 }

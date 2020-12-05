@@ -11,7 +11,7 @@ CREATE TABLE "user" (
 );
 
 CREATE TABLE user_profile (
-    user_id UUID NOT NULL PRIMARY KEY  REFERENCES "user" (id),
+    user_id UUID NOT NULL PRIMARY KEY  REFERENCES "user" (id) ON DELETE CASCADE,
     display_name TEXT NOT NULL,
     location geography NOT NULL,
     location_name TEXT NOT NULL,

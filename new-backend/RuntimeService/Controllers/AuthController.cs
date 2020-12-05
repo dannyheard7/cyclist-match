@@ -41,6 +41,15 @@ namespace RuntimeService.Controllers
         {
             return Ok(await _currentUserService.GetUser());
         }
+        
+        [HttpDelete("user")]
+        public async Task<ActionResult> DeleteUser()
+        {
+            var currentUser = await _currentUserService.GetUser();
+            await _userRepository.DeleteUser(currentUser);
+
+            return NoContent();
+        }
 
         private class LoginResponse
         {

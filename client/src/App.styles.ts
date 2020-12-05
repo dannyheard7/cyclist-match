@@ -1,6 +1,6 @@
-import { Theme } from "@material-ui/core/styles";
+import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 
-const styles = (theme: Theme) => ({
+const useAppStyles = makeStyles((theme: Theme) => createStyles({
   toolbar: theme.mixins.toolbar,
   main: {
     maxWidth: theme.breakpoints.width('md'),
@@ -9,5 +9,5 @@ const styles = (theme: Theme) => ({
       padding: theme.spacing(3)
     },
   }
-});
-export default styles;
+}));
+export default useAppStyles;

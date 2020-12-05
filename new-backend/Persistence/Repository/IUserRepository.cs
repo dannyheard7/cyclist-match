@@ -8,5 +8,6 @@ namespace Persistence.Repository
         Task<bool> ExternalUserHasProfile(string externalUserId);
         public Task<IUser?> GetUserDetails(string externalUserId);
         public Task<bool> UpdateUserDetails(IUser user);
+        public Task DeleteUser(IUser user);
     }
 }
