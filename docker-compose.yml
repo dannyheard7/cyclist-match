@@ -16,7 +16,7 @@ services:
 
   flyway:
     build:
-      context: ./migrations
+      context: ./flyway
       dockerfile: Dockerfile
     command: migrate
     environment:

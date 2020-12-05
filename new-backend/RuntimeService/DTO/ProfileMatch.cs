@@ -1,14 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Persistence.Entity;
 
 namespace RuntimeService.DTO
 {
     public class ProfileMatch
     {
-        public string DisplayName { get; }
+        public Guid UserId { get; set; }
+        public string DisplayName { get; set; }
         public string ProfileImage { get; }
         
-        public string LocationName { get; }
+        public string LocationName { get; set; }
         public int DistanceFromUserKM { get; }
         
         public ICollection<CyclingType> CyclingTypes { get; }

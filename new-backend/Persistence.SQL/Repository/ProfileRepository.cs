@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
 using Persistence.Entity;
+using Persistence.Objects;
 using Persistence.Repository;
 
 namespace Persistence.SQL.Repository
@@ -18,7 +19,7 @@ namespace Persistence.SQL.Repository
             _connectionFactory = connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
         }
         
-        public async Task<bool> HasProfile(Guid userId)
+        private async Task<bool> HasProfile(Guid userId)
         {
             await using var connection = _connectionFactory.Create();
             return await connection.QueryFirstOrDefaultAsync<bool>(
@@ -147,6 +148,18 @@ namespace Persistence.SQL.Repository
                     Latitude=profile.Location.Latitude
                 }
             ) == 1;
+        }
+
+        public async Task<IEnumerable<MatchingProfile>> GetMatchingProfiles(IUser user)
+        {
+            await using var connection = _connectionFactory.Create();
+            return await connection.QueryAsync<MatchingProfile>(
+                @"SELECT  * FROM get_profiles_by_rank(@UserId) LIMIT 10",
+                new
+                {
+                    UserId = user.Id
+                }
+            );
         }
     }
 }

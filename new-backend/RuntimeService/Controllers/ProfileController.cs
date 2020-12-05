@@ -5,6 +5,7 @@ using Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Persistence.Entity;
+using RuntimeService.DTO;
 using RuntimeService.Services;
 
 namespace RuntimeService.Controllers
@@ -36,7 +37,7 @@ namespace RuntimeService.Controllers
             return Ok(profile);
         }
         
-        public class ProfileObject
+        public class ProfileInputObject
         {
             public string DisplayName { get; set; }
             public string LocationName { get; set; }
@@ -49,7 +50,7 @@ namespace RuntimeService.Controllers
         }
         
         [HttpPut("{userId}")]
-        public async Task<IActionResult> PutProfile(Guid userId, [FromBody] ProfileObject input)
+        public async Task<IActionResult> PutProfile(Guid userId, [FromBody] ProfileInputObject input)
         {
             var profile = new Profile(userId, input.DisplayName, input.LocationName, input.Location, input.CyclingTypes,
                 input.Availability, input.MinDistance, input.MaxDistance, input.Speed);
@@ -58,11 +59,22 @@ namespace RuntimeService.Controllers
             return Ok(updatedProfile);
         }
 
+        private class ProfileMatchesResult
+        {
+            public ProfileMatchesResult(IEnumerable<ProfileMatch> matches)
+            {
+                Matches = matches;
+            }
+
+            public IEnumerable<ProfileMatch> Matches { get; }
+        }
+
         [HttpGet("matches")]
         public async Task<IActionResult> GetMatchingProfiles()
         {
             var currentUser = await _currentUserService.GetUser();
-            return Ok(await _profileMatchService.GetProfileMatches(currentUser));
+            var matches = await _profileMatchService.GetProfileMatches(currentUser);
+            return Ok(new ProfileMatchesResult(matches));
         }
     }
 }

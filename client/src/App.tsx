@@ -7,13 +7,14 @@ import AppBar from "./Components/AppBar/AppBar";
 import { AppContextProvider } from "./Components/AppContext/AppContextProvider";
 import { AuthenticatedRoute } from "./Components/Authentication/AuthenticatedRoute";
 import { AuthenticationContextProvider, SilentRenew } from "./Components/Authentication/AuthenticationContext";
-import Dashboard from "./Components/Dashboard/Dashboard";
+import Dashboard from "./Pages/Dashboard/Dashboard";
 import Feedback from "./Components/Feedback/Feedback";
 import Login from "./Pages/Login/Login";
 import LoginCallback from "./Pages/Login/SigninCallback";
 import PrivacyPolicy from "./Components/PrivacyPolicy/PrivacyPolicy";
 import config from './config';
 import CreateProfile from "./Pages/CreateProfile/CreateProfile";
+
 
 const useStyles = makeStyles(styles);
 

@@ -1,24 +1,27 @@
 ﻿using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Auth;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Net.Http.Headers;
 using Persistence;
 using Persistence.Repository;
 
-namespace Auth
+namespace RuntimeService.Services
 {
     internal class CurrentUserService : ICurrentUserService
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IUserRepository _userRepository;
         private readonly IExternalUserService _externalUserService;
-        
-        public CurrentUserService(IHttpContextAccessor httpContextAccessor)
+
+        public CurrentUserService(IHttpContextAccessor httpContextAccessor, IUserRepository userRepository, IExternalUserService externalUserService)
         {
-            _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
+            _httpContextAccessor = httpContextAccessor;
+            _userRepository = userRepository;
+            _externalUserService = externalUserService;
         }
-    
+
         private ClaimsPrincipal? ClaimsPrincipal => _httpContextAccessor.HttpContext?.User;
         private string? BearerToken
         {
