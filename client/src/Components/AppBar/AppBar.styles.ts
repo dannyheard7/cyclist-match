@@ -1,8 +1,8 @@
-import { Theme } from "@material-ui/core/styles";
+import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 
 
 const drawerWidth = 240;
-const theme = (theme: Theme) => ({
+export const useAppBarStyles = makeStyles((theme: Theme) => createStyles({
   root: {
     flexGrow: 1
   },
@@ -42,6 +42,11 @@ const theme = (theme: Theme) => ({
     padding: theme.spacing(0, 1),
     ...theme.mixins.toolbar,
     justifyContent: 'flex-end',
+  },
+  grow: {
+    flexGrow: 1,
+  },
+  padding: {
+    padding: theme.spacing(0, 0.5)
   }
-});
-export default theme;
+}));

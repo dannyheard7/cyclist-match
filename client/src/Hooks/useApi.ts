@@ -5,11 +5,12 @@ import { useAuthentication } from "../Components/Authentication/AuthenticationCo
 
 export const useApi = () => {
     const { apiHost } = useAppContext();
-    const { user } = useAuthentication();
+    const { user, signout } = useAuthentication();
 
     const api = useMemo(() => {
         return ky.extend({
             prefixUrl: apiHost,
+            retry: 0,
             hooks: {
                 beforeRequest: [
                     request => {
@@ -17,10 +18,18 @@ export const useApi = () => {
                             request.headers.set('Authorization', `Bearer ${user.access_token}`);
                         }
                     }
+                ],
+                afterResponse: [
+                    (_request, options, response) => {
+                        if (response.status === 401) {
+                            signout();
+                        }
+                    }
                 ]
+
             }
         })
-    }, [user, apiHost]);
+    }, [user, apiHost, signout]);
 
     return api;
 }

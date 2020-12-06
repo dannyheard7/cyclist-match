@@ -34,20 +34,39 @@ namespace Persistence.SQL.Repository
             
             public string Text { get; }
             public DateTime SentAt { get; }
+            
+            public bool ReceiverRead { get; }
 
             public Message ToMessage()
             {
-                var sender = new DBUser(SenderUserId, "", SenderGivenNames, SenderFamilyName, SenderPicture, SenderEmail);
-                var receiver = new DBUser(ReceiverUserId, "", ReceiverGivenNames, ReceiverFamilyName, ReceiverPicture, ReceiverEmail);
-                return new Message(sender, receiver, Text, SentAt);
+                var sender = new DBUser(SenderUserId, "", SenderGivenNames, SenderFamilyName, SenderEmail, SenderPicture);
+                var receiver = new DBUser(ReceiverUserId, "", ReceiverGivenNames, ReceiverFamilyName, ReceiverEmail, ReceiverPicture);
+                return new Message(sender, receiver, ReceiverRead, Text, SentAt);
             }
         }
-        
+
+        public async Task<int> GetNumberConversationsWithUnreadMessages(IUser user)
+        {
+            await using var connection = _connectionFactory.Create();
+            return await connection.QueryFirstAsync<int>(
+                @"SELECT
+                        COUNT(DISTINCT sender_user_id)
+                        FROM message msg
+                        WHERE receiver_user_id=@UserId
+                        AND receiver_read=false",
+                new
+                {
+                    UserId = user.Id
+                }
+            );
+        }
+
         public async Task<IEnumerable<Conversation>> GetUserConversations(IUser user)
         {
             await using var connection = _connectionFactory.Create();
             var results = await connection.QueryAsync<MessageQueryResult>(
                 @"SELECT
+                        DISTINCT ON (sender_user_id, receiver_user_id)
                         text,
                         sent_at,
                         sender_user_id,
@@ -59,14 +78,15 @@ namespace Persistence.SQL.Repository
                         receiver.given_names as receiver_given_names,
                         receiver.family_name as receiver_family_name,
                         receiver.picture as receiver_picture,
-                        receiver.email as receiver_email
-                        FROM ""message"" msg
+                        receiver.email as receiver_email,
+                        receiver_read
+                        FROM message msg
                         INNER JOIN ""user"" sender on sender.id = msg.sender_user_id
                         INNER JOIN ""user"" receiver on receiver.id = msg.receiver_user_id
-                        WHERE sender_user_id=@UserId
-                        OR receiver_user_id=@UserId
-                        ORDER BY sent_at DESC 
-                        LIMIT 1",
+                        WHERE  receiver_user_id=@UserId 
+                        OR sender_user_id=@UserId
+                        ORDER BY sender_user_id, receiver_user_id, sent_at DESC
+                    ",
                 new
                 {
                     UserId = user.Id

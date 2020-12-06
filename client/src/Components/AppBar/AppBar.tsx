@@ -1,16 +1,15 @@
-import { AppBar, Divider, Drawer, IconButton, Link, List, ListItem, ListItemText, makeStyles, Menu, MenuItem, Toolbar, Typography, useTheme } from "@material-ui/core";
-import { AccountCircle, ChevronLeft as ChevronLeftIcon, ChevronRight as ChevronRightIcon, Menu as MenuIcon } from "@material-ui/icons";
+import { AppBar, IconButton, Link, ListItemText, Menu, MenuItem, Toolbar, Typography } from "@material-ui/core";
+import { AccountCircle, Menu as MenuIcon } from "@material-ui/icons";
 import classNames from 'classnames';
 import React, { Fragment, useRef, useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
 import { useAuthentication } from "../Authentication/AuthenticationContext";
-import styles from './AppBar.styles';
-
-const useStyles = makeStyles(styles);
+import ConversationsIcon from "../Conversations/ConversationsIcon";
+import { useAppBarStyles } from './AppBar.styles';
+import AppDrawer from "./AppDrawer";
 
 const AppMenu: React.FC = () => {
-  const classes = useStyles();
-  const theme = useTheme();
+  const classes = useAppBarStyles();
   const { user, signout: logout, signin: login } = useAuthentication();
   const anchorEl = useRef(null);
   const [userMenuOpen, setUserMenuOpen] = useState<boolean>(false);
@@ -18,6 +17,7 @@ const AppMenu: React.FC = () => {
 
   return (
     <div className={classes.root}>
+      <AppDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
       <AppBar
         position="fixed"
         className={classNames(classes.appBar, {
@@ -37,63 +37,35 @@ const AppMenu: React.FC = () => {
           <Typography variant="h6" className={classes.title}>
             BuddyUp!
           </Typography>
-          <Drawer
-            className={classes.drawer}
-            open={drawerOpen}
-            onClose={() => { setDrawerOpen(false) }}
-            variant="persistent"
-            classes={{
-              paper: classes.drawerPaper,
-            }}
-          >
-            <div className={classes.drawerHeader}>
-              <IconButton onClick={() => { setDrawerOpen(false) }}>
-                {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
-              </IconButton>
-            </div>
-            <Divider />
-            <List>
-              {user && (
-                <Fragment>
-                  <Link to="/" component={RouterLink} onClick={() => { setDrawerOpen(false) }}>
-                    <ListItem button>
-                      <ListItemText>Top Matches</ListItemText>
-                    </ListItem>
-                  </Link>
-                  <Divider />
-                </Fragment>
-              )}
-              <Link to="/feedback" component={RouterLink} onClick={() => { setDrawerOpen(false) }}>
-                <ListItem button>
-                  <ListItemText>Feedback</ListItemText>
-                </ListItem>
-              </Link>
-              <Link to="/privacy-policy" component={RouterLink} onClick={() => { setDrawerOpen(false) }}>
-                <ListItem button>
-                  <ListItemText>Privacy Policy</ListItemText>
-                </ListItem>
-              </Link>
-            </List>
-          </Drawer>
+          <div className={classes.grow} />
           {user ? (
             <Fragment>
-              <Typography>{user.profile.given_name} {user.profile.family_name}</Typography>
-              <IconButton
-                aria-label="account of current user"
-                aria-controls="menu-appbar"
-                aria-haspopup="true"
-                onClick={() => setUserMenuOpen(!userMenuOpen)}
-                color="inherit"
-                ref={anchorEl}
-              >
-                <AccountCircle />
-              </IconButton>
+              <div className={classes.padding}>
+                <IconButton color="inherit">
+                  <ConversationsIcon />
+                </IconButton>
+              </div>
+              <div className={classes.padding}>
+                <IconButton
+                  aria-label="account of current user"
+                  aria-controls="menu-appbar"
+                  aria-haspopup="true"
+                  onClick={() => setUserMenuOpen(!userMenuOpen)}
+                  color="inherit"
+                  ref={anchorEl}
+                >
+                  <AccountCircle />
+                </IconButton>
+              </div>
               <Menu
                 id="menu-appbar"
                 anchorEl={anchorEl.current}
                 open={userMenuOpen}
                 onClose={() => setUserMenuOpen(false)}
               >
+                <MenuItem>
+                  <Typography>{user.profile.given_name} {user.profile.family_name}</Typography>
+                </MenuItem>
                 <MenuItem>
                   <Link to="/account" component={RouterLink}>Account</Link>
                 </MenuItem>

@@ -15,6 +15,11 @@ namespace RuntimeService.Services
             _messageRepository = messageRepository;
         }
 
+        public Task<int> GetNumberConversationsWithUnreadMessages(IUser user)
+        {
+            return _messageRepository.GetNumberConversationsWithUnreadMessages(user);
+        }
+
         public Task<IEnumerable<Conversation>> GetUserConversations(IUser user)
         {
             return _messageRepository.GetUserConversations(user);

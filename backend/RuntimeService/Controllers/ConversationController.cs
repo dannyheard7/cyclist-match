@@ -33,6 +33,14 @@ namespace RuntimeService.Controllers
 
             public IEnumerable<Conversation> Conversations { get; }
         }
+        
+        [HttpGet("unread/count")]
+        public async Task<IActionResult> GetCountUnreadConversations()
+        {
+            var currentUser = await _currentUserService.GetUser();
+            var numberConversations = await _messageService.GetNumberConversationsWithUnreadMessages(currentUser);
+            return Ok(numberConversations);
+        }
 
         [HttpGet]
         public async Task<IActionResult> GetConversations()
