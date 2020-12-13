@@ -1,14 +1,14 @@
 import { Divider, Grid, Typography, useTheme } from "@material-ui/core";
 import React, { useEffect } from "react";
-import { QueryStatus, useMutation, useQuery } from "react-query";
+import { QueryStatus, useMutation } from "react-query";
 import { useHistory } from "react-router-dom";
 import Availability from "../../Common/Enums/Availability";
 import CyclingType from "../../Common/Enums/CyclingType";
-import { User } from "../../Common/Interfaces/User";
 import ErrorMessage from "../../Components/ErrorMessage/ErrorMessage";
 import Loading from "../../Components/Loading/Loading";
 import ProfileForm from "../../Components/ProfileForm/ProfileForm";
 import { useApi } from "../../Hooks/useApi";
+import useCurrentUser from "../../Hooks/useCurrentUser";
 
 interface CreateProfileVariables {
     displayName: string,
@@ -29,11 +29,11 @@ const CreateProfile: React.FC = () => {
     const theme = useTheme();
     const api = useApi();
     const { push } = useHistory();
-    const { data, status } = useQuery('fetchUser', () => api.get("auth/user").json<User>());
+    const { user, loading, error } = useCurrentUser();
 
     const [mutate, { status: mutationStatus }] = useMutation((input: CreateProfileVariables) =>
         api
-            .put(`profiles/${data!.id}`, { json: input })
+            .put(`profiles/${user!.id}`, { json: input })
             .json<{ hasProfile: boolean }>()
     )
 
@@ -41,8 +41,8 @@ const CreateProfile: React.FC = () => {
         if (mutationStatus === QueryStatus.Success) push("/")
     }, [mutationStatus, push]);
 
-    if (status === QueryStatus.Loading) return <Loading />;
-    else if (status === QueryStatus.Error || !data) return <ErrorMessage />;
+    if (loading) return <Loading />;
+    else if (error || !user) return <ErrorMessage />;
 
     return (
         <Grid container spacing={2}>
@@ -53,8 +53,8 @@ const CreateProfile: React.FC = () => {
             <Grid item xs={12}>
                 <ProfileForm
                     defaultValues={{
-                        ...data,
-                        displayName: `${data.givenNames || ""} ${data.familyName || ""}`.trim()
+                        ...user,
+                        displayName: `${user.givenNames || ""} ${user.familyName || ""}`.trim()
                     }}
                     onSubmit={mutate}
                 />

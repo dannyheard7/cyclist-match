@@ -4,19 +4,22 @@ namespace Persistence.Entity
 {
     public class Message
     {
-        public Message(IUser sender, IUser receiver, bool receiverRead, string text, DateTime sentAt)
+        public Message(Guid senderUserId, bool receiverRead, string text, DateTime sentAt)
         {
-            Sender = sender;
-            Receiver = receiver;
+            SenderUserId = senderUserId;
             ReceiverRead = receiverRead;
             Text = text;
             SentAt = sentAt;
         }
 
-        public IUser Sender { get; }
-        public IUser Receiver { get; }
+        public Guid SenderUserId { get; }
         public bool ReceiverRead { get; }
         public string Text { get; }
         public DateTime SentAt { get; }
+
+        public static Message Create(IUser sender, string message)
+        {
+            return new Message(sender.Id!.Value, false, message, DateTime.Now);
+        }
     }
 }

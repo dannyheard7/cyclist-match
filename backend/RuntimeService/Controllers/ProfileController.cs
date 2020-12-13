@@ -29,9 +29,6 @@ namespace RuntimeService.Controllers
         [HttpGet("{userId}")]
         public async Task<IActionResult> Get(Guid userId)
         {
-            var currentUser = await _currentUserService.GetUser();
-            if(currentUser.Id != userId) throw new UnauthorizedAccessException();
-            
             var profile = await _profileService.Get(userId);
             if (profile == null) return NotFound();
             return Ok(profile);

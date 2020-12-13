@@ -6,10 +6,12 @@ import AppBar from "./Components/AppBar/AppBar";
 import { AppContextProvider } from "./Components/AppContext/AppContextProvider";
 import { AuthenticatedRoute } from "./Components/Authentication/AuthenticatedRoute";
 import { AuthenticationContextProvider, SilentRenew } from "./Components/Authentication/AuthenticationContext";
+import ConversationsList from "./Components/Conversations/ConversationsList";
 import Feedback from "./Components/Feedback/Feedback";
 import PrivacyPolicy from "./Components/PrivacyPolicy/PrivacyPolicy";
 import config from './config';
 import Account from "./Pages/Account/Account";
+import ConversationPage from "./Pages/Conversation/ConversationPage";
 import CreateProfile from "./Pages/CreateProfile/CreateProfile";
 import Dashboard from "./Pages/Dashboard/Dashboard";
 import Login from "./Pages/Login/Login";
@@ -27,18 +29,24 @@ const Routes: React.FC = () => {
       <Route exact path="/oidc-silent-renew">
         <SilentRenew />
       </Route>
-      <AuthenticatedRoute exact path="/profile/create">
-        <CreateProfile />
-      </AuthenticatedRoute>
-      <AuthenticatedRoute exact path="/account">
-        <Account />
-      </AuthenticatedRoute>
       <Route exact path="/feedback">
         <Feedback />
       </Route>
       <Route exact path="/privacy-policy">
         <PrivacyPolicy />
       </Route>
+      <AuthenticatedRoute exact path="/profile/create">
+        <CreateProfile />
+      </AuthenticatedRoute>
+      <AuthenticatedRoute exact path="/account">
+        <Account />
+      </AuthenticatedRoute>
+      <AuthenticatedRoute exact path="/conversations/:id">
+        <ConversationPage />
+      </AuthenticatedRoute>
+      <AuthenticatedRoute path="/conversations">
+        <ConversationsList />
+      </AuthenticatedRoute>
       <AuthenticatedRoute path="/">
         <Dashboard />
       </AuthenticatedRoute>

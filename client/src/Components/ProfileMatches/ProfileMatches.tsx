@@ -1,27 +1,15 @@
-import { Card, CardContent, CardHeader, Divider, Grid, Typography, useTheme } from "@material-ui/core";
+import { Card, CardContent, CardHeader, Divider, Grid, IconButton, Typography, useTheme } from "@material-ui/core";
 import React from "react";
 import { QueryStatus, useQuery } from "react-query";
-import Availability from "../../Common/Enums/Availability";
-import CyclingType from "../../Common/Enums/CyclingType";
 import ErrorMessage from "../ErrorMessage/ErrorMessage";
 import Loading from "../Loading/Loading";
 import { useApi } from "../../Hooks/useApi";
-
-interface ProfileMatch {
-    userId: string,
-    displayName: string,
-    locationName: string,
-    cyclingTypes: Array<CyclingType>,
-    availability: Array<Availability>,
-    minDistance: number,
-    maxDistance: number,
-    speed: number,
-    distanceFromUserKM: number,
-    profileImage?: string
-}
+import { Link as RouterLink } from "react-router-dom";
+import SendIcon from '@material-ui/icons/Send';
+import Profile from '../../Common/Interfaces/Profile';
 
 interface ProfileMatchesResponse {
-    matches: Array<ProfileMatch>
+    matches: Array<Profile>
 }
 
 const ProfileMatches: React.FC = () => {
@@ -50,6 +38,9 @@ const ProfileMatches: React.FC = () => {
                                     <Typography>{match.cyclingTypes.join(", ")}</Typography>
                                     <Typography>{match.availability.join(", ")}</Typography>
                                     <Typography>{match.locationName} - {match.distanceFromUserKM} km away</Typography>
+                                    <IconButton component={RouterLink} to={`conversations/${match.userId}`}>
+                                        <SendIcon />
+                                    </IconButton>
                                 </CardContent>
                             </Card>
                         </Grid>

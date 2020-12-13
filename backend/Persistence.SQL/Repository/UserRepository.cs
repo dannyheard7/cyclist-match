@@ -39,7 +39,7 @@ namespace Persistence.SQL.Repository
             );
         }
 
-        public async Task<IUser?> GetUserDetails(string externalUserId)
+        public async Task<IUser?> GetUserDetailsByExternalId(string externalUserId)
         {
             await using var connection = _connectionFactory.Create();
             return await connection.QueryFirstOrDefaultAsync<DBUser>(
@@ -47,6 +47,18 @@ namespace Persistence.SQL.Repository
                 new
                 {
                     ExternalUserId = externalUserId
+                }
+            );
+        }
+        
+        public async Task<IUser?> GetUserDetailsByInternalId(Guid internalUserId)
+        {
+            await using var connection = _connectionFactory.Create();
+            return await connection.QueryFirstOrDefaultAsync<DBUser>(
+                @"SELECT * FROM ""user"" WHERE id=@Id",
+                new
+                {
+                    Id = internalUserId
                 }
             );
         }

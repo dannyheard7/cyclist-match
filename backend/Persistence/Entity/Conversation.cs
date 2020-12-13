@@ -1,12 +1,19 @@
-﻿namespace Persistence.Entity
+﻿using System;
+using System.Collections.Generic;
+
+namespace Persistence.Entity
 {
     public class Conversation
     {
-        public Conversation(Message lastMessage)
+        public Conversation(Guid id, IEnumerable<IUser> users, IEnumerable<Message>? messages = null)
         {
-            LastMessage = lastMessage;
+            Id = id;
+            Users = users;
+            Messages = messages ?? new List<Message>();
         }
 
-        public Message LastMessage { get; }
+        public Guid Id { get; }
+        public IEnumerable<IUser> Users { get; }
+        public IEnumerable<Message> Messages { get; }
     }
 }

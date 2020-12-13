@@ -17,7 +17,6 @@ const ConversationsIcon: React.FC = () => {
     }
 
     return <MailIcon />
-
 };
 
 export default ConversationsIcon;

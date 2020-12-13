@@ -23,15 +23,15 @@ namespace Persistence.Entity
             Speed = speed;
         }
 
-        public Guid UserId { get; set; }
-        public string DisplayName { get; set; }
-        public string LocationName { get; set; }
-        public Location Location { get; set; }
-        public ICollection<CyclingType> CyclingTypes { get; set; }
-        public ICollection<AvailabilityItem> Availability { get; set; }
-        public int MinDistance { get; set; }
-        public int MaxDistance { get; set; }
-        public int Speed { get; set;  }
+        public Guid UserId { get; }
+        public string DisplayName { get; }
+        public string LocationName { get; }
+        public Location Location { get; }
+        public ICollection<CyclingType> CyclingTypes { get; }
+        public ICollection<AvailabilityItem> Availability { get; }
+        public int MinDistance { get; }
+        public int MaxDistance { get; }
+        public int Speed { get; }
         
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }

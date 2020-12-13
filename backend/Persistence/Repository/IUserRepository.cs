@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 namespace Persistence.Repository
 {
@@ -6,7 +7,8 @@ namespace Persistence.Repository
     {
         public Task<bool> ExternalUserExists(string externalUserId);
         Task<bool> ExternalUserHasProfile(string externalUserId);
-        public Task<IUser?> GetUserDetails(string externalUserId);
+        public Task<IUser?> GetUserDetailsByExternalId(string externalUserId);
+        public Task<IUser?> GetUserDetailsByInternalId(Guid internalUserId);
         public Task<bool> UpdateUserDetails(IUser user);
         public Task DeleteUser(IUser user);
     }

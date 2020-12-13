@@ -50,7 +50,7 @@ namespace RuntimeService.Services
         {
             var externalUserId = await GetExternalUserId();
             
-            var user = await _userRepository.GetUserDetails(externalUserId);
+            var user = await _userRepository.GetUserDetailsByExternalId(externalUserId);
             if (user != null) return user;
             
             var bearerToken = BearerToken;

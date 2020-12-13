@@ -1,8 +1,8 @@
-import { AppBar, IconButton, Link, ListItemText, Menu, MenuItem, Toolbar, Typography } from "@material-ui/core";
+import { AppBar, Divider, IconButton, ListItemText, Menu, MenuItem, Toolbar, Typography, useTheme } from "@material-ui/core";
 import { AccountCircle, Menu as MenuIcon } from "@material-ui/icons";
 import classNames from 'classnames';
 import React, { Fragment, useRef, useState } from "react";
-import { Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink, useHistory } from "react-router-dom";
 import { useAuthentication } from "../Authentication/AuthenticationContext";
 import ConversationsIcon from "../Conversations/ConversationsIcon";
 import { useAppBarStyles } from './AppBar.styles';
@@ -10,10 +10,13 @@ import AppDrawer from "./AppDrawer";
 
 const AppMenu: React.FC = () => {
   const classes = useAppBarStyles();
+  const theme = useTheme();
   const { user, signout: logout, signin: login } = useAuthentication();
   const anchorEl = useRef(null);
   const [userMenuOpen, setUserMenuOpen] = useState<boolean>(false);
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
+
+  const { push } = useHistory();
 
   return (
     <div className={classes.root}>
@@ -41,7 +44,7 @@ const AppMenu: React.FC = () => {
           {user ? (
             <Fragment>
               <div className={classes.padding}>
-                <IconButton color="inherit">
+                <IconButton color="inherit" onClick={() => push("/conversations")}>
                   <ConversationsIcon />
                 </IconButton>
               </div>
@@ -63,11 +66,12 @@ const AppMenu: React.FC = () => {
                 open={userMenuOpen}
                 onClose={() => setUserMenuOpen(false)}
               >
-                <MenuItem>
+                <MenuItem disabled>
                   <Typography>{user.profile.given_name} {user.profile.family_name}</Typography>
                 </MenuItem>
-                <MenuItem>
-                  <Link to="/account" component={RouterLink}>Account</Link>
+                <Divider style={{ margin: theme.spacing(0.5, 1) }} />
+                <MenuItem component={RouterLink} to="/account" onClick={() => setUserMenuOpen(false)} >
+                  Account
                 </MenuItem>
                 <MenuItem onClick={() => logout()}> Logout</MenuItem>
               </Menu>
