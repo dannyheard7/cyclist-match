@@ -45,6 +45,7 @@ namespace Persistence.SQL.Repository
             public string? Picture { get; }
             public string Email { get; }
 
+            public Guid MessageId { get; }
             public string Text { get; }
             public Guid SenderUserId { get; }
             public DateTime SentAt { get; }
@@ -74,7 +75,7 @@ namespace Persistence.SQL.Repository
                         users.Add(new DBUser(result.UserId, "", result.GivenNames, result.FamilyName, result.Email, result.Picture));
                         if (result.UserId == user.Id)
                         {
-                            message = new Message(result.SenderUserId, result.LatestMessageRead, result.Text, result.SentAt);
+                            message = new Message(result.MessageId, result.SenderUserId, result.LatestMessageRead, result.Text, result.SentAt);
                         }
                     }
                     
@@ -105,6 +106,7 @@ namespace Persistence.SQL.Repository
             
             var messages = await connection.QueryAsync<ConversationMessageQueryResult>(
                 @"SELECT
+                        cm.id as message_id,
                         cm.text,
                         cm.sent_at,
                         cm.sender_user_id
@@ -124,12 +126,13 @@ namespace Persistence.SQL.Repository
             return new Conversation(
                 conversationId.Value,
                 users,
-                messages.Select(m => new Message(m.SenderUserId, true, m.Text, m.SentAt))
+                messages.Select(m => new Message(m.MessageId, m.SenderUserId, true, m.Text, m.SentAt))
             );
         }
 
         private class ConversationMessageQueryResult
         {
+            public Guid MessageId { get;  }
             public Guid SenderUserId { get; }
             public string Text { get; }
             public DateTime SentAt { get; }
@@ -150,6 +153,7 @@ namespace Persistence.SQL.Repository
             await using var connection = _connectionFactory.Create();
             var messages = await connection.QueryAsync<ConversationMessageQueryResult>(
                 @"SELECT
+                        cm.id as message_id,
                         cm.text,
                         cm.sent_at,
                         cm.sender_user_id
@@ -189,7 +193,7 @@ namespace Persistence.SQL.Repository
             return new Conversation(
                 conversationId,
                 users.Select(u => new DBUser(u.UserId, "", u.GivenNames, u.FamilyName, u.Email, u.Picture)),
-                messages.Select(m => new Message(m.SenderUserId, true, m.Text, m.SentAt))
+                messages.Select(m => new Message(m.MessageId, m.SenderUserId, true, m.Text, m.SentAt))
             );
         }
 

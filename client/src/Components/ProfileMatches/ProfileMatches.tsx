@@ -1,8 +1,7 @@
-import { Card, CardContent, CardHeader, Divider, Grid, IconButton, Typography, useTheme } from "@material-ui/core";
-import SendIcon from '@material-ui/icons/Send';
+import { Card, CardContent, CardHeader, Divider, Grid, Typography, useTheme } from "@material-ui/core";
 import React from "react";
 import { useQuery } from "react-query";
-import { Link as RouterLink } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import Profile from '../../Common/Interfaces/Profile';
 import { useApi } from "../../Hooks/useApi";
 import ErrorMessage from "../ErrorMessage/ErrorMessage";
@@ -15,6 +14,7 @@ interface ProfileMatchesResponse {
 const ProfileMatches: React.FC = () => {
     const theme = useTheme();
     const api = useApi();
+    const { push } = useHistory();
     const { data, isLoading, isError } = useQuery('fetchProfileMatches', () => api.get("profiles/matches").json<ProfileMatchesResponse>());
 
     if (isLoading) return <Loading />;
@@ -29,8 +29,11 @@ const ProfileMatches: React.FC = () => {
             <Grid container item xs={12} spacing={1}>
                 {
                     data.matches.map(match => (
-                        <Grid item xs={12}>
-                            <Card>
+                        <Grid item xs={12} key={match.userId}>
+                            <Card
+                                onClick={() => push(`conversations/${match.userId}`)}
+                                style={{ cursor: 'pointer' }}
+                            >
                                 <CardHeader title={match.displayName} />
                                 <CardContent>
                                     <Typography>{match.minDistance} - {match.maxDistance}Km</Typography>
@@ -38,9 +41,6 @@ const ProfileMatches: React.FC = () => {
                                     <Typography>{match.cyclingTypes.join(", ")}</Typography>
                                     <Typography>{match.availability.join(", ")}</Typography>
                                     <Typography>{match.locationName} - {match.distanceFromUserKM} km away</Typography>
-                                    <IconButton component={RouterLink} to={`conversations/${match.userId}`}>
-                                        <SendIcon />
-                                    </IconButton>
                                 </CardContent>
                             </Card>
                         </Grid>

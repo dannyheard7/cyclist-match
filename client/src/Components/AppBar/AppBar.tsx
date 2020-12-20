@@ -1,4 +1,4 @@
-import { AppBar, Divider, IconButton, ListItemText, Menu, MenuItem, Toolbar, Typography, useTheme } from "@material-ui/core";
+import { AppBar, Divider, IconButton, ListItemText, Menu, MenuItem, Toolbar, Typography, useTheme, Link } from "@material-ui/core";
 import { AccountCircle, Menu as MenuIcon } from "@material-ui/icons";
 import classNames from 'classnames';
 import React, { Fragment, useRef, useState } from "react";
@@ -37,9 +37,13 @@ const AppMenu: React.FC = () => {
           >
             <MenuIcon />
           </IconButton>
+
           <Typography variant="h6" className={classes.title}>
-            BuddyUp!
+            <Link component={RouterLink} to="/" style={{ color: "white" }}>
+              BuddyUp!
+              </Link>
           </Typography>
+
           <div className={classes.grow} />
           {user ? (
             <Fragment>
