@@ -55,25 +55,7 @@ namespace Persistence.SQL.Repository
         {
             await using var connection = _connectionFactory.Create();
             var results = await connection.QueryAsync<ConversationQueryResult>(
-                @"SELECT
-                        DISTINCT ON (c.id)
-                        c.id as conversation_id,
-                        cm.text,
-                        cm.sent_at,
-                        cm.sender_user_id,
-                        cu.latest_message_read,
-                        cu.user_id,
-                        u.given_names,
-                        u.family_name,
-                        u.picture,
-                        u.email
-                        FROM conversation c
-                        INNER JOIN conversation_user cu on c.id = cu.conversation_id
-                        INNER JOIN ""user"" u on u.id = cu.user_id
-                        INNER JOIN conversation_message cm on c.id = cm.conversation_id
-                        WHERE cu.user_id=@UserId
-                        ORDER BY c.id, cm.sent_at DESC
-                    ",
+                @"SELECT  * FROM user_conversations(@UserId) LIMIT 10",
                 new
                 {
                     UserId = user.Id
@@ -103,7 +85,49 @@ namespace Persistence.SQL.Repository
                     );
                 });
         }
-        
+
+        public async Task<Conversation?> GetConversationBetweenUsers(IEnumerable<IUser> users, int? maxMessages=10)
+        {
+            await using var connection = _connectionFactory.Create();
+
+            var conversationId = await connection.QueryFirstOrDefaultAsync<Guid?>(
+                @"SELECT
+                        conversation_id
+                     FROM conversation_user 
+                     WHERE user_id = ANY(@UserIds)
+                     GROUP BY conversation_id HAVING count(*) = @UsersCount",
+                new
+                {
+                    UserIds = users.Select(x => x.Id).ToList(),
+                    UsersCount = users.Count()
+                });
+            if (conversationId == null) return null;
+            
+            var messages = await connection.QueryAsync<ConversationMessageQueryResult>(
+                @"SELECT
+                        cm.text,
+                        cm.sent_at,
+                        cm.sender_user_id
+                        FROM conversation c
+                        INNER JOIN conversation_message cm on c.id = cm.conversation_id
+                        WHERE c.id=@ConversationId
+                        ORDER BY c.id, cm.sent_at ASC
+                        LIMIT @Limit
+                    ",
+                new
+                {
+                    ConversationId = conversationId,
+                    Limit = maxMessages
+                }
+            );
+
+            return new Conversation(
+                conversationId.Value,
+                users,
+                messages.Select(m => new Message(m.SenderUserId, true, m.Text, m.SentAt))
+            );
+        }
+
         private class ConversationMessageQueryResult
         {
             public Guid SenderUserId { get; }
@@ -199,13 +223,13 @@ namespace Persistence.SQL.Repository
             var parameters = conversation.Users.Select(u =>
             {
                 var tempParams = new DynamicParameters();
-                tempParams.Add("@UserId", u.Id, DbType.String, ParameterDirection.Input);
+                tempParams.Add("@UserId", u.Id, DbType.Guid, ParameterDirection.Input);
                 tempParams.Add("@ConversationId", conversation.Id, DbType.Guid, ParameterDirection.Input);
                 return tempParams;
             });
 
             await connection.ExecuteAsync(
-                "INSERT INTO conversation_users (user_id, conversation_id) VALUES (@UserId, @ConversationId)",
+                "INSERT INTO conversation_user (user_id, conversation_id) VALUES (@UserId, @ConversationId)",
                 parameters
             );
             

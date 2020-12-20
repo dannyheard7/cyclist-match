@@ -1,6 +1,7 @@
 
 import React from "react";
 import { BrowserRouter, Redirect, Route, Switch } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from "react-query";
 import useAppStyles from "./App.styles";
 import AppBar from "./Components/AppBar/AppBar";
 import { AppContextProvider } from "./Components/AppContext/AppContextProvider";
@@ -71,33 +72,47 @@ const Layout: React.FC = ({ children }) => {
   );
 };
 
-function App() {
+
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+      refetchOnWindowFocus: false,
+    },
+  },
+})
+
+
+const App: React.FC = () => {
   return (
-    <AppContextProvider>
-      <AuthenticationContextProvider
-        settings={{
-          response_type: "token id_token",
-          scope: "openid profile email",
-          filterProtocolClaims: true,
-          loadUserInfo: true,
-          automaticSilentRenew: true,
-          authority: config.AUTH0_DOMAIN,
-          client_id: config.AUTH0_CLIENT_ID,
-          redirect_uri: `${config.CLIENT_HOST}/oidc-signin`,
-          silent_redirect_uri: `${config.CLIENT_HOST}/oidc-silent-renew`,
-          post_logout_redirect_uri: `${config.CLIENT_HOST}`,
-          extraQueryParams: {
-            "audience": config.AUTH0_API_AUDIENCE
-          }
-        }}
-      >
-        <BrowserRouter>
-          <Layout>
-            <Routes />
-          </Layout>
-        </BrowserRouter>
-      </AuthenticationContextProvider>
-    </AppContextProvider>
+    <QueryClientProvider client={queryClient}>
+      <AppContextProvider>
+        <AuthenticationContextProvider
+          settings={{
+            response_type: "token id_token",
+            scope: "openid profile email",
+            filterProtocolClaims: true,
+            loadUserInfo: true,
+            automaticSilentRenew: true,
+            authority: config.AUTH0_DOMAIN,
+            client_id: config.AUTH0_CLIENT_ID,
+            redirect_uri: `${config.CLIENT_HOST}/oidc-signin`,
+            silent_redirect_uri: `${config.CLIENT_HOST}/oidc-silent-renew`,
+            post_logout_redirect_uri: `${config.CLIENT_HOST}`,
+            extraQueryParams: {
+              "audience": config.AUTH0_API_AUDIENCE
+            }
+          }}
+        >
+          <BrowserRouter>
+            <Layout>
+              <Routes />
+            </Layout>
+          </BrowserRouter>
+        </AuthenticationContextProvider>
+      </AppContextProvider>
+    </QueryClientProvider>
   );
 }
 

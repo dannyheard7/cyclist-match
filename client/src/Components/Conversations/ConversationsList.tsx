@@ -1,31 +1,39 @@
-import { Card, CardContent, CardHeader, Divider, Grid, Typography, useTheme } from "@material-ui/core";
-import React from "react";
-import { QueryStatus, useQuery } from "react-query";
+import { Box, Card, CardContent, CardHeader, Divider, Grid, Typography, useTheme } from "@material-ui/core";
+import React, { useEffect } from "react";
+import { useQuery } from "react-query";
 import { useHistory } from "react-router-dom";
-import Message from "../../Common/Interfaces/Message";
-import Profile from "../../Common/Interfaces/Profile";
-import { useApi } from "../../Hooks/useApi";
+import { Conversation } from "../../Common/Interfaces/Conversation";
+import { formatMessageTimestamp } from '../../Common/Utils';
+import { HTTPError, useApi } from "../../Hooks/useApi";
+import { ConversationResult, convertConversationResult } from "../../Hooks/useConversation";
 import useCurrentUser from "../../Hooks/useCurrentUser";
 import ErrorMessage from "../ErrorMessage/ErrorMessage";
 import Loading from "../Loading/Loading";
 
-interface Conversation {
-    userProfiles: Array<Profile>,
-    lastMessage: Message
-}
-
 interface ConversationsResponse {
-    conversations: Array<Conversation>
+    conversations: Array<ConversationResult>
 }
 
 const ConversationsList: React.FC = () => {
     const theme = useTheme();
     const api = useApi();
-    const { data, status } = useQuery('fetchConversations', () => api.get("conversations").json<ConversationsResponse>());
-    const { user, loading } = useCurrentUser();
     const { push } = useHistory();
+    const { user, loading } = useCurrentUser();
 
-    if (status === QueryStatus.Loading || loading) return <Loading />;
+    const { data, isLoading, refetch } = useQuery<Array<Conversation>, HTTPError>(
+        'fetchConversations',
+        async () => {
+            const covnersationResponse = await api.get("conversations").json<ConversationsResponse>();
+            return covnersationResponse.conversations.map(cr => convertConversationResult(cr, user!))
+        },
+        { enabled: false }
+    );
+
+    useEffect(() => {
+        if (user) refetch();
+    }, [user, refetch])
+
+    if (isLoading || loading) return <Loading />;
     else if (!user || !data) return <ErrorMessage />;
 
     return (
@@ -36,16 +44,24 @@ const ConversationsList: React.FC = () => {
             <Divider style={{ margin: theme.spacing(1, 0), width: '100%' }} />
             <Grid container item xs={12} spacing={1}>
                 {
-                    data.conversations.map(conversation => {
+                    data.map(conversation => {
                         const otherParticipant = conversation.userProfiles[0];
 
                         return (
                             <Grid item xs={12} >
-                                <Card onClick={() => push(`/conversations/${otherParticipant.userId}`)}>
+                                <Card
+                                    onClick={() => push(`/conversations/${otherParticipant.userId}`)}
+                                    style={{ cursor: 'pointer' }}
+                                >
                                     <CardHeader title={otherParticipant.displayName} />
                                     <CardContent>
-                                        <Typography>{conversation.lastMessage.sentAt}</Typography>
-                                        <Typography>{conversation.lastMessage.text}</Typography>
+                                        <Typography>{conversation.messages[0].text}</Typography>
+
+                                        <Typography>
+                                            <Box fontWeight="fontWeightLight" marginTop={1} fontSize={11}>
+                                                {formatMessageTimestamp(conversation.messages[0].sentAt)}
+                                            </Box>
+                                        </Typography>
                                     </CardContent>
                                 </Card>
                             </Grid>

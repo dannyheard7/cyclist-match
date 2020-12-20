@@ -1,6 +1,5 @@
-import { ErrorMessage } from "@hookform/error-message";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Grid, IconButton, InputAdornment, TextField } from "@material-ui/core";
+import { IconButton, InputAdornment, TextField } from "@material-ui/core";
 import SendIcon from '@material-ui/icons/Send';
 import React from "react";
 import { useForm } from "react-hook-form";
@@ -26,31 +25,35 @@ const MessageBox: React.FC<Props> = ({ onSubmit: onSubmitCallback, disabled }) =
         onSubmitCallback(values);
         reset();
     }
+    const onFormSubmit = handleSubmit(onSubmit);
+
+    const onEnterPress = (e: React.KeyboardEvent) => {
+        if (e.key === "Enter" && e.shiftKey === false) {
+            e.preventDefault();
+            onFormSubmit();
+        }
+    }
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)}>
-            <Grid container spacing={3}>
-                <Grid item xs={12}>
-                    <TextField
-                        name="message"
-                        label="Message"
-                        inputRef={register()}
-                        fullWidth
-                        multiline
-                        InputProps={{
-                            endAdornment: (
-                                <InputAdornment position="start">
-                                    <IconButton type="submit" disabled={disabled}>
-                                        <SendIcon />
-                                    </IconButton>
-                                </InputAdornment>),
-                        }}
-                        disabled={disabled}
-                        error={errors.message !== undefined}
-                    />
-                    <ErrorMessage name="message" errors={errors} />
-                </Grid>
-            </Grid>
+        <form onSubmit={onFormSubmit}>
+            <TextField
+                name="message"
+                label="Message"
+                inputRef={register()}
+                fullWidth
+                multiline
+                onKeyDown={onEnterPress}
+                InputProps={{
+                    endAdornment: (
+                        <InputAdornment position="start">
+                            <IconButton type="submit" disabled={disabled}>
+                                <SendIcon />
+                            </IconButton>
+                        </InputAdornment>),
+                }}
+                disabled={disabled}
+                error={errors.message !== undefined}
+            />
         </form>
     );
 };

@@ -15,7 +15,7 @@
         "react-ga": "3.2.0",
         "react-google-recaptcha": "2.1.0",
         "react-hook-form": "6.9.4",
-        "react-query": "2.23.1",
+        "react-query": "3.3.3",
         "react-router-dom": "5.2.0",
         "react-scripts": "4.0.0",
         "zod": "1.11.9"

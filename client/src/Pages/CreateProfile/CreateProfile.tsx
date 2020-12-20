@@ -1,6 +1,6 @@
 import { Divider, Grid, Typography, useTheme } from "@material-ui/core";
 import React, { useEffect } from "react";
-import { QueryStatus, useMutation } from "react-query";
+import { useMutation } from "react-query";
 import { useHistory } from "react-router-dom";
 import Availability from "../../Common/Enums/Availability";
 import CyclingType from "../../Common/Enums/CyclingType";
@@ -31,15 +31,15 @@ const CreateProfile: React.FC = () => {
     const { push } = useHistory();
     const { user, loading, error } = useCurrentUser();
 
-    const [mutate, { status: mutationStatus }] = useMutation((input: CreateProfileVariables) =>
+    const { mutate, isSuccess, isLoading } = useMutation((input: CreateProfileVariables) =>
         api
             .put(`profiles/${user!.id}`, { json: input })
             .json<{ hasProfile: boolean }>()
     )
 
     useEffect(() => {
-        if (mutationStatus === QueryStatus.Success) push("/")
-    }, [mutationStatus, push]);
+        if (isSuccess) push("/")
+    }, [isSuccess, push]);
 
     if (loading) return <Loading />;
     else if (error || !user) return <ErrorMessage />;
@@ -61,7 +61,7 @@ const CreateProfile: React.FC = () => {
             </Grid>
             <Grid>
                 {
-                    mutationStatus === QueryStatus.Loading && <Loading />
+                    isLoading && <Loading />
                 }
             </Grid>
         </Grid>

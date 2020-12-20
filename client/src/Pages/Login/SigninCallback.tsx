@@ -9,7 +9,7 @@ import { useApi } from "../../Hooks/useApi";
 const LoginCallback: React.FC = () => {
   const { loading, signinCallback, isAuthenticated } = useAuthentication();
   const api = useApi();
-  const [mutate, { isLoading, data, isError }] = useMutation(() => api.post("auth/login").json<{ hasProfile: boolean }>())
+  const { mutate, isLoading, data, isError } = useMutation(() => api.post("auth/login").json<{ hasProfile: boolean }>())
 
   const { push } = useHistory();
 

@@ -28,27 +28,15 @@ namespace RuntimeService.Controllers
             _messageService = messageService;
             _profileService = profileService;
         }
-        
-        private class ConversationWithLastMessageResult
-        {
-            public ConversationWithLastMessageResult(ICollection<Profile> userProfiles, Message lastMessage)
-            {
-                UserProfiles = userProfiles;
-                LastMessage = lastMessage;
-            }
 
-            public ICollection<Profile> UserProfiles { get; }
-            public Message LastMessage { get; }
-        }
-        
         private class ConversationsResult
         {
-            public ConversationsResult(IEnumerable<ConversationWithLastMessageResult> conversations)
+            public ConversationsResult(IEnumerable<ConversationResult> conversationResults)
             {
-                Conversations = conversations;
+                Conversations = conversationResults;
             }
 
-            public IEnumerable<ConversationWithLastMessageResult> Conversations { get; }
+            public IEnumerable<ConversationResult> Conversations { get; }
         }
         
         [HttpGet("unread/count")]
@@ -65,65 +53,62 @@ namespace RuntimeService.Controllers
             var currentUser = await _currentUserService.GetUser();
             var conversations = await _messageService.GetUserConversations(currentUser);
             
-            List<ConversationWithLastMessageResult> results = new List<ConversationWithLastMessageResult>();
+            List<ConversationResult> results = new List<ConversationResult>();
 
             // TODO: this can be way more efficient
             foreach (var conversation in conversations)
             {
                 var otherUser = conversation.Users.First(user => user.Id != currentUser.Id);
                 var otherUserProfile = await _profileService.Get(otherUser.Id!.Value);
-                var lastMessageConvoResult = new ConversationWithLastMessageResult(new List<Profile>{ otherUserProfile! }, conversation.Messages.First());
-                results.Add(lastMessageConvoResult);
+                results.Add(new ConversationResult(new List<Profile>{ otherUserProfile! }, conversation));
             }
             return Ok(new ConversationsResult(results));
         }
         
         private class ConversationResult
         {
-            public ConversationResult(IEnumerable<Profile> userProfiles, IEnumerable<Message> messages)
+            public ConversationResult(IEnumerable<Profile> userProfiles, Conversation conversation)
             {
+                Id = conversation.Id;
                 UserProfiles = userProfiles;
-                Messages = messages;
+                Messages = conversation.Messages;
             }
-
+            
+            public Guid Id { get; }
             public IEnumerable<Profile> UserProfiles { get; }
             public IEnumerable<Message> Messages { get; }
         }
         
-        [HttpGet("{conversationId}")]
-        public async Task<IActionResult> GetConversation(Guid conversationId)
+        [HttpGet("users")]
+        public async Task<IActionResult> GetConversationBetweenUsers([FromQuery(Name = "id")] IEnumerable<Guid> userIds)
         {
             var currentUser = await _currentUserService.GetUser();
+            var getUsersTasks = userIds.Select(id => _userService.GetUserById(id)).ToList();
+            await Task.WhenAll(getUsersTasks);
+            var users = getUsersTasks.Where(x => x.Result != null).Select(x => x.Result);
+
+            var allusers = new List<IUser>(users);
+            allusers.Add(currentUser);
+            var conversation = await _messageService.GetConversationBetweenUsers(allusers, 10);
             
-            var conversation = await _messageService.GetConversationById(conversationId, currentUser, 10);
-            if (conversation == null) return NotFound();
+            if (conversation == null)
+            {
+                conversation = new Conversation(Guid.NewGuid(), allusers);
+                await _messageService.CreateConversation(conversation);
+            }
 
             await _messageService.MarkUnreadMessagesAsRead(conversation, currentUser);
             
-            var otherUser = conversation.Users.First(user => user.Id != currentUser.Id);
-            var otherUserProfile = await _profileService.Get(otherUser.Id!.Value) ?? throw new Exception();
+            List<Profile> profiles = new List<Profile>();
+            foreach (var otherUser in users)
+            {
+                var otherUserProfile = await _profileService.Get(otherUser.Id!.Value);
+                profiles.Add(otherUserProfile);
+            }
             
-            return Ok(new ConversationResult(new List<Profile>{ otherUserProfile }, conversation.Messages));
+            return Ok(new ConversationResult(profiles, conversation));
         }
-        
-        public class CreateConversationInput
-        {
-            public Guid UserId { get; set; }
-        }
-        
-        [HttpPost]
-        public async Task<IActionResult> CreateConversation([FromBody] CreateConversationInput createConversationInput)
-        {
-            var currentUser = await _currentUserService.GetUser();
-            var otherUser = await _userService.GetUserById(createConversationInput.UserId) ??
-                            throw new Exception("Could not find user");
-            
-            var conversation = new Conversation(Guid.NewGuid(), new List<IUser>{ currentUser, otherUser });
-            await _messageService.CreateConversation(conversation);
 
-            return Ok(conversation);
-        }
-        
         public class MessageInput
         {
             public string Message { get; set; }

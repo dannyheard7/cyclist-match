@@ -3,6 +3,13 @@ import { useMemo } from "react";
 import { useAppContext } from "../Components/AppContext/AppContextProvider";
 import { useAuthentication } from "../Components/Authentication/AuthenticationContext"
 
+export type HTTPError = ky.HTTPError;
+export enum HTTPStatusCodes {
+    Status200 = 200,
+    Status401 = 401,
+    Status404 = 404
+}
+
 export const useApi = () => {
     const { apiHost } = useAppContext();
     const { user, signout } = useAuthentication();
@@ -21,7 +28,7 @@ export const useApi = () => {
                 ],
                 afterResponse: [
                     (_request, options, response) => {
-                        if (response.status === 401) {
+                        if (response.status === HTTPStatusCodes.Status401) {
                             signout();
                         }
                     }
@@ -33,3 +40,4 @@ export const useApi = () => {
 
     return api;
 }
+

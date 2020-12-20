@@ -11,7 +11,7 @@ const Account: React.FC = () => {
     const auth = useAuthentication();
     const api = useApi();
 
-    const [mutate, { isSuccess, isLoading, isError }] = useMutation(() => api.delete(`auth/user`));
+    const { mutate, isSuccess, isLoading, isError } = useMutation(() => api.delete(`auth/user`));
 
     useEffect(() => {
         if (isSuccess) {

@@ -1,12 +1,12 @@
 import { Card, CardContent, CardHeader, Divider, Grid, IconButton, Typography, useTheme } from "@material-ui/core";
+import SendIcon from '@material-ui/icons/Send';
 import React from "react";
-import { QueryStatus, useQuery } from "react-query";
+import { useQuery } from "react-query";
+import { Link as RouterLink } from "react-router-dom";
+import Profile from '../../Common/Interfaces/Profile';
+import { useApi } from "../../Hooks/useApi";
 import ErrorMessage from "../ErrorMessage/ErrorMessage";
 import Loading from "../Loading/Loading";
-import { useApi } from "../../Hooks/useApi";
-import { Link as RouterLink } from "react-router-dom";
-import SendIcon from '@material-ui/icons/Send';
-import Profile from '../../Common/Interfaces/Profile';
 
 interface ProfileMatchesResponse {
     matches: Array<Profile>
@@ -15,10 +15,10 @@ interface ProfileMatchesResponse {
 const ProfileMatches: React.FC = () => {
     const theme = useTheme();
     const api = useApi();
-    const { data, status } = useQuery('fetchProfileMatches', () => api.get("profiles/matches").json<ProfileMatchesResponse>());
+    const { data, isLoading, isError } = useQuery('fetchProfileMatches', () => api.get("profiles/matches").json<ProfileMatchesResponse>());
 
-    if (status === QueryStatus.Loading) return <Loading />;
-    else if (status === QueryStatus.Error || !data) return <ErrorMessage />;
+    if (isLoading) return <Loading />;
+    else if (isError || !data) return <ErrorMessage />;
 
     return (
         <Grid container spacing={2}>

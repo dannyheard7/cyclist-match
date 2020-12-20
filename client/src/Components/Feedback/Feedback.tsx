@@ -23,7 +23,7 @@ const Feedback: React.FC = () => {
      const { isAuthenticated } = useAuthentication();
      const api = useApi();
 
-     const [sendFeedback, { isSuccess, isLoading, isError }] = useMutation((input: FeedbackFormValues) => api.post(`feedback`, { json: input }))
+     const { mutate: sendFeedback, isSuccess, isLoading, isError } = useMutation((input: FeedbackFormValues) => api.post(`feedback`, { json: input }))
 
      if (isLoading) return <Loading />;
 

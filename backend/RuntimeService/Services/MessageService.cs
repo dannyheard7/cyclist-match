@@ -26,6 +26,11 @@ namespace RuntimeService.Services
             return _messageRepository.GetUserConversations(user);
         }
 
+        public Task<Conversation?> GetConversationBetweenUsers(IEnumerable<IUser> users, int? maxMessages)
+        {
+            return _messageRepository.GetConversationBetweenUsers(users, maxMessages);
+        }
+
         public Task<Conversation?> GetConversationById(Guid conversationId, IUser currentUser, int? maxMessages)
         {
             return _messageRepository.GetConversationById(conversationId, currentUser, maxMessages);

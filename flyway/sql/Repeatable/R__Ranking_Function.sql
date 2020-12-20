@@ -102,6 +102,7 @@ CREATE OR REPLACE FUNCTION get_profiles_by_rank(_user_id uuid) RETURNS table (
         AND cardinality(array(select unnest(up.availability) intersect select unnest(u.availability))) > 0
         AND up.max_distance > u.min_distance 
         AND up.min_distance < u.max_distance
+        AND ST_Distance(up.location, u.location) < 15000 -- 15KM
     ORDER BY
     ranking(
         up.location,

@@ -10,6 +10,7 @@ namespace RuntimeService.Services
     {
         public Task<int> GetNumberConversationsWithUnreadMessages(IUser user);
         public Task<IEnumerable<Conversation>> GetUserConversations(IUser user);
+        public Task<Conversation?> GetConversationBetweenUsers(IEnumerable<IUser> users, int? maxMessages);
         
         public Task<Conversation?> GetConversationById(Guid conversationId, IUser currentUser, int? maxMessages);
         public Task MarkUnreadMessagesAsRead(Conversation conversation, IUser currentUser);
