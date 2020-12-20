@@ -1,6 +1,7 @@
 DROP FUNCTION IF EXISTS user_conversations;
 CREATE OR REPLACE FUNCTION user_conversations(_user_id uuid) RETURNS table (
     conversation_id uuid,
+    message_id uuid,
     text TEXT,
     sent_at timestamp,
     sender_user_id UUID,
@@ -20,6 +21,7 @@ CREATE OR REPLACE FUNCTION user_conversations(_user_id uuid) RETURNS table (
     SELECT
     DISTINCT ON (c.id, u.id)
     c.id as conversation_id,
+    cm.id,
     cm.text,
     cm.sent_at,
     cm.sender_user_id,

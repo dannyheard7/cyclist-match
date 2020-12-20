@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Persistence.Repository;
+using RuntimeService.Services;
 
 namespace RuntimeService.Controllers
 {
@@ -16,12 +17,14 @@ namespace RuntimeService.Controllers
         private readonly IExternalUserService _externalUserService;
         private readonly ICurrentUserService _currentUserService;
         private readonly IUserRepository _userRepository;
+        private readonly IUserService _userService;
         
-        public AuthController(IExternalUserService externalUserService, IUserRepository userRepository, ICurrentUserService currentUserService)
+        public AuthController(IExternalUserService externalUserService, ICurrentUserService currentUserService, IUserRepository userRepository, IUserService userService)
         {
-            _externalUserService = externalUserService ?? throw new ArgumentNullException(nameof(externalUserService));
-            _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-            _currentUserService = currentUserService ?? throw new ArgumentNullException(nameof(currentUserService));
+            _externalUserService = externalUserService;
+            _currentUserService = currentUserService;
+            _userRepository = userRepository;
+            _userService = userService;
         }
 
         [HttpPost("login")]
@@ -46,7 +49,7 @@ namespace RuntimeService.Controllers
         public async Task<ActionResult> DeleteUser()
         {
             var currentUser = await _currentUserService.GetUser();
-            await _userRepository.DeleteUser(currentUser);
+            await _userService.DeleteUser(currentUser);
 
             return NoContent();
         }

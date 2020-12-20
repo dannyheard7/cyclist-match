@@ -267,5 +267,16 @@ namespace Persistence.SQL.Repository
             
             transaction.Complete();
         }
+
+        public async Task DeleteUserConversations(IUser user)
+        {
+            await using var connection = _connectionFactory.Create();
+            await connection.ExecuteAsync(@"
+                DELETE FROM conversation c
+                USING conversation_user cu 
+                WHERE c.id = cu.conversation_id
+                AND cu.user_id=@UserId", 
+                new {UserId=user.Id});
+        }
     }
 }

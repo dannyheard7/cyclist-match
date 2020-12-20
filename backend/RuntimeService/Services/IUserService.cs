@@ -7,5 +7,7 @@ namespace RuntimeService.Services
     public interface IUserService
     {
         public Task<IUser?> GetUserById(Guid userId);
+
+        public Task DeleteUser(IUser user);
     }
 }

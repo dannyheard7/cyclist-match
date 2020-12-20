@@ -78,7 +78,7 @@ const ConversationPage: React.FC = () => {
             </div>
             <div className={classes.messages} >
                 {
-                    messages.map(message => (<Message message={message} />))
+                    messages.map(message => (<Message message={message} key={message.id} />))
                 }
             </div>
             <div className={classes.messageBox}>

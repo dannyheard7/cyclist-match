@@ -17,5 +17,7 @@ namespace Persistence.Repository
         
         public Task CreateConversation(Conversation conversation);
         public Task SendMessage(Conversation conversation, Message message);
+
+        public Task DeleteUserConversations(IUser user);
     }
 }

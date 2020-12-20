@@ -51,5 +51,10 @@ namespace RuntimeService.Services
             // TODO: send an email notification
             return _messageRepository.SendMessage(conversation, message);
         }
+
+        public Task DeleteUserConversations(IUser user)
+        {
+            return _messageRepository.DeleteUserConversations(user);
+        }
     }
 }

@@ -4,6 +4,7 @@ import { Conversation } from "../Common/Interfaces/Conversation";
 import Message from "../Common/Interfaces/Message";
 import Profile from "../Common/Interfaces/Profile";
 import { User } from "../Common/Interfaces/User";
+import { Query } from "../Common/Queries";
 import { HTTPError, useApi } from "./useApi";
 import useCurrentUser from "./useCurrentUser";
 
@@ -11,6 +12,7 @@ export interface ConversationResult {
     id: string,
     userProfiles: Array<Profile>,
     messages: Array<{
+        id: string,
         senderUserId: string,
         receiverRead: boolean,
         text: string,
@@ -41,6 +43,7 @@ interface SendMessageInput {
 const useConversation = (userId: string): UseConversationHook => {
     const api = useApi();
     const { user } = useCurrentUser();
+    const queryCache = useQueryClient();
 
     const { data, isLoading: conversationLoading, error: getConvoError, refetch } = useQuery<Conversation, HTTPError>(
         `getConversation-${userId}`,
@@ -48,44 +51,43 @@ const useConversation = (userId: string): UseConversationHook => {
             var conversationResult = await api.get(`conversations/users?id=${userId}`).json<ConversationResult>();
             return convertConversationResult(conversationResult, user!);
         },
-        { enabled: false }
+        {
+            enabled: false,
+            onSuccess: () => {
+                queryCache.invalidateQueries(Query.NUMBER_UNREAD_CONVERSATIONS, { exact: true })
+            }
+        }
     );
 
     useEffect(() => {
         if (user) refetch();
     }, [user, refetch])
 
-    const queryCache = useQueryClient();
+
     const { mutate: sendMessage } = useMutation<{}, HTTPError, SendMessageInput>(
         (input: SendMessageInput) => api.post(`conversations/${data!.id}/message`, { json: input }),
         {
             onSuccess: (_, input) => {
                 queryCache.setQueryData<Conversation>(`getConversation-${userId}`, old => {
+                    const newMessage: Message = {
+                        id: Math.random().toString(),
+                        text: input.message,
+                        receiverRead: false,
+                        sentAt: new Date(),
+                        currentUserIsSender: true,
+                        senderUserId: user!.id
+                    };
+
                     if (old) {
                         return {
                             ...old,
-                            messages: [
-                                ...old.messages,
-                                {
-                                    text: input.message,
-                                    receiverRead: false,
-                                    sentAt: new Date(),
-                                    currentUserIsSender: true,
-                                    senderUserId: user!.id
-                                }
-                            ]
+                            messages: [...old.messages, newMessage]
                         }
                     }
                     return {
                         id: data!.id,
                         userProfiles: data!.userProfiles,
-                        messages: [{
-                            text: input.message,
-                            receiverRead: false,
-                            sentAt: new Date(),
-                            currentUserIsSender: true,
-                            senderUserId: user!.id
-                        }]
+                        messages: [newMessage]
                     };
                 })
             }

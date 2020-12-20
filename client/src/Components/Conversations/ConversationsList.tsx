@@ -14,10 +14,8 @@ interface ConversationsResponse {
     conversations: Array<ConversationResult>
 }
 
-const ConversationsList: React.FC = () => {
-    const theme = useTheme();
+const useConversations = () => {
     const api = useApi();
-    const { push } = useHistory();
     const { user, loading } = useCurrentUser();
 
     const { data, isLoading, refetch } = useQuery<Array<Conversation>, HTTPError>(
@@ -31,10 +29,21 @@ const ConversationsList: React.FC = () => {
 
     useEffect(() => {
         if (user) refetch();
-    }, [user, refetch])
+    }, [user, refetch]);
 
-    if (isLoading || loading) return <Loading />;
-    else if (!user || !data) return <ErrorMessage />;
+    return {
+        conversations: data,
+        loading: loading || isLoading
+    }
+}
+
+const ConversationsList: React.FC = () => {
+    const theme = useTheme();
+    const { push } = useHistory();
+    const { conversations, loading } = useConversations();
+
+    if (loading) return <Loading />;
+    else if (!conversations) return <ErrorMessage />;
 
     return (
         <Grid container spacing={2}>
@@ -44,11 +53,11 @@ const ConversationsList: React.FC = () => {
             <Divider style={{ margin: theme.spacing(1, 0), width: '100%' }} />
             <Grid container item xs={12} spacing={1}>
                 {
-                    data.map(conversation => {
+                    conversations.map(conversation => {
                         const otherParticipant = conversation.userProfiles[0];
 
                         return (
-                            <Grid item xs={12} >
+                            <Grid item xs={12} key={conversation.id}>
                                 <Card
                                     onClick={() => push(`/conversations/${otherParticipant.userId}`)}
                                     style={{ cursor: 'pointer' }}
