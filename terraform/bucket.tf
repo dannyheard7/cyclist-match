@@ -1,6 +1,6 @@
 resource "google_storage_bucket" "frontend" {
   provider = google
-  name     = "${var.project_id}/frontend"
+  name     = "${var.project_id}-frontend"
   location = "EUROPE-WEST2"
 }
 
