@@ -6,12 +6,23 @@ resource "google_storage_bucket" "frontend" {
   uniform_bucket_level_access = true
 }
 
-resource "google_storage_default_object_access_control" "website_read" {
-  bucket = google_storage_bucket.frontend.name
-  role   = "READER"
-  entity = "allUsers"
+# Bucket Deployment iam user
+resource "google_service_account" "frontend_bucket_deployment_sa" {
+  account_id   = "frontend-bucket-deployment-sa"
+  display_name = "frontend_bucket_deployment Account"
 }
 
+resource "google_storage_bucket_iam_member" "frontend_bucket_deployment_sa-iam" {
+  bucket = google_storage_bucket.frontend.name
+  role   = "roles/storage.admin"
+  member = "serviceAccount:${google_service_account.frontend_bucket_deployment_sa.email}"
+}
+
+resource "google_storage_bucket_iam_member" "frontend_bucket_terraform_sa-iam" {
+  bucket = google_storage_bucket.frontend.name
+  role   = "roles/storage.admin"
+  member = "serviceAccount:terraform@${var.project_id}.iam.gserviceaccount.com"
+}
 
 # Reserve an external IP
 resource "google_compute_global_address" "website" {
