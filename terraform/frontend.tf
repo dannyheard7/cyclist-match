@@ -18,6 +18,12 @@ resource "google_storage_bucket_iam_member" "frontend_bucket_deployment_sa-iam" 
   member = "serviceAccount:${google_service_account.frontend_bucket_deployment_sa.email}"
 }
 
+resource "google_storage_bucket_iam_member" "frontend_bucket_terraform_allusers_view" {
+  bucket = google_storage_bucket.frontend.name
+  role   = "roles/storage.objectViewer"
+  member = "allUsers"
+}
+
 resource "google_storage_bucket_iam_member" "frontend_bucket_terraform_sa-iam" {
   bucket = google_storage_bucket.frontend.name
   role   = "roles/storage.admin"
