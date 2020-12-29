@@ -1,9 +1,14 @@
 # Bucket 
 resource "google_storage_bucket" "frontend" {
   provider                    = google
-  name                        = "${var.project_id}-frontend"
+  name                        = "wwww.elevait.co.uk"
   location                    = "EUROPE-WEST2"
   uniform_bucket_level_access = true
+
+  website {
+    main_page_suffix = "index.html"
+    not_found_page   = "index.html"
+  }
 }
 
 # Bucket Deployment iam user

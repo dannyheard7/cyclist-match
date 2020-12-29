@@ -1,8 +1,8 @@
 name: Website - Production
 on:
   push:
-    branches:
-      - master
+    tags:
+      - "v*.*.*"
 jobs:
   build:
     name: Deploy Client
