@@ -2,7 +2,7 @@
 resource "google_storage_bucket" "frontend" {
   provider                    = google
   name                        = "wwww.elevait.co.uk"
-  location                    = "EUROPE-WEST2"
+  location                    = var.region
   uniform_bucket_level_access = true
 
   website {
