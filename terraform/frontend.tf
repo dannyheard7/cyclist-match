@@ -17,6 +17,18 @@ resource "google_service_account" "frontend_bucket_deployment_sa" {
   display_name = "frontend_bucket_deployment Account"
 }
 
+resource "google_storage_bucket_iam_member" "frontend_bucket_admin_member" {
+  bucket = google_storage_bucket.frontend.name
+  role   = "roles/storage.admin"
+  member = var.admin_member
+}
+
+resource "google_storage_bucket_iam_member" "frontend_bucket_terraform_sa-iam" {
+  bucket = google_storage_bucket.frontend.name
+  role   = "roles/storage.admin"
+  member = "serviceAccount:terraform@${var.project_id}.iam.gserviceaccount.com"
+}
+
 resource "google_storage_bucket_iam_member" "frontend_bucket_deployment_sa-iam" {
   bucket = google_storage_bucket.frontend.name
   role   = "roles/storage.admin"
@@ -29,11 +41,6 @@ resource "google_storage_bucket_iam_member" "frontend_bucket_terraform_allusers_
   member = "allUsers"
 }
 
-resource "google_storage_bucket_iam_member" "frontend_bucket_terraform_sa-iam" {
-  bucket = google_storage_bucket.frontend.name
-  role   = "roles/storage.admin"
-  member = "serviceAccount:terraform@${var.project_id}.iam.gserviceaccount.com"
-}
 
 # Reserve an external IP
 resource "google_compute_global_address" "website" {
