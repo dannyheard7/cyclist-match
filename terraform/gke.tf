@@ -70,6 +70,16 @@ resource "kubernetes_service_account" "helm_account" {
   }
 }
 
+// TODO: make project admin permission to view this sa
+// We should do this for all the sas
+module "kubernetes-engine_workload-identity" {
+  source      = "terraform-google-modules/kubernetes-engine/google//modules/workload-identity"
+  version     = "12.3.0"
+  k8s_sa_name = var.helm_sa_name
+  name        = var.helm_sa_name
+  project_id  = var.project_id
+}
+
 resource "kubernetes_cluster_role_binding" "helm_role_binding" {
   metadata {
     name = kubernetes_service_account.helm_account.metadata.0.name
@@ -101,4 +111,15 @@ provider "helm" {
     client_key             = base64decode(google_container_cluster.default.master_auth.0.client_key)
     cluster_ca_certificate = base64decode(google_container_cluster.default.master_auth.0.cluster_ca_certificate)
   }
+}
+
+
+// LB backend
+resource "google_compute_backend_service" "gke_primary_cluster_backend" {
+  provider = google
+  project  = var.project
+  name     = "gke-primary-cluster-backend"
+
+  protocol   = "HTTP"
+  enable_cdn = false
 }
