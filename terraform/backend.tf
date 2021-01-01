@@ -13,7 +13,7 @@ resource "google_storage_bucket_iam_member" "image_registry_admin_member" {
 resource "google_storage_bucket_iam_member" "image_registry_terraform_sa_iam" {
   bucket = google_container_registry.image_registry.id
   role   = "roles/storage.admin"
-  member = "serviceAccount:terraform@${var.project_id}.iam.gserviceaccount.com"
+  member = "serviceAccount:${local.terraform_sa_email}"
 }
 
 

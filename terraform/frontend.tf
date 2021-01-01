@@ -26,7 +26,7 @@ resource "google_storage_bucket_iam_member" "frontend_bucket_admin_member" {
 resource "google_storage_bucket_iam_member" "frontend_bucket_terraform_sa-iam" {
   bucket = google_storage_bucket.frontend.name
   role   = "roles/storage.admin"
-  member = "serviceAccount:terraform@${var.project_id}.iam.gserviceaccount.com"
+  member = "serviceAccount:${local.terraform_sa_email}"
 }
 
 resource "google_storage_bucket_iam_member" "frontend_bucket_deployment_sa-iam" {
