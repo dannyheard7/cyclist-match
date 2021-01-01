@@ -1,7 +1,7 @@
 # Bucket 
 resource "google_storage_bucket" "frontend" {
   provider                    = google
-  name                        = "wwww.elevait.co.uk"
+  name                        = var.frontend_bucket_name
   location                    = var.region
   uniform_bucket_level_access = true
 
@@ -26,7 +26,7 @@ resource "google_storage_bucket_iam_member" "frontend_bucket_admin_member" {
 resource "google_storage_bucket_iam_member" "frontend_bucket_terraform_sa-iam" {
   bucket = google_storage_bucket.frontend.name
   role   = "roles/storage.admin"
-  member = "serviceAccount:${local.terraform_sa_email}"
+  member = local.terraform_sa_member
 }
 
 resource "google_storage_bucket_iam_member" "frontend_bucket_deployment_sa-iam" {
