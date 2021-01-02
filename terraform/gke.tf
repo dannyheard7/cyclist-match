@@ -72,12 +72,18 @@ resource "kubernetes_service_account" "helm_account" {
 
 // TODO: make project admin permission to view this sa
 // We should do this for all the sas
-module "kubernetes-engine_workload-identity" {
+module "kubernetes-engine_workload-identity" "helm_sa_workload_identity" {
   source      = "terraform-google-modules/kubernetes-engine/google//modules/workload-identity"
   version     = "12.3.0"
   k8s_sa_name = var.helm_sa_name
   name        = var.helm_sa_name
   project_id  = var.project_id
+}
+
+resource "google_project_iam_member" {
+  project = var.project_id
+  role    = "roles/container.admin"
+  member  = "serviceAccount:${kubernetes-engine_workload-identity.helm_sa_workload_identity.gcp_service_account_email}"
 }
 
 resource "kubernetes_cluster_role_binding" "helm_role_binding" {

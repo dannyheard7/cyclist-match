@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "chart.fullname" . }}
+  name: {{ include "chart.fullname" . }}-backend-deployment
   labels:
     {{- include "chart.labels" . | nindent 4 }}
 spec:
@@ -28,10 +28,10 @@ spec:
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
-        - name: {{ .Chart.Name }}
+        - name: "{{ .Chart.Name }}-api"
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          image: "{{ .Values.image.registry }}/cycling-buddies-api:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
@@ -39,12 +39,82 @@ spec:
               protocol: TCP
           livenessProbe:
             httpGet:
-              path: /
+              path: /health
               port: http
           readinessProbe:
             httpGet:
-              path: /
+              path: /health
               port: http
+          env:
+            - name: DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: db
+                  key: host
+            - name: DB_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: db
+                  key: port
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: db
+                  key: database
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: db
+                  key: username
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db
+                  key: password
+            - name: ConnectionStrings__DefaultConnection
+              value: Server=$(DB_HOST);Port=$(DB_PORT);Database=$(DB_NAME);User ID=$(DB_USERNAME);Password=$(DB_PASSWORD)
+            - name: Auth0__Domain
+              valueFrom:
+                configMapKeyRef:
+                  name: api-config
+                  key: auth0-domain
+            - name: Auth0__Audience
+              valueFrom:
+                secretKeyRef:
+                  name: api-config
+                  key: auth0-audience
+            - name: MAPBOX__TOKEN
+              valueFrom:
+                configMapKeyRef:
+                  name: api-config
+                  key: mapbox-token
+            - name: CORS_ORIGINS
+              value: www.elevait.co.uk;elevait.co.uk
+            - name: Mail__Host
+              valueFrom:
+                configMapKeyRef:
+                  name: api-config
+                  key: smtp-host
+            - name: Mail__Port
+              valueFrom:
+                configMapKeyRef:
+                  name: api-config
+                  key: smtp-port
+            - name: Mail__UserName
+              valueFrom:
+                configMapKeyRef:
+                  name: api-config
+                  key: smtp-username
+            - name: Mail__Password
+              valueFrom:
+                secretKeyRef:
+                  name: api-config
+                  key: smtp-password
+            - name: Mail__FeedbackEmail
+              valueFrom:
+                secretKeyRef:
+                  name: api-config
+                  key: feedback-email
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}

@@ -2,8 +2,8 @@ name: "Terraform CI"
 
 on:
   push:
-    branches:
-      - master
+    tags:
+      - "v*.*.*"
 
 jobs:
   terraform:
