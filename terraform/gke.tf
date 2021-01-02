@@ -1,5 +1,5 @@
 resource "google_container_cluster" "primary" {
-  provider = google
+  provider = google-beta
 
   name     = "${var.project_id}-gke-1"
   project  = var.project_id
@@ -7,6 +7,9 @@ resource "google_container_cluster" "primary" {
 
   remove_default_node_pool = true
   initial_node_count       = 1
+  networking_mode          = "VPC_NATIVE"
+
+  ip_allocation_policy {}
 
   addons_config {
     http_load_balancing {
@@ -72,7 +75,7 @@ resource "kubernetes_service_account" "helm_account" {
 
 // TODO: make project admin permission to view this sa
 // We should do this for all the sas
-module "kubernetes-engine_workload-identity" "helm_sa_workload_identity" {
+module "kubernetes-engine_workload-identity" {
   source      = "terraform-google-modules/kubernetes-engine/google//modules/workload-identity"
   version     = "12.3.0"
   k8s_sa_name = var.helm_sa_name
@@ -80,10 +83,10 @@ module "kubernetes-engine_workload-identity" "helm_sa_workload_identity" {
   project_id  = var.project_id
 }
 
-resource "google_project_iam_member" {
+resource "google_project_iam_member" "helm_sa_container_admin_iam" {
   project = var.project_id
   role    = "roles/container.admin"
-  member  = "serviceAccount:${kubernetes-engine_workload-identity.helm_sa_workload_identity.gcp_service_account_email}"
+  member  = "serviceAccount:${module.kubernetes-engine_workload-identity.gcp_service_account_email}"
 }
 
 resource "kubernetes_cluster_role_binding" "helm_role_binding" {
@@ -109,7 +112,6 @@ resource "kubernetes_cluster_role_binding" "helm_role_binding" {
 provider "helm" {
   service_account = kubernetes_service_account.helm_account.metadata.0.name
   tiller_image    = "gcr.io/kubernetes-helm/tiller:${var.helm_version}"
-  install_tiller  = true
 
   kubernetes {
     host                   = google_container_cluster.primary.endpoint

@@ -28,3 +28,54 @@ resource "google_storage_bucket_iam_member" "image_registry_gcr_image_deployment
   role   = "roles/storage.admin"
   member = "serviceAccount:${google_service_account.gcr_image_deployment_sa.email}"
 }
+
+# Database
+resource "google_project_service" "sqladmin_service" {
+  project = var.project_id
+  service = "sqladmin.googleapis.com"
+}
+
+resource "google_project_service" "networking_service" {
+  project = var.project_id
+  service = "servicenetworking.googleapis.com"
+}
+
+resource "google_compute_global_address" "private_ip_alloc" {
+  name          = "private-ip-alloc"
+  purpose       = "VPC_PEERING"
+  address_type  = "INTERNAL"
+  prefix_length = 16
+  network       = data.google_compute_network.default.id
+}
+
+resource "google_service_networking_connection" "private_vpc_connection" {
+  network                 = data.google_compute_network.default.id
+  service                 = "servicenetworking.googleapis.com"
+  reserved_peering_ranges = [google_compute_global_address.private_ip_alloc.name]
+}
+
+resource "google_sql_database_instance" "master" {
+  name             = "cycling-buddies-db1"
+  database_version = "POSTGRES_13"
+  region           = "us-central1"
+
+  settings {
+    tier            = "db-f1-micro"
+    disk_autoresize = false
+
+    ip_configuration {
+      ipv4_enabled    = false
+      private_network = data.google_compute_network.default.id
+    }
+
+    backup_configuration {
+      enabled = false
+    }
+  }
+
+  depends_on = [
+    google_service_networking_connection.private_vpc_connection,
+    google_project_service.sqladmin_service,
+    google_project_service.networking_service
+  ]
+}
