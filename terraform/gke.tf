@@ -115,11 +115,38 @@ provider "helm" {
 
 
 // LB backend
+resource "google_compute_instance_group_named_port" "my_port" {
+  group = google_container_cluster.primary.instance_group_urls[0]
+  zone  = "us-central1-a"
+
+  name = "http"
+  port = 7000
+}
+
+resource "google_compute_health_check" "http2-health-check" {
+  name = "http2-health-check"
+
+  timeout_sec        = 2
+  check_interval_sec = 100
+
+  http2_health_check {
+    port         = google_compute_instance_group_named_port.my_port.port
+    request_path = "/health"
+  }
+}
+
 resource "google_compute_backend_service" "gke_primary_cluster_backend" {
   provider = google
-  project  = var.project
+  project  = var.project_id
   name     = "gke-primary-cluster-backend"
 
-  protocol   = "HTTP"
+  protocol   = "HTTP2"
+  port_name  = google_compute_instance_group_named_port.my_port.name
   enable_cdn = false
+
+  backend {
+    group = google_container_cluster.primary.instance_group_urls[0]
+  }
+
+  health_checks = [google_compute_health_check.http2-health-check.id]
 }

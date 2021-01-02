@@ -35,6 +35,11 @@ resource "google_compute_url_map" "website" {
   name            = "website-url-map"
   default_service = google_compute_backend_bucket.website.self_link
 
+  host_rule {
+    hosts        = ["elevait.co.uk"]
+    path_matcher = "api"
+  }
+
   path_matcher {
     name            = "api"
     default_service = google_compute_backend_bucket.website.self_link
