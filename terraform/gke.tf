@@ -103,6 +103,7 @@ resource "kubernetes_cluster_role_binding" "helm_role_binding" {
 provider "helm" {
   service_account = kubernetes_service_account.helm_account.metadata.0.name
   tiller_image    = "gcr.io/kubernetes-helm/tiller:${var.helm_version}"
+  install_tiller  = true
 
   kubernetes {
     host                   = google_container_cluster.primary.endpoint
