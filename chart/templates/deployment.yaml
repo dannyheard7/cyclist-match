@@ -75,7 +75,7 @@ spec:
               value: Server=$(DB_HOST);Port=$(DB_PORT);Database=$(DB_NAME);User ID=$(DB_USERNAME);Password=$(DB_PASSWORD)
             - name: Auth0__Domain
               valueFrom:
-                configMapKeyRef:
+                secretKeyRef:
                   name: api-config
                   key: auth0-domain
             - name: Auth0__Audience
@@ -85,24 +85,24 @@ spec:
                   key: auth0-audience
             - name: MAPBOX__TOKEN
               valueFrom:
-                configMapKeyRef:
+                secretKeyRef:
                   name: api-config
                   key: mapbox-token
             - name: CORS_ORIGINS
               value: www.elevait.co.uk;elevait.co.uk
             - name: Mail__Host
               valueFrom:
-                configMapKeyRef:
+                secretKeyRef:
                   name: api-config
                   key: smtp-host
             - name: Mail__Port
               valueFrom:
-                configMapKeyRef:
+                secretKeyRef:
                   name: api-config
                   key: smtp-port
             - name: Mail__UserName
               valueFrom:
-                configMapKeyRef:
+                secretKeyRef:
                   name: api-config
                   key: smtp-username
             - name: Mail__Password

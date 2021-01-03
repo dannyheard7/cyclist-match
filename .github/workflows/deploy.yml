@@ -143,5 +143,4 @@ jobs:
           helm upgrade --install chart ./chart \
             --set image.tag=$IMAGE_TAG \
             --wait
-          kubectl rollout status deployment/$DEPLOYMENT_NAME
           kubectl get services -o wide

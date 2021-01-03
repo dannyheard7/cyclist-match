@@ -12,7 +12,7 @@ using Microsoft.Extensions.Configuration;
 namespace RuntimeService.Controllers
 {
     [ApiController]
-    [Route("location")]
+    [Route("api/location")]
     [Authorize]
     public class LocationController : ControllerBase
     {

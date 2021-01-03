@@ -11,7 +11,7 @@ using RuntimeService.Services;
 namespace RuntimeService.Controllers
 {
     [ApiController]
-    [Route("profiles")]
+    [Route("api/profiles")]
     [Authorize]
     public class ProfileController : ControllerBase
     {

@@ -23,7 +23,7 @@ namespace RuntimeService.Controllers
     }
     
     [ApiController]
-    [Route("feedback")]
+    [Route("api/feedback")]
     public class FeedbackController : ControllerBase
     {
         private readonly MailOptions _mailOptions;

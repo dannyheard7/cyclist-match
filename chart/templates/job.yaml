@@ -12,6 +12,11 @@ spec:
       containers:
         - name: "{{ .Chart.Name }}-db-migrate"
           image: "{{ .Values.image.registry }}/cycling-buddies-db-migration:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          args:
+            - info
+            - repair
+            - migrate
+            - info
           env:
             - name: DB_HOST
               valueFrom:

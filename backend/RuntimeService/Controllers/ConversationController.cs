@@ -12,7 +12,7 @@ using RuntimeService.Services;
 namespace RuntimeService.Controllers
 {
     [ApiController]
-    [Route("conversations")]
+    [Route("api/conversations")]
     [Authorize]
     public class ConversationController : ControllerBase
     {

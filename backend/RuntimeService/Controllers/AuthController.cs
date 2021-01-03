@@ -10,7 +10,7 @@ using RuntimeService.Services;
 namespace RuntimeService.Controllers
 {
     [ApiController]
-    [Route("auth")]
+    [Route("api/auth")]
     [Authorize]
     public class AuthController : ControllerBase
     {
