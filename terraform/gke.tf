@@ -130,13 +130,13 @@ resource "google_compute_instance_group_named_port" "my_port" {
   port = 30886
 }
 
-resource "google_compute_health_check" "http2-health-check" {
-  name = "http2-health-check"
+resource "google_compute_health_check" "http-health-check" {
+  name = "http-health-check"
 
   timeout_sec        = 2
   check_interval_sec = 100
 
-  http2_health_check {
+  http_health_check {
     port         = google_compute_instance_group_named_port.my_port.port
     request_path = "/health"
   }
@@ -147,7 +147,7 @@ resource "google_compute_backend_service" "gke_primary_cluster_backend" {
   project  = var.project_id
   name     = "gke-primary-cluster-backend"
 
-  protocol   = "HTTP2"
+  protocol   = "HTTP"
   port_name  = google_compute_instance_group_named_port.my_port.name
   enable_cdn = false
 
@@ -155,5 +155,5 @@ resource "google_compute_backend_service" "gke_primary_cluster_backend" {
     group = google_container_cluster.primary.instance_group_urls[0]
   }
 
-  health_checks = [google_compute_health_check.http2-health-check.id]
+  health_checks = [google_compute_health_check.http-health-check.id]
 }
