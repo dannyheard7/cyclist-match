@@ -14,6 +14,13 @@ resource "google_container_cluster" "primary" {
 
   ip_allocation_policy {}
 
+
+  private_cluster_config {
+    enable_private_nodes    = true
+    enable_private_endpoint = false
+    master_ipv4_cidr_block  = "172.16.0.16/28"
+  }
+
   addons_config {
     http_load_balancing {
       disabled = true
@@ -110,23 +117,23 @@ resource "kubernetes_cluster_role_binding" "helm_role_binding" {
   }
 }
 
-provider "helm" {
-  service_account = kubernetes_service_account.helm_account.metadata.0.name
-  tiller_image    = "gcr.io/kubernetes-helm/tiller:${var.helm_version}"
+# provider "helm" {
+#   service_account = kubernetes_service_account.helm_account.metadata.0.name
+#   tiller_image    = "gcr.io/kubernetes-helm/tiller:${var.helm_version}"
 
-  kubernetes {
-    host                   = google_container_cluster.primary.endpoint
-    token                  = data.google_client_config.current.access_token
-    client_certificate     = base64decode(google_container_cluster.default.master_auth.0.client_certificate)
-    client_key             = base64decode(google_container_cluster.default.master_auth.0.client_key)
-    cluster_ca_certificate = base64decode(google_container_cluster.default.master_auth.0.cluster_ca_certificate)
-  }
-}
+#   kubernetes {
+#     host                   = google_container_cluster.primary.endpoint
+#     token                  = data.google_client_config.current.access_token
+#     client_certificate     = base64decode(google_container_cluster.default.master_auth.0.client_certificate)
+#     client_key             = base64decode(google_container_cluster.default.master_auth.0.client_key)
+#     cluster_ca_certificate = base64decode(google_container_cluster.default.master_auth.0.cluster_ca_certificate)
+#   }
+# }
 
 
 // LB backend
 resource "google_compute_instance_group_named_port" "my_port" {
-  group = google_container_cluster.primary.instance_group_urls[0]
+  group = google_container_node_pool.primary_preemptible_nodes.instance_group_urls[0]
   zone  = "us-central1-a"
 
   name = "http"
@@ -163,6 +170,12 @@ resource "google_compute_health_check" "http2-health-check" {
   }
 }
 
+data "google_compute_instance_group" "google_compute_instance_group_nodepool" {
+  for_each = toset(google_container_node_pool.primary_preemptible_nodes.instance_group_urls)
+  name     = regex("gke.+", "${each.value}")
+  zone     = "us-central1-a"
+}
+
 resource "google_compute_backend_service" "gke_primary_cluster_backend" {
   provider = google
   project  = var.project_id
@@ -172,8 +185,12 @@ resource "google_compute_backend_service" "gke_primary_cluster_backend" {
   port_name  = google_compute_instance_group_named_port.my_port.name
   enable_cdn = false
 
-  backend {
-    group = google_container_cluster.primary.instance_group_urls[0]
+  dynamic "backend" {
+    for_each = data.google_compute_instance_group.google_compute_instance_group_nodepool
+    content {
+      balancing_mode = "UTILIZATION"
+      group          = backend.value.self_link
+    }
   }
 
   health_checks = [google_compute_health_check.http2-health-check.id]

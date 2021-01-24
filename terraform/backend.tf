@@ -55,7 +55,7 @@ resource "google_service_networking_connection" "private_vpc_connection" {
 }
 
 resource "google_sql_database_instance" "master" {
-  name             = "cycling-buddies-db1"
+  name             = "cycling-buddies-db"
   database_version = "POSTGRES_13"
   region           = "us-central1"
 
