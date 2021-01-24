@@ -135,9 +135,10 @@ resource "google_compute_instance_group_named_port" "my_port" {
 
 // Allow health check through firewall
 resource "google_compute_firewall" "allow-health-check" {
-  name      = "allow-health-check"
-  network   = data.google_compute_network.default.name
-  direction = "INGRESS"
+  name          = "allow-health-check"
+  network       = data.google_compute_network.default.name
+  direction     = "INGRESS"
+  source_ranges = ["130.211.0.0/22", "35.191.0.0/16"]
 
   allow {
     protocol = "tcp"
