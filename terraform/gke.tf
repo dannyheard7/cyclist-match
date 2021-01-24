@@ -129,7 +129,7 @@ resource "google_compute_instance_group_named_port" "my_port" {
   zone  = "us-central1-a"
 
   name = "http"
-  port = 7000
+  port = 30886
 }
 
 resource "google_compute_health_check" "http2-health-check" {
