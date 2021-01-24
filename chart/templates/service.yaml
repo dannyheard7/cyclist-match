@@ -11,5 +11,6 @@ spec:
       targetPort: 80
       protocol: TCP
       name: http
+      {{ if eq .Values.service.type "NodePort" -}} nodePort: {{ .Values.service.nodePort }} {{ end }}
   selector:
     {{- include "chart.selectorLabels" . | nindent 4 }}
