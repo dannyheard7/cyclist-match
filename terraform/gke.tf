@@ -9,6 +9,9 @@ resource "google_container_cluster" "primary" {
   initial_node_count       = 1
   networking_mode          = "VPC_NATIVE"
 
+  monitoring_service = "none"
+  logging_service    = "none"
+
   ip_allocation_policy {}
 
   addons_config {
@@ -131,7 +134,8 @@ resource "google_compute_instance_group_named_port" "my_port" {
 }
 
 resource "google_compute_health_check" "http2-health-check" {
-  name = "http2-health-check"
+  provider = google-beta
+  name     = "http2-health-check"
 
   timeout_sec        = 2
   check_interval_sec = 100
@@ -139,6 +143,10 @@ resource "google_compute_health_check" "http2-health-check" {
   http_health_check {
     port         = google_compute_instance_group_named_port.my_port.port
     request_path = "/health"
+  }
+
+  log_config {
+    enable = true
   }
 }
 
