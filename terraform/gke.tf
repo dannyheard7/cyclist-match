@@ -133,6 +133,18 @@ resource "google_compute_instance_group_named_port" "my_port" {
   port = 30886
 }
 
+// Allow health check through firewall
+resource "google_compute_firewall" "allow-health-check" {
+  name      = "allow-health-check"
+  network   = data.google_compute_network.default.name
+  direction = "INGRESS"
+
+  allow {
+    protocol = "tcp"
+    ports    = [google_compute_instance_group_named_port.my_port.port]
+  }
+}
+
 resource "google_compute_health_check" "http2-health-check" {
   provider = google-beta
   name     = "http2-health-check"
@@ -146,7 +158,7 @@ resource "google_compute_health_check" "http2-health-check" {
   }
 
   log_config {
-    enable = true
+    enable = false
   }
 }
 
