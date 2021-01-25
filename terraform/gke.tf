@@ -10,7 +10,7 @@ resource "google_container_cluster" "primary" {
   networking_mode          = "VPC_NATIVE"
 
   monitoring_service = "none"
-  logging_service    = "none"
+  logging_service    = "logging.googleapis.com/kubernetes"
 
   ip_allocation_policy {}
 
