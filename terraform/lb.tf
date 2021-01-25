@@ -68,3 +68,18 @@ resource "google_compute_global_forwarding_rule" "default" {
   port_range            = "443"
   target                = google_compute_target_https_proxy.website.self_link
 }
+
+
+# Add Email MX entries to the DNS
+resource "google_dns_record_set" "email" {
+  provider     = google
+  name         = google_dns_managed_zone.gcp_cycling_buddies.dns_name
+  type         = "MX"
+  ttl          = 5
+  managed_zone = google_dns_managed_zone.gcp_cycling_buddies.name
+  rrdatas = [
+    "10 mx.zoho.eu.",
+    "20 mx2.zoho.eu.",
+    "50 mx3.zoho.eu."
+  ]
+}
