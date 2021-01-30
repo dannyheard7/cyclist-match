@@ -14,6 +14,9 @@ resource "google_container_cluster" "primary" {
 
   ip_allocation_policy {}
 
+  release_channel {
+    channel = "REGULAR"
+  }
 
   private_cluster_config {
     enable_private_nodes    = true
@@ -170,28 +173,28 @@ resource "google_compute_health_check" "http2-health-check" {
   }
 }
 
-data "google_compute_instance_group" "google_compute_instance_group_nodepool" {
-  for_each = toset(google_container_node_pool.primary_preemptible_nodes.instance_group_urls)
-  name     = regex("gke.+", "${each.value}")
-  zone     = "us-central1-a"
-}
+# data "google_compute_instance_group" "google_compute_instance_group_nodepool" {
+#   for_each = toset(google_container_node_pool.primary_preemptible_nodes.instance_group_urls)
+#   name     = regex("gke.+", "${each.value}")
+#   zone     = "us-central1-a"
+# }
 
-resource "google_compute_backend_service" "gke_primary_cluster_backend" {
-  provider = google
-  project  = var.project_id
-  name     = "gke-primary-cluster-backend"
+# resource "google_compute_backend_service" "gke_primary_cluster_backend" {
+#   provider = google
+#   project  = var.project_id
+#   name     = "gke-primary-cluster-backend"
 
-  protocol   = "HTTP"
-  port_name  = google_compute_instance_group_named_port.my_port.name
-  enable_cdn = false
+#   protocol   = "HTTP"
+#   port_name  = google_compute_instance_group_named_port.my_port.name
+#   enable_cdn = false
 
-  dynamic "backend" {
-    for_each = data.google_compute_instance_group.google_compute_instance_group_nodepool
-    content {
-      balancing_mode = "UTILIZATION"
-      group          = backend.value.self_link
-    }
-  }
+#   dynamic "backend" {
+#     for_each = data.google_compute_instance_group.google_compute_instance_group_nodepool
+#     content {
+#       balancing_mode = "UTILIZATION"
+#       group          = backend.value.self_link
+#     }
+#   }
 
-  health_checks = [google_compute_health_check.http2-health-check.id]
-}
+#   health_checks = [google_compute_health_check.http2-health-check.id]
+# }

@@ -28,3 +28,22 @@ variable "helm_sa_name" {
   type        = string
   description = "Helm Service Account Name"
 }
+
+variable "db_name" {
+  type        = string
+  description = "Database name"
+  default     = "cycling-buddies"
+}
+
+
+variable "db_user_name" {
+  type        = string
+  description = "Database user name"
+  default     = "cycling-buddies"
+}
+
+
+variable "db_user_password" {
+  type        = string
+  description = "Database user password"
+}

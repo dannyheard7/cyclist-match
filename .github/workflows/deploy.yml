@@ -131,7 +131,7 @@ jobs:
 
       - name: Deploy
         env:
-          GKE_ZONE: us-central1
+          GKE_ZONE: us-central1-a
           GKE_CLUSTER: ${{ secrets.CLUSTER_NAME }}
           DEPLOYMENT_NAME: cycling-buddies
           PROJECT_ID: ${{ secrets.TF_VAR_PROJECT_ID }}

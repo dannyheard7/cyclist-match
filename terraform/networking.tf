@@ -20,3 +20,9 @@ resource "google_compute_router_nat" "nat" {
     filter = "ERRORS_ONLY"
   }
 }
+
+
+# data "google_compute_network_endpoint_group" "gke_negs" {
+#   for_each = toset(["Todd", "James", "Alice", "Dottie"]) //  This will be the names of the generated negs
+#   name     = each.key
+# }

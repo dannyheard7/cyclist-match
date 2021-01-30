@@ -13,6 +13,9 @@ fullnameOverride: "cylcing-buddies-backend"
 serviceAccount:
   create: false
 
+serviceAnnotations:
+  cloud.google.com/neg: '{"exposed_ports": {"30886":{"name": "api"}}}'
+
 podAnnotations: {}
 
 podSecurityContext: {}
@@ -27,9 +30,8 @@ securityContext: {}
   # runAsUser: 1000
 
 service:
-  type: NodePort
-  port: 7000
-  nodePort: 30886
+  type: ClusterIP
+  port: 30886
 
 ingress:
   enabled: false

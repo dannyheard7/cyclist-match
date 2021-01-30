@@ -54,8 +54,8 @@ resource "google_service_networking_connection" "private_vpc_connection" {
   reserved_peering_ranges = [google_compute_global_address.private_ip_alloc.name]
 }
 
-resource "google_sql_database_instance" "master" {
-  name             = "cycling-buddies-db"
+resource "google_sql_database_instance" "postgres" {
+  name             = "cycling-buddies-db1"
   database_version = "POSTGRES_13"
   region           = var.region
 
@@ -78,4 +78,16 @@ resource "google_sql_database_instance" "master" {
     google_project_service.sqladmin_service,
     google_project_service.networking_service
   ]
+}
+
+resource "google_sql_database" "database" {
+  name     = var.db_name
+  instance = google_sql_database_instance.postgres.name
+}
+
+
+resource "google_sql_user" "users" {
+  name     = var.db_user_name
+  instance = google_sql_database_instance.postgres.name
+  password = var.db_user_password
 }

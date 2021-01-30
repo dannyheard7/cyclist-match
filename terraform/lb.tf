@@ -44,10 +44,10 @@ resource "google_compute_url_map" "website" {
     name            = "api"
     default_service = google_compute_backend_bucket.website.self_link
 
-    path_rule {
-      paths   = ["/api", "/api/*"]
-      service = google_compute_backend_service.gke_primary_cluster_backend.self_link
-    }
+    # path_rule {
+    #   paths   = ["/api", "/api/*"]
+    #   service = google_compute_backend_service.gke_primary_cluster_backend.self_link
+    # }
   }
 }
 
