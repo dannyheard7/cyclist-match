@@ -171,8 +171,9 @@ resource "google_compute_health_check" "http2-health-check" {
 }
 
 data "google_compute_instance_group" "google_compute_instance_group_nodepool" {
-  name = regex("gke.+", "${google_container_node_pool.primary_preemptible_nodes.instance_group_urls[0]}")
-  zone = "us-central1-a"
+  for_each = toset(google_container_node_pool.primary_preemptible_nodes.instance_group_urls)
+  name     = regex("gke.+", "${each.value}")
+  zone     = "us-central1-a"
 }
 
 resource "google_compute_backend_service" "gke_primary_cluster_backend" {
