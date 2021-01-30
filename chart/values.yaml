@@ -14,7 +14,7 @@ serviceAccount:
   create: false
 
 serviceAnnotations:
-  cloud.google.com/neg: '{"exposed_ports": {"30886":{"name": "api"}}}'
+  cloud.google.com/neg: '{"ingress": false, "exposed_ports": {"30886":{"name": "api"}}}'
 
 podAnnotations: {}
 
@@ -30,7 +30,7 @@ securityContext: {}
   # runAsUser: 1000
 
 service:
-  type: ClusterIP
+  type: NodePort
   port: 30886
 
 ingress:
