@@ -5,7 +5,3 @@ data "google_client_openid_userinfo" "terraform_sa" {}
 locals {
   terraform_sa_member = "serviceAccount:${data.google_client_openid_userinfo.terraform_sa.email}"
 }
-
-data "google_compute_network" "default" {
-  name = "default"
-}

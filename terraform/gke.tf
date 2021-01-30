@@ -3,7 +3,7 @@ resource "google_container_cluster" "primary" {
 
   name     = "${var.project_id}-gke-1"
   project  = var.project_id
-  location = "us-central1"
+  location = "us-central1-a"
 
   remove_default_node_pool = true
   initial_node_count       = 1
@@ -43,7 +43,7 @@ resource "google_container_cluster" "primary" {
 
 resource "google_container_node_pool" "primary_preemptible_nodes" {
   name           = "my-node-pool"
-  location       = "us-central1"
+  location       = "us-central1-a"
   cluster        = google_container_cluster.primary.name
   node_count     = 1
   node_locations = ["us-central1-a"]
@@ -171,9 +171,8 @@ resource "google_compute_health_check" "http2-health-check" {
 }
 
 data "google_compute_instance_group" "google_compute_instance_group_nodepool" {
-  for_each = toset(google_container_node_pool.primary_preemptible_nodes.instance_group_urls)
-  name     = regex("gke.+", "${each.value}")
-  zone     = "us-central1-a"
+  name = regex("gke.+", "${google_container_node_pool.primary_preemptible_nodes.instance_group_urls[0]}")
+  zone = "us-central1-a"
 }
 
 resource "google_compute_backend_service" "gke_primary_cluster_backend" {
