@@ -68,7 +68,7 @@ resource "google_compute_target_https_proxy" "website" {
 }
 
 # Frontend forwarding
-resource "google_compute_forwarding_rule" "default" {
+resource "google_compute_global_forwarding_rule" "default" {
   provider              = google
   name                  = "website-forwarding-rule"
   load_balancing_scheme = "EXTERNAL"
@@ -76,7 +76,6 @@ resource "google_compute_forwarding_rule" "default" {
   ip_protocol           = "TCP"
   port_range            = "443"
   target                = google_compute_target_https_proxy.website.self_link
-  network_tier          = "STANDARD"
 }
 
 
