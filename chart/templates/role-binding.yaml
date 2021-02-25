@@ -5,9 +5,9 @@ metadata:
   name: {{ .Values.serviceAccount.roleBinding }}
   namespace: default
 subjects:
-- kind: User
+- kind: ServiceAccount
   name: {{ include "chart.serviceAccountName" . }}
-  apiGroup: rbac.authorization.k8s.io
+  namespace: default
 roleRef:
   kind: Role
   name: {{ .Values.serviceAccount.roleBinding }}
