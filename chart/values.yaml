@@ -13,9 +13,10 @@ fullnameOverride: "cylcing-buddies-backend"
 serviceAccount:
   create: true
   name: cycling-buddies-sa
+  roleBinding: job-cleaner
 
 serviceAnnotations:
-  cloud.google.com/neg: '{"ingress": false, "exposed_ports": {"30886":{"name": "api"}}}'
+  cloud.google.com/neg: '{"ingress": false, "exposed_ports": {"80":{"name": "cycling-buddies-api-service-neg"}}}'
 
 podAnnotations: {}
 
