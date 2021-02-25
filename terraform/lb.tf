@@ -37,17 +37,12 @@ resource "google_compute_url_map" "website" {
 
   host_rule {
     hosts        = ["elevait.co.uk"]
-    path_matcher = "api"
+    path_matcher = "elevait-main"
   }
 
   path_matcher {
-    name            = "api"
+    name            = "elevait-main"
     default_service = google_compute_backend_bucket.website.self_link
-
-    # path_rule {
-    #   paths   = ["/api", "/api/*"]
-    #   service = google_compute_backend_service.gke_primary_cluster_backend.self_link
-    # }
   }
 }
 

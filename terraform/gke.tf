@@ -26,7 +26,7 @@ resource "google_container_cluster" "primary" {
 
   addons_config {
     http_load_balancing {
-      disabled = true
+      disabled = false
     }
 
     horizontal_pod_autoscaling {
@@ -131,70 +131,4 @@ resource "kubernetes_cluster_role_binding" "helm_role_binding" {
 #     client_key             = base64decode(google_container_cluster.default.master_auth.0.client_key)
 #     cluster_ca_certificate = base64decode(google_container_cluster.default.master_auth.0.cluster_ca_certificate)
 #   }
-# }
-
-
-// LB backend
-resource "google_compute_instance_group_named_port" "my_port" {
-  group = google_container_node_pool.primary_preemptible_nodes.instance_group_urls[0]
-  zone  = "us-central1-a"
-
-  name = "http"
-  port = 30886
-}
-
-// Allow health check through firewall
-resource "google_compute_firewall" "allow-health-check" {
-  name          = "allow-health-check"
-  network       = data.google_compute_network.default.name
-  direction     = "INGRESS"
-  source_ranges = ["130.211.0.0/22", "35.191.0.0/16"]
-
-  allow {
-    protocol = "tcp"
-    ports    = [google_compute_instance_group_named_port.my_port.port]
-  }
-}
-
-resource "google_compute_health_check" "http2-health-check" {
-  provider = google-beta
-  name     = "http2-health-check"
-
-  timeout_sec        = 2
-  check_interval_sec = 100
-
-  http_health_check {
-    port         = google_compute_instance_group_named_port.my_port.port
-    request_path = "/health"
-  }
-
-  log_config {
-    enable = false
-  }
-}
-
-# data "google_compute_instance_group" "google_compute_instance_group_nodepool" {
-#   for_each = toset(google_container_node_pool.primary_preemptible_nodes.instance_group_urls)
-#   name     = regex("gke.+", "${each.value}")
-#   zone     = "us-central1-a"
-# }
-
-# resource "google_compute_backend_service" "gke_primary_cluster_backend" {
-#   provider = google
-#   project  = var.project_id
-#   name     = "gke-primary-cluster-backend"
-
-#   protocol   = "HTTP"
-#   port_name  = google_compute_instance_group_named_port.my_port.name
-#   enable_cdn = false
-
-#   dynamic "backend" {
-#     for_each = data.google_compute_instance_group.google_compute_instance_group_nodepool
-#     content {
-#       balancing_mode = "UTILIZATION"
-#       group          = backend.value.self_link
-#     }
-#   }
-
-#   health_checks = [google_compute_health_check.http2-health-check.id]
 # }
