@@ -16,3 +16,4 @@ spec:
             image: bitnami/kubectl:latest
             command: ["sh", "-c", "kubectl delete jobs --field-selector status.successful=1"]
           restartPolicy: Never
+      backoffLimit: 1

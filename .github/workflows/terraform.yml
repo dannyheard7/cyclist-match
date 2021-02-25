@@ -21,7 +21,7 @@ jobs:
       TF_VAR_admin_member: ${{ secrets.TF_VAR_ADMIN_MEMBER }}
       TF_VAR_helm_sa_name: helm-sa
       TF_VAR_db_user_password: ${{ secrets.TF_VAR_DB_USER_PASSWORD }}
-      TF_VAR_k8s_neg_name: k8s1-f98cfbfe-default-cylcing-buddies-backend-80-12c188df
+      TF_VAR_k8s_neg_name: cycling-buddies-api-service-neg
 
     steps:
       - name: Checkout
