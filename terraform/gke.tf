@@ -3,7 +3,7 @@ resource "google_container_cluster" "primary" {
 
   name     = "${var.project_id}-gke-1"
   project  = var.project_id
-  location = "us-central1-a"
+  location = var.k8s_zone
 
   remove_default_node_pool = true
   initial_node_count       = 1
@@ -46,10 +46,10 @@ resource "google_container_cluster" "primary" {
 
 resource "google_container_node_pool" "primary_preemptible_nodes" {
   name           = "my-node-pool"
-  location       = "us-central1-a"
+  location       = var.k8s_zone
   cluster        = google_container_cluster.primary.name
   node_count     = 1
-  node_locations = ["us-central1-a"]
+  node_locations = [var.k8s_zone]
 
   node_config {
     preemptible  = true
@@ -132,3 +132,8 @@ resource "kubernetes_cluster_role_binding" "helm_role_binding" {
 #     cluster_ca_certificate = base64decode(google_container_cluster.default.master_auth.0.cluster_ca_certificate)
 #   }
 # }
+
+
+// LB backend
+
+

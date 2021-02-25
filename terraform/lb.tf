@@ -43,6 +43,11 @@ resource "google_compute_url_map" "website" {
   path_matcher {
     name            = "elevait-main"
     default_service = google_compute_backend_bucket.website.self_link
+
+    path_rule {
+      paths   = ["/api", "/api/*"]
+      service = google_compute_backend_service.elevait_service_backend.self_link
+    }
   }
 }
 
@@ -77,4 +82,58 @@ resource "google_dns_record_set" "email" {
     "20 mx2.zoho.eu.",
     "50 mx3.zoho.eu."
   ]
+}
+
+// Allow health check through firewall
+resource "google_compute_firewall" "allow-health-check" {
+  name          = "allow-health-check"
+  network       = data.google_compute_network.default.name
+  direction     = "INGRESS"
+  source_ranges = ["130.211.0.0/22", "35.191.0.0/16"]
+
+  allow {
+    protocol = "tcp"
+    ports    = ["80"]
+  }
+}
+
+resource "google_compute_health_check" "http-api-health-check" {
+  provider = google-beta
+  name     = "http-health-check"
+
+  timeout_sec        = 2
+  check_interval_sec = 10
+
+  http_health_check {
+    port_specification = "USE_SERVING_PORT"
+    request_path       = "/health"
+  }
+
+  log_config {
+    enable = false
+  }
+}
+
+
+data "google_compute_network_endpoint_group" "k8s_neg" {
+  count = var.k8s_neg_name != "" ? 1 : 0
+  name  = var.k8s_neg_name
+  zone  = var.k8s_zone
+}
+
+resource "google_compute_backend_service" "elevait_service_backend" {
+  provider = google
+  project  = var.project_id
+  name     = "elevait-service-backend"
+
+  protocol   = "HTTP"
+  enable_cdn = false
+
+  backend {
+    balancing_mode = "RATE"
+    max_rate       = 800
+    group          = data.google_compute_network_endpoint_group.k8s_neg[0].self_link
+  }
+
+  health_checks = [google_compute_health_check.http-api-health-check.id]
 }

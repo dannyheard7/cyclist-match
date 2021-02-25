@@ -8,6 +8,12 @@ variable "region" {
   default = "us-central1"
 }
 
+
+variable "k8s_zone" {
+  type    = string
+  default = "us-central1-a"
+}
+
 variable "admin_member" {
   type        = string
   description = "Admin member alias (https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/storage_bucket_iam#member/members)"
@@ -46,4 +52,9 @@ variable "db_user_name" {
 variable "db_user_password" {
   type        = string
   description = "Database user password"
+}
+
+variable "k8s_neg_name" {
+  type        = string
+  description = "Name of the network endpoint group in the defined region that is linked to the kubernetes service"
 }
