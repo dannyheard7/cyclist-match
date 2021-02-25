@@ -9,6 +9,7 @@ spec:
   backoffLimit: 1
   template:
     spec:
+      restartPolicy: Never
       containers:
         - name: "{{ .Chart.Name }}-db-migrate"
           image: "{{ .Values.image.registry }}/cycling-buddies-db-migration:{{ .Values.image.tag | default .Chart.AppVersion }}"
@@ -45,4 +46,4 @@ spec:
                 secretKeyRef:
                   name: db
                   key: password
-      restartPolicy: Never
+      

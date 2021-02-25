@@ -21,6 +21,15 @@ resource "google_dns_record_set" "website" {
   rrdatas      = [google_compute_global_address.website.address]
 }
 
+resource "google_dns_record_set" "dns_verification" {
+  provider     = google
+  name         = google_dns_managed_zone.gcp_cycling_buddies.dns_name
+  type         = "TXT"
+  ttl          = 300
+  managed_zone = google_dns_managed_zone.gcp_cycling_buddies.name
+  rrdatas      = ["google-site-verification=nYqTJI202C-oXFFHnzutfPXzrueAFKw7okjc7s0p4q4"]
+}
+
 # Create HTTPS certificate
 resource "google_compute_managed_ssl_certificate" "website" {
   provider = google

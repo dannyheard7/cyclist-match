@@ -1,0 +1,18 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: {{ include "chart.fullname" . }}-jobs-cleanup
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+spec:
+  schedule: "*/30 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: {{ include "chart.serviceAccountName" . }}
+          containers:
+          - name: kubectl-container
+            image: bitnami/kubectl:latest
+            command: ["sh", "-c", "kubectl delete jobs --field-selector status.successful=1"]
+          restartPolicy: Never

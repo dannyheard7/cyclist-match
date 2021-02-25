@@ -11,7 +11,8 @@ nameOverride: "cylcing-buddies-backend"
 fullnameOverride: "cylcing-buddies-backend"
 
 serviceAccount:
-  create: false
+  create: true
+  name: cycling-buddies-sa
 
 serviceAnnotations:
   cloud.google.com/neg: '{"ingress": false, "exposed_ports": {"30886":{"name": "api"}}}'
@@ -30,8 +31,8 @@ securityContext: {}
   # runAsUser: 1000
 
 service:
-  type: NodePort
-  port: 30886
+  type: ClusterIP
+  port: 80
 
 ingress:
   enabled: false
