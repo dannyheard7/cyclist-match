@@ -10,11 +10,10 @@ export enum HTTPStatusCodes {
     Status404 = 404,
 }
 
-export const useApi = () => {
+export const useApiCustomAuth = (bearerToken: string | undefined, onUnauthenticatedResponse?: () => void) => {
     const {
         host: { api: apiHost },
     } = useAppContext();
-    const { bearerToken, signOut: signout } = useAuthentication();
 
     const api = useMemo(() => {
         return ky.extend({
@@ -31,13 +30,18 @@ export const useApi = () => {
                 afterResponse: [
                     (_request, options, response) => {
                         if (response.status === HTTPStatusCodes.Status401) {
-                            signout();
+                            onUnauthenticatedResponse && onUnauthenticatedResponse();
                         }
                     },
                 ],
             },
         });
-    }, [bearerToken, apiHost, signout]);
+    }, [bearerToken, apiHost, onUnauthenticatedResponse]);
 
     return api;
+};
+
+export const useApi = () => {
+    const { bearerToken, signOut } = useAuthentication();
+    return useApiCustomAuth(bearerToken, signOut);
 };

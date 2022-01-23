@@ -16,7 +16,8 @@
             "openid",
             "profile",
             "email",
-            "http://cycling-buddies.com"
+            "profile_api",
+            "messages"
         ],
         "RequireClientSecret": false,
         "IdentityTokenLifetime": 3600,

@@ -7,7 +7,7 @@ using Persistence.Entity;
 
 namespace Persistence.SQL.Entities;
 
-[Table("user_cycling_profile", Schema = "cycling")]
+[Table("user_cycling_profile")]
 internal class ProfileEntity
 {
     [Key]
@@ -16,17 +16,15 @@ internal class ProfileEntity
 
     public Point Location { get; set; }
     
-    public ICollection<CyclingType> CyclingTypes { get; set; }
+    [Column(TypeName = "VARCHAR(30)[]")]
+    public List<CyclingType> CyclingTypes { get; set; }
     
-    public ICollection<Availability> Availability { get; set; }
+    [Column(TypeName = "VARCHAR(30)[]")]
+    public List<Availability> Availability { get; set; }
     
     public int AverageDistance { get; set; }
     
     public int AverageSpeed { get; set; }
     
     public UserEntity User { get; init; }
-    
-    public DateTime CreatedAt { get; init; }
-        
-    public DateTime UpdatedAt { get; set; }
 }

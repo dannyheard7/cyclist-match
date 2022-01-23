@@ -21,7 +21,7 @@ const Login: React.FC = () => {
             </Grid>
             <Grid item xs={12}>
                 <Typography>
-                    <Link href="#" onClick={() => signin(state.referrer)}>
+                    <Link href="#" onClick={() => signin(state?.referrer)}>
                         Sign in
                     </Link>{' '}
                     to get started

@@ -26,8 +26,8 @@ namespace Persistence.SQL
                         connectionString, 
                         o =>
                         {
-                            o.CommandTimeout((int)TimeSpan.FromMinutes(2).TotalSeconds);
                             o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
+                            o.UseNetTopologySuite();
                         }));
 
             return services

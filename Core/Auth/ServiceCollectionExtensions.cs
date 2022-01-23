@@ -9,8 +9,9 @@ namespace Auth
     {
         public static IServiceCollection AddAuth(this IServiceCollection services, IConfiguration configuration)
         {
-            OidcSettings settings = configuration.GetSection(OidcSettings.Key).Get<OidcSettings>();
-            services.Configure<OidcSettings>(_ => Options.Create(settings));
+            var settingsSection = configuration.GetSection(OidcSettings.Key);
+            var oidcSettings = settingsSection.Get<OidcSettings>();
+            services.Configure<OidcSettings>(settingsSection);
             
             services.AddAuthentication(options => {
                     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -18,8 +19,8 @@ namespace Auth
                 })
                 .AddJwtBearer(options =>
                 {
-                    options.Authority = settings.Domain;
-                    options.Audience = settings.Audience;
+                    options.Authority = oidcSettings.Host;
+                    options.Audience = oidcSettings.Audience;
                 });
             return services
                 .AddScoped<IAuthenticationUserService, Auth0UserService>();

@@ -1,43 +1,38 @@
-import { UserManagerSettings } from 'oidc-client';
+import ky from 'ky';
 import { AuthProvider, AuthProviderProps, useAuth, User, UserManager } from 'oidc-react';
 import React, { useCallback, useEffect, useState } from 'react';
+import { useMutation } from 'react-query';
 import { useHistory, useLocation } from 'react-router-dom';
+import Profile from '../../Common/Interfaces/Profile';
+import { useApiCustomAuth } from '../../Hooks/useApi';
 import { useAppContext } from '../AppContext/AppContextProvider';
+import ErrorMessage from '../ErrorMessage/ErrorMessage';
 import Loading from '../Loading/Loading';
 
-interface Props {
-    settings?: Partial<UserManagerSettings>;
-}
-
-export const AuthWrapper: React.FC<Props> = ({ children, settings }) => {
+export const AuthWrapper: React.FC = ({ children }) => {
     const {
-        authority: { host, scope, clientId, audience },
+        authority: { host, scope, clientId, extraParams },
         host: { client: clientHost },
     } = useAppContext();
     const { replace } = useHistory();
     const { search, pathname } = useLocation();
     const [initializing, setInitializing] = useState(true);
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [user, setUser] = useState<User | null>(null);
     const [silentRenewFailed, setSilentRenewFailed] = useState<boolean>(false);
-
-    const urlParams = new URLSearchParams(search);
-    const isCodeCallback = urlParams.has('code');
 
     const [userManager] = useState<UserManager>(
         new UserManager({
-            scope: settings?.scope ?? scope,
-            response_type: settings?.response_type ?? 'code',
-            redirect_uri: settings?.redirect_uri ?? `${clientHost}/oidc-signin`,
-            automaticSilentRenew: settings?.automaticSilentRenew ?? true,
-            silent_redirect_uri: settings?.silent_redirect_uri ?? `${clientHost}/oidc-silent-renew`,
-            post_logout_redirect_uri: settings?.post_logout_redirect_uri ?? clientHost,
-            filterProtocolClaims: settings?.filterProtocolClaims ?? true,
-            loadUserInfo: settings?.filterProtocolClaims ?? true,
-            authority: settings?.authority ?? host,
-            client_id: settings?.client_id ?? clientId,
-            extraQueryParams: settings?.extraQueryParams ?? {
-                audience,
-            },
+            scope,
+            response_type: 'code',
+            redirect_uri: `${clientHost}/oidc-signin`,
+            automaticSilentRenew: true,
+            silent_redirect_uri: `${clientHost}/oidc-silent-renew`,
+            post_logout_redirect_uri: clientHost,
+            filterProtocolClaims: true,
+            loadUserInfo: true,
+            authority: host,
+            client_id: clientId,
+            extraQueryParams: extraParams ?? undefined,
         }),
     );
 
@@ -46,7 +41,7 @@ export const AuthWrapper: React.FC<Props> = ({ children, settings }) => {
     }, [userManager]);
 
     const onSessionEnd = useCallback(() => {
-        setIsLoggedIn(false);
+        setUser(null);
         userManager.signoutRedirect();
     }, [userManager]);
 
@@ -62,20 +57,51 @@ export const AuthWrapper: React.FC<Props> = ({ children, settings }) => {
         };
     }, [userManager, onSessionEnd, onSilentRenewFailed]);
 
-    const onSignIn = useCallback(
-        (user: User | null) => {
-            setIsLoggedIn(user !== null);
+    const api = useApiCustomAuth(user?.access_token);
+    const {
+        mutate: apiLogin,
+        isLoading: apiLoginLoading,
+        data: apiLoginData,
+        error: apiLoginError,
+    } = useMutation<Profile, ky.HTTPError>(async () => {
+        const res = await api.post(`auth/login`);
+        return await res.json();
+    });
 
-            if (user !== null) {
+    const profileDoesNotExist = apiLoginError?.response?.status === 404;
+    useEffect(() => {
+        if (user) {
+            setInitializing(false);
+            if (apiLoginData) {
                 if (user?.state?.targetUrl !== undefined && pathname !== user?.state?.targetUrl) {
                     replace(user?.state?.targetUrl);
                 } else {
                     replace(window.location.pathname); // remove code query param
                 }
+            } else if (profileDoesNotExist) {
+                replace('/profile/create');
+            }
+        }
+
+        if (apiLoginError) {
+            setInitializing(false);
+        }
+    }, [user, apiLoginData, apiLoginError, profileDoesNotExist, replace, pathname]);
+
+    const onSignIn = useCallback(
+        (user: User | null) => {
+            setUser(user);
+            if (user) {
+                apiLogin();
+            } else {
+                setInitializing(false);
             }
         },
-        [replace, pathname],
+        [apiLogin],
     );
+
+    const urlParams = new URLSearchParams(search);
+    const isCodeCallback = urlParams.has('code');
 
     useEffect(() => {
         const signInSilent = async () => {
@@ -92,20 +118,18 @@ export const AuthWrapper: React.FC<Props> = ({ children, settings }) => {
         };
 
         const getSession = async () => {
-            try {
-                const user = await userManager.getUser();
-                onSignIn(user);
+            const user = await userManager.getUser();
+            onSignIn(user);
 
-                if (user === null && !isCodeCallback) await signInSilent();
-            } finally {
-                setInitializing(false);
-            }
+            if (user === null && !isCodeCallback) await signInSilent();
         };
 
         if (!isCodeCallback) getSession();
-        else setInitializing(false);
         //eslint-disable-next-line
     }, []);
+
+    const loading = initializing || apiLoginLoading || (!user && isCodeCallback);
+    const isError = apiLoginError && !profileDoesNotExist;
 
     const oidcConfig: AuthProviderProps = {
         userManager: userManager,
@@ -113,8 +137,7 @@ export const AuthWrapper: React.FC<Props> = ({ children, settings }) => {
         onSignIn,
     };
 
-    const loading = initializing || (!isLoggedIn && isCodeCallback);
-    return <AuthProvider {...oidcConfig}>{loading ? <Loading /> : children}</AuthProvider>;
+    return <AuthProvider {...oidcConfig}>{loading ? <Loading /> : isError ? <ErrorMessage /> : children}</AuthProvider>;
 };
 
 export const useAuthentication = () => {

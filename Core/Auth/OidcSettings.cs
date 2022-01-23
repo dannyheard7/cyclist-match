@@ -4,9 +4,8 @@
     {
         public const string Key = "OIDC";
         
-        public string Domain { get; init; }
+        public string Host { get; init; }
         public string Audience { get; init; }
-        
         public string UserInfoEndpoint { get; init; }
     }
 }

@@ -1,5 +1,8 @@
 [
     {
-        "Name": "http://cycling-buddies.com"
+        "Name": "profile_api"
+    },
+    {
+        "Name": "messages"
     }
 ]

@@ -31,7 +31,7 @@ namespace Auth
                 
             using var request = new HttpRequestMessage {
                 Method = HttpMethod.Get,
-                RequestUri = new Uri(new Uri(_settings.Domain), _settings.UserInfoEndpoint),
+                RequestUri = new Uri(new Uri(_settings.Host), _settings.UserInfoEndpoint),
                 Headers = {
                     { HeaderNames.Authorization, bearerToken},
                 }

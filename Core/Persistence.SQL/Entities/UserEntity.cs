@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Persistence.SQL.Entities;
 
-[Table("user", Schema = "cycling")]
+[Table("user")]
 internal class UserEntity
 {
     [Key]

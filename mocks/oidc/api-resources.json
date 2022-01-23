@@ -2,7 +2,8 @@
     {
         "Name": "http://cycling-buddies.com",
         "Scopes": [
-            "http://cycling-buddies.com"
+            "profile",
+            "messages"
         ],
         "UserClaims": [
             "given_name",

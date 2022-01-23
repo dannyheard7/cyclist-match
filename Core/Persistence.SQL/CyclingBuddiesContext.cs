@@ -9,9 +9,9 @@ internal class CyclingBuddiesContext : DbContext
     {
     }
 
-    public DbSet<UserEntity> Users { get; }
+    public DbSet<UserEntity> Users { get; init; }
     
-    public DbSet<ProfileEntity> Profiles { get; }
+    public DbSet<ProfileEntity> Profiles { get; init; }
     
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder.UseSnakeCaseNamingConvention();

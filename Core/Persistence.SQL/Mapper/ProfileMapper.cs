@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using Persistence.Entity;
 using Persistence.SQL.Entities;
 using Persistence.Types;
 using Persistence.Types.DTO;
@@ -17,7 +19,7 @@ internal static class ProfileMapper
             profileEntity.AverageDistance,
             profileEntity.AverageSpeed,
             profileEntity.User.CreatedAt,
-            profileEntity.UpdatedAt
+            profileEntity.User.UpdatedAt
         );
     }
 }

@@ -5,19 +5,11 @@ import { HTTPError } from '../../Hooks/useApi';
 import ErrorMessage from '../ErrorMessage/ErrorMessage';
 import Loading from '../Loading/Loading';
 
-interface IAppContext {
+interface IAppContext extends Omit<ConfigResponse, 'apiHost'> {
     host: {
         api: string;
         client: string;
     };
-    authority: {
-        host: string;
-        scope: string;
-        clientId: string;
-        audience: string;
-    };
-    recaptchaSiteKey: string;
-    gaTrackingId: string | null;
 }
 
 interface ConfigResponse {
@@ -26,7 +18,7 @@ interface ConfigResponse {
         host: string;
         scope: string;
         clientId: string;
-        audience: string;
+        extraParams: { [key: string]: any } | null;
     };
     gaTrackingId: string | null;
     recaptchaSiteKey: string;

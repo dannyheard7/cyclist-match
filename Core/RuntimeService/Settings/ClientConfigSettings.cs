@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace RuntimeService.Settings;
@@ -10,7 +11,7 @@ public class ClientConfigSettings
         public Uri Host { get; init; }
         public string Scope { get; init; }
         public string ClientId { get; init; }
-        public string Audience { get; init; }
+        public IDictionary<string, string>? ExtraParams { get; init; }
     }
     
     [JsonIgnore]
