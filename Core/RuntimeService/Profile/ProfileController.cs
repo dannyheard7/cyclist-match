@@ -4,6 +4,7 @@ using Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Persistence.Types.DTO;
+using RuntimeService.ProfileApi;
 using RuntimeService.Services;
 
 namespace RuntimeService.Controllers
@@ -30,14 +31,26 @@ namespace RuntimeService.Controllers
             return Ok(profile);
         }
 
-        // [HttpPut("{userId}")]
-        // public async Task<IActionResult> PutProfile(Guid userId, [FromBody] ProfileInputObject input)
-        // {
-        //     var profile = new Profile(userId, input.DisplayName, input.LocationName, input.Location, input.CyclingTypes,
-        //         input.Availability, input.MinDistance, input.MaxDistance, input.Speed);
-        //
-        //     var updatedProfile = await _profileService.(profile);
-        //     return Ok(updatedProfile);
-        // }
+        [HttpPost]
+        public async Task<ActionResult<ProfileDTO>> CreateProfile([FromBody] ProfileInput input)
+        {
+            var currentUser = await _currentUserService.GetUser();
+           
+            var profile = new CreateProfileDTO(
+                Guid.NewGuid(),
+                input.DisplayName,
+                currentUser.Picture,
+                input.Location,
+                input.CyclingTypes,
+                input.Availability,
+                input.AverageDistance,
+                input.AverageSpeed,
+                DateTime.UtcNow, 
+                DateTime.UtcNow,
+                currentUser.Id);
+        
+            await _profileService.Create(profile);
+            return Ok(profile);
+        }
     }
 }

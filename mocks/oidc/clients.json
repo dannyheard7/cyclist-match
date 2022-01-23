@@ -22,16 +22,5 @@
         "RequireClientSecret": false,
         "IdentityTokenLifetime": 3600,
         "AccessTokenLifetime": 3600
-    },
-    {
-        "ClientId": "authorization_code-mock-client",
-        "Description": "Client for authorization code flow",
-        "AllowedGrantTypes": [
-            "authorization_code"
-        ],
-        "RequireClientSecret": false,
-        "AllowedScopes": [
-            "YML47qr009Kw2iL2UKOth2fE4INri3h6"
-        ]
     }
 ]

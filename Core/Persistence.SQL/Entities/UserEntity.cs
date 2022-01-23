@@ -12,7 +12,7 @@ internal class UserEntity
     
     public string ExternalId { get; init; }
     
-    public string Picture { get; set; }
+    public string? Picture { get; set; }
     
     public string DisplayName { get; set; }
     

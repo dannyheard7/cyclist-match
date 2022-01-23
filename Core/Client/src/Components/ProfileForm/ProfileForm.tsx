@@ -1,81 +1,84 @@
-import { ErrorMessage } from "@hookform/error-message";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Avatar, Button, Checkbox, FormControlLabel, Grid, IconButton, InputAdornment, makeStyles, TextField, Theme } from "@material-ui/core";
-import { MyLocation as GetLocationIcon } from "@material-ui/icons";
-import React, { useEffect } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { ErrorMessage } from '@hookform/error-message';
+import { zodResolver } from '@hookform/resolvers/zod';
+import {
+    Avatar,
+    Button,
+    Checkbox,
+    FormControlLabel,
+    Grid,
+    IconButton,
+    InputAdornment,
+    makeStyles,
+    TextField,
+    Theme,
+} from '@material-ui/core';
+import { MyLocation as GetLocationIcon } from '@material-ui/icons';
+import React, { useEffect } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import * as zod from 'zod';
-import Availability from "../../Common/Enums/Availability";
-import CyclingType from "../../Common/Enums/CyclingType";
-import { useApi } from "../../Hooks/useApi";
-import usePosition from "../../Hooks/usePosition";
+import Availability from '../../Common/Enums/Availability';
+import CyclingType from '../../Common/Enums/CyclingType';
+import { useApi } from '../../Hooks/useApi';
+import usePosition from '../../Hooks/usePosition';
 
 const useStyles = makeStyles((theme: Theme) => ({
     avatar: {
         width: 60,
-        height: 60
-    }
-}))
+        height: 60,
+    },
+}));
 
 const schema = zod.object({
     displayName: zod.string().nonempty('Required'),
     locationName: zod.string().nonempty('Required'),
-    cyclingTypes: zod.array(
-        zod.object({
-            key: zod.string(),
-            name: zod.string().nonempty(),
-            selected: zod.boolean()
-        })
-    ).refine(types => types.some(type => type.selected), {
-        message: "You must choose at least one preferred cycling type",
-    }),
-    availability: zod.array(
-        zod.object({
-            key: zod.string(),
-            name: zod.string().nonempty(),
-            selected: zod.boolean()
-        })
-    ).refine(types => types.some(type => type.selected), {
-        message: "You must choose at least one availability",
-    }),
-    minDistance: zod.number().positive(),
-    maxDistance: zod.number().positive(),
-    speed: zod.number(),
-    picture: zod.string().optional()
-}).refine(values => values.maxDistance > values.minDistance, {
-    message: "Maximum distance must be greater than minimum distance"
+    cyclingTypes: zod
+        .array(
+            zod.object({
+                key: zod.string(),
+                name: zod.string().nonempty(),
+                selected: zod.boolean(),
+            }),
+        )
+        .refine((types) => types.some((type) => type.selected), {
+            message: 'You must choose at least one preferred cycling type',
+        }),
+    availability: zod
+        .array(
+            zod.object({
+                key: zod.string(),
+                name: zod.string().nonempty(),
+                selected: zod.boolean(),
+            }),
+        )
+        .refine((types) => types.some((type) => type.selected), {
+            message: 'You must choose at least one availability',
+        }),
+    averageDistance: zod.number().positive(),
+    averageSpeed: zod.number().positive(),
+    picture: zod.string().optional(),
 });
 
 type SchemaType = zod.infer<typeof schema>;
 
-interface Props {
-    defaultValues?: {
-        displayName: string,
-        locationName?: string
-        cyclingTypes?: Array<CyclingType>,
-        availability?: Array<Availability>,
-        minDistance?: number,
-        maxDistance?: number,
-        speed?: number,
-        picture?: string
-    },
-    onSubmit: (values: {
-        displayName: string,
-        locationName: string,
-        location: {
-            latitude: number,
-            longitude: number
-        },
-        cyclingTypes: Array<CyclingType>,
-        availability: Array<Availability>,
-        minDistance: number,
-        maxDistance: number,
-        speed: number,
-        picture?: string
-    }) => void,
-    disabled?: boolean
+interface ProfileFormValues {
+    displayName: string;
+    location: {
+        name: string;
+        latitude: number;
+        longitude: number;
+    };
+    cyclingTypes: Array<CyclingType>;
+    availability: Array<Availability>;
+    averageDistance: number;
+    averageSpeed: number;
+    picture?: string;
 }
 
+interface Props {
+    defaultValues?: Partial<ProfileFormValues>;
+    onSubmit: (values: ProfileFormValues) => void;
+    disabled?: boolean;
+}
 
 const ProfileForm: React.FC<Props> = ({ defaultValues, onSubmit: onSubmitCallback, disabled }) => {
     const classes = useStyles();
@@ -85,9 +88,9 @@ const ProfileForm: React.FC<Props> = ({ defaultValues, onSubmit: onSubmitCallbac
         defaultValues: {
             ...defaultValues,
             cyclingTypes: Object.entries(CyclingType).map(([key, value]) => ({ key, name: value, selected: false })),
-            availability: Object.entries(Availability).map(([key, value]) => ({ key, name: value, selected: false }))
+            availability: Object.entries(Availability).map(([key, value]) => ({ key, name: value, selected: false })),
         },
-        resolver
+        resolver,
     });
 
     const [getPosition, { position, error: positionError }] = usePosition();
@@ -95,33 +98,37 @@ const ProfileForm: React.FC<Props> = ({ defaultValues, onSubmit: onSubmitCallbac
 
     useEffect(() => {
         if (position) {
-            api
-                .get(`location/name?latitude=${position.latitude.toFixed(4)}&longitude=${position.longitude.toFixed(4)}`)
+            api.get(`location/name?latitude=${position.latitude.toFixed(4)}&longitude=${position.longitude.toFixed(4)}`)
                 .json<{ name: string }>()
-                .then(res => setValue("locationName", res.name))
-                .catch(() => setError("locationName", { type: "manual", message: "Error fetching location" }))
+                .then((res) => setValue('locationName', res.name))
+                .catch(() => setError('locationName', { type: 'manual', message: 'Error fetching location' }));
         }
     }, [position, api, setError, setValue]);
 
     useEffect(() => {
-        if (positionError) setError("locationName", { type: "manual", message: "Error fetching location" });
+        if (positionError) setError('locationName', { type: 'manual', message: 'Error fetching location' });
     }, [positionError, setError]);
 
     const onSubmit = (data: SchemaType) => {
         const { availability, cyclingTypes, ...rest } = data;
 
-        const mappedAvailability = availability.filter(type => type.selected).map(type => Availability[type.key as keyof typeof Availability]);
-        const mappedCyclingTypes = cyclingTypes.filter(type => type.selected).map(type => CyclingType[type.key as keyof typeof CyclingType]);
+        const mappedAvailability = availability
+            .filter((type) => type.selected)
+            .map((type) => Availability[type.key as keyof typeof Availability]);
+        const mappedCyclingTypes = cyclingTypes
+            .filter((type) => type.selected)
+            .map((type) => CyclingType[type.key as keyof typeof CyclingType]);
 
         onSubmitCallback({
             ...rest,
             availability: mappedAvailability,
             cyclingTypes: mappedCyclingTypes,
             location: {
+                name: data.locationName,
                 latitude: position!.latitude,
-                longitude: position!.longitude
-            }
-        })
+                longitude: position!.longitude,
+            },
+        });
     };
 
     return (
@@ -155,40 +162,41 @@ const ProfileForm: React.FC<Props> = ({ defaultValues, onSubmit: onSubmitCallbac
                                             <IconButton onClick={() => getPosition()} disabled={disabled}>
                                                 <GetLocationIcon />
                                             </IconButton>
-                                        </InputAdornment>),
+                                        </InputAdornment>
+                                    ),
                                 }}
                                 fullWidth
                             />
                         }
-                        defaultValue={""}
+                        defaultValue={''}
                     />
                     <ErrorMessage name="locationName" errors={errors} />
                 </Grid>
                 <Grid item xs={12}>
                     <Grid container item xs={12} justify="flex-start">
-                        {
-                            Object.entries(CyclingType).map(([key, name], index) => (
-                                <FormControlLabel
-                                    key={key}
-                                    control={
-                                        <Controller
-                                            render={(props) => (
-                                                <Checkbox
-                                                    color="primary"
-                                                    onChange={(e) => props.onChange({ ...props.value, selected: e.target.checked })}
-                                                    checked={props.value.selected || false}
-                                                    disabled={disabled}
-                                                />
-                                            )}
-                                            control={control}
-                                            name={`cyclingTypes[${index}]`}
-                                            defaultValue={false}
-                                        />
-                                    }
-                                    label={name}
-                                />
-                            ))
-                        }
+                        {Object.entries(CyclingType).map(([key, name], index) => (
+                            <FormControlLabel
+                                key={key}
+                                control={
+                                    <Controller
+                                        render={(props) => (
+                                            <Checkbox
+                                                color="primary"
+                                                onChange={(e) =>
+                                                    props.onChange({ ...props.value, selected: e.target.checked })
+                                                }
+                                                checked={props.value.selected || false}
+                                                disabled={disabled}
+                                            />
+                                        )}
+                                        control={control}
+                                        name={`cyclingTypes[${index}]`}
+                                        defaultValue={false}
+                                    />
+                                }
+                                label={name}
+                            />
+                        ))}
                     </Grid>
                     <Grid item xs={12}>
                         <ErrorMessage name="cyclingTypes" errors={errors} />
@@ -196,29 +204,29 @@ const ProfileForm: React.FC<Props> = ({ defaultValues, onSubmit: onSubmitCallbac
                 </Grid>
                 <Grid item xs={12}>
                     <Grid container item xs={12} justify="flex-start">
-                        {
-                            Object.entries(Availability).map(([key, name], index) => (
-                                <FormControlLabel
-                                    key={key}
-                                    control={
-                                        <Controller
-                                            render={(props) => (
-                                                <Checkbox
-                                                    color="primary"
-                                                    onChange={(e) => props.onChange({ ...props.value, selected: e.target.checked })}
-                                                    checked={props.value.selected || false}
-                                                    disabled={disabled}
-                                                />
-                                            )}
-                                            control={control}
-                                            name={`availability[${index}]`}
-                                            defaultValue={false}
-                                        />
-                                    }
-                                    label={name}
-                                />
-                            ))
-                        }
+                        {Object.entries(Availability).map(([key, name], index) => (
+                            <FormControlLabel
+                                key={key}
+                                control={
+                                    <Controller
+                                        render={(props) => (
+                                            <Checkbox
+                                                color="primary"
+                                                onChange={(e) =>
+                                                    props.onChange({ ...props.value, selected: e.target.checked })
+                                                }
+                                                checked={props.value.selected || false}
+                                                disabled={disabled}
+                                            />
+                                        )}
+                                        control={control}
+                                        name={`availability[${index}]`}
+                                        defaultValue={false}
+                                    />
+                                }
+                                label={name}
+                            />
+                        ))}
                     </Grid>
                     <Grid item xs={12}>
                         <ErrorMessage name="availability" errors={errors} />
@@ -226,60 +234,46 @@ const ProfileForm: React.FC<Props> = ({ defaultValues, onSubmit: onSubmitCallbac
                 </Grid>
                 <Grid item xs={12} sm={4}>
                     <Controller
-                        name="minDistance"
+                        name="averageDistance"
                         control={control}
                         render={({ value, onChange }) => (
                             <TextField
                                 onChange={(e) => onChange(parseInt(e.target.value, 10))}
                                 value={value}
-                                error={errors.minDistance !== undefined}
-                                label="Minumum Distance (Km)"
+                                error={errors.averageDistance !== undefined}
+                                label="Average Distance (Km)"
                                 type="number"
                                 disabled={disabled}
-                                fullWidth />
+                                fullWidth
+                            />
                         )}
-                        defaultValue={5}
+                        defaultValue={40}
                     />
-                    <ErrorMessage name="minDistance" errors={errors} />
+                    <ErrorMessage name="averageDistance" errors={errors} />
                 </Grid>
                 <Grid item xs={12} sm={4}>
                     <Controller
-                        name="maxDistance"
+                        name="averageSpeed"
                         control={control}
                         render={({ value, onChange }) => (
                             <TextField
                                 onChange={(e) => onChange(parseInt(e.target.value, 10))}
                                 value={value}
-                                error={errors.minDistance !== undefined}
-                                label="Maximum Distance (Km)"
-                                type="number"
-                                disabled={disabled}
-                                fullWidth />
-                        )}
-                        defaultValue={20}
-                    />
-                    <ErrorMessage name="maxDistance" errors={errors} />
-                </Grid>
-                <Grid item xs={12} sm={4}>
-                    <Controller
-                        name="speed"
-                        control={control}
-                        render={({ value, onChange }) => (
-                            <TextField
-                                onChange={(e) => onChange(parseInt(e.target.value, 10))}
-                                value={value}
-                                error={errors.speed !== undefined}
+                                error={errors.averageSpeed !== undefined}
                                 label="Preferred Speed (Km/H)"
                                 type="number"
                                 disabled={disabled}
-                                fullWidth />
+                                fullWidth
+                            />
                         )}
                         defaultValue={12}
                     />
-                    <ErrorMessage name="speed" errors={errors} />
+                    <ErrorMessage name="averageSpeed" errors={errors} />
                 </Grid>
                 <Grid container item justify="flex-end">
-                    <Button type="submit" color="primary" variant="contained" disabled={disabled}>Save</Button>
+                    <Button type="submit" color="primary" variant="contained" disabled={disabled}>
+                        Save
+                    </Button>
                 </Grid>
             </Grid>
         </form>

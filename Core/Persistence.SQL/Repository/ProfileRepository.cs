@@ -1,8 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using NetTopologySuite.Geometries;
+using Persistence.Entity;
 using Persistence.Repository;
+using Persistence.SQL.Entities;
 using Persistence.SQL.Mapper;
 using Persistence.Types.DTO;
 
@@ -39,9 +43,27 @@ namespace Persistence.SQL.Repository
             return result?.Map();
         }
 
-        public Task UpdateProfile(ProfileDTO profile)
+        public async Task Create(CreateProfileDTO profile)
         {
-            throw new NotImplementedException();
+            await _context.Profiles.AddAsync(new ProfileEntity
+            {
+                UserId = profile.UserId,
+                AverageDistance = profile.AverageDistance,
+                AverageSpeed = profile.AverageSpeed,
+                Availability = new List<Availability>(profile.Availability),
+                CyclingTypes = new List<CyclingType>(profile.CyclingTypes),
+                Location = new Point(new Coordinate(profile.Location.Longitude, profile.Location.Longitude)),
+                User = new UserEntity
+                {
+                    Id = profile.UserId,
+                    ExternalId = profile.ExternalUserId,
+                    DisplayName = profile.UserDisplayName,
+                    Picture = profile.UserPicture,
+                    CreatedAt = profile.CreatedAt,
+                    UpdatedAt = profile.UpdatedAt
+                }
+            });
+            await _context.SaveChangesAsync();
         }
     }
 }

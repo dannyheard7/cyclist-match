@@ -12,7 +12,7 @@ namespace Persistence.Repository
         
         public Task<ProfileDTO?> GetByUserId(Guid userId);
 
-        public Task UpdateProfile(ProfileDTO profile);
+        public Task Create(CreateProfileDTO profile);
         
         // public Task<IEnumerable<ProfileDTO>> GetMatchingProfiles(IUser user);
     }

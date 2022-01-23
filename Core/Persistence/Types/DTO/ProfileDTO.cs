@@ -11,8 +11,8 @@ namespace Persistence.Types.DTO
             string userDisplayName,
             string userPicture,
             Location location,
-            ICollection<CyclingType> cyclingTypes,
-            ICollection<Availability> availability,
+            IReadOnlyCollection<CyclingType> cyclingTypes,
+            IReadOnlyCollection<Availability> availability,
             int averageDistance,
             int averageSpeed,
             DateTime createdAt,
@@ -34,8 +34,8 @@ namespace Persistence.Types.DTO
         public string UserDisplayName { get; }
         public string UserPicture { get; }
         public Location Location { get; }
-        public ICollection<CyclingType> CyclingTypes { get; }
-        public ICollection<Availability> Availability { get; }
+        public IReadOnlyCollection<CyclingType> CyclingTypes { get; }
+        public IReadOnlyCollection<Availability> Availability { get; }
         public int AverageDistance { get; }
         public int AverageSpeed { get; }
         public DateTime CreatedAt { get; }

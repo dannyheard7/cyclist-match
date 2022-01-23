@@ -1,13 +1,17 @@
 import ky from 'ky';
-import { AuthProvider, AuthProviderProps, useAuth, User, UserManager } from 'oidc-react';
-import React, { useCallback, useEffect, useState } from 'react';
+import { AuthProvider, useAuth, User, UserManager } from 'oidc-react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useMutation } from 'react-query';
 import { useHistory, useLocation } from 'react-router-dom';
 import Profile from '../../Common/Interfaces/Profile';
 import { useApiCustomAuth } from '../../Hooks/useApi';
 import { useAppContext } from '../AppContext/AppContextProvider';
-import ErrorMessage from '../ErrorMessage/ErrorMessage';
-import Loading from '../Loading/Loading';
+
+interface IAuthWrapperContext {
+    loading: boolean;
+    isError: boolean;
+}
+export const AuthWrapperContext = React.createContext<IAuthWrapperContext | null>(null);
 
 export const AuthWrapper: React.FC = ({ children }) => {
     const {
@@ -131,17 +135,25 @@ export const AuthWrapper: React.FC = ({ children }) => {
     const loading = initializing || apiLoginLoading || (!user && isCodeCallback);
     const isError = apiLoginError && !profileDoesNotExist;
 
-    const oidcConfig: AuthProviderProps = {
-        userManager: userManager,
-        autoSignIn: false,
-        onSignIn,
-    };
-
-    return <AuthProvider {...oidcConfig}>{loading ? <Loading /> : isError ? <ErrorMessage /> : children}</AuthProvider>;
+    return (
+        <AuthProvider userManager={userManager} autoSignIn={false} onSignIn={onSignIn}>
+            <AuthWrapperContext.Provider
+                value={{
+                    loading,
+                    isError: isError ?? false,
+                }}
+            >
+                {children}
+            </AuthWrapperContext.Provider>
+        </AuthProvider>
+    );
 };
 
 export const useAuthentication = () => {
     const { userData, signIn, signOutRedirect, userManager } = useAuth();
+    const authWrapperContext = useContext(AuthWrapperContext);
+
+    if (!authWrapperContext) throw new Error('AuthWrapperContext not registered');
 
     const signOutAndRedirect = () => {
         window.localStorage.clear();
@@ -152,9 +164,19 @@ export const useAuthentication = () => {
         userManager.signinSilent().catch(() => signOutAndRedirect());
     };
 
+    if (authWrapperContext.loading) {
+        return { loading: true, isLoggedIn: false };
+    }
+
+    if (authWrapperContext.isError) {
+        return { loading: false, isError: true, isLoggedIn: false };
+    }
+
     return {
-        bearerToken: userData?.access_token,
+        loading: false,
+        isError: false,
         isLoggedIn: userData !== undefined && userData !== null,
+        bearerToken: userData?.access_token,
         profile: userData?.profile,
         signInRedirect: signIn,
         refreshSession,
