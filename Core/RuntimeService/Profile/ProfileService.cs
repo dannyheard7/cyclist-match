@@ -23,6 +23,8 @@ namespace RuntimeService.Services
         public async Task Create(CreateProfileDTO profile)
         {
             await _profileRepository.Create(profile);
+            
+            // Once a profile has been created or updated we queue a hangfire job that finds relevant matches
         }
     }
 }

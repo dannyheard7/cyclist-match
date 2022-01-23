@@ -1,6 +1,7 @@
 ﻿using System;
+using Hangfire;
+using Hangfire.PostgreSql;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Persistence.Repository;
@@ -32,6 +33,12 @@ namespace Persistence.SQL
 
             return services
                 .AddScoped<IProfileRepository, ProfileRepository>();
+        }
+
+        public static IGlobalConfiguration UseHangfirePersistence(this IGlobalConfiguration hangfireConfiguration, IConfiguration configuration)
+        {
+            hangfireConfiguration.UsePostgreSqlStorage(configuration.GetConnectionString("Hangfire"));
+            return hangfireConfiguration;
         }
     }
 }

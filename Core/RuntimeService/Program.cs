@@ -1,6 +1,7 @@
 using System;
 using System.Globalization;
 using Auth;
+using Hangfire;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,8 +23,16 @@ builder.Services
     .AddScoped<IProfileService, ProfileService>()
     .AddScoped<ICurrentUserService, CurrentUserService>();
 
-builder.Services.Configure<ClientConfigSettings>(options =>
-    builder.Configuration.GetSection(ClientConfigSettings.Key).Bind(options));
+builder.Services.Configure<ClientConfigSettings>(options => 
+builder.Configuration.GetSection(ClientConfigSettings.Key).Bind(options));
+
+builder.Services.AddHangfire(configuration =>
+    {
+        configuration
+            .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+            .UseHangfirePersistence(builder.Configuration);
+    })
+    .AddHangfireServer();
     
 var app = builder.Build();
 
@@ -52,7 +61,11 @@ app
     .UseAuthentication()
     .UseAuthorization();
 
-app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers();
+    endpoints.MapHangfireDashboard();
+});
 app.MapFallbackToFile("index.html");
 
 app.Run();
