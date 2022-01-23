@@ -31,7 +31,7 @@ spec:
         - name: "{{ .Chart.Name }}-api"
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.image.registry }}/cycling-buddies-api:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          image: "{{ .Values.image.registry }}/cycling-buddies-web:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http

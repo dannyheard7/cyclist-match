@@ -1,0 +1,18 @@
+version: 2
+
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: npm
+    directory: "/Core/Client"
+    schedule:
+      interval: daily
+    labels:
+      - dependencies
+  - package-ecosystem: dotnet
+    directory: "/Core"
+    schedule:
+      interval: daily
+    labels:
