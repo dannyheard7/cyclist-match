@@ -1,14 +1,14 @@
-import { Divider, Drawer, IconButton, Link, List, ListItem, ListItemText, useTheme } from "@material-ui/core";
-import { ChevronLeft as ChevronLeftIcon, ChevronRight as ChevronRightIcon } from "@material-ui/icons";
-import React, { Fragment } from "react";
-import { Link as RouterLink } from "react-router-dom";
-import { useAuthentication } from "../Authentication/AuthenticationContext";
+import { Divider, Drawer, IconButton, Link, List, ListItem, ListItemText, useTheme } from '@material-ui/core';
+import { ChevronLeft as ChevronLeftIcon, ChevronRight as ChevronRightIcon } from '@material-ui/icons';
+import React, { Fragment } from 'react';
+import { Link as RouterLink } from 'react-router-dom';
+import { useAuthentication } from '../Authentication/AuthWrapper';
 import { useAppBarStyles } from './AppBar.styles';
 
-const AppDrawer: React.FC<{ open: boolean, onClose: () => void }> = ({ open, onClose }) => {
+const AppDrawer: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClose }) => {
     const classes = useAppBarStyles();
     const theme = useTheme();
-    const { user } = useAuthentication();
+    const { isLoggedIn } = useAuthentication();
 
     return (
         <Drawer
@@ -27,7 +27,7 @@ const AppDrawer: React.FC<{ open: boolean, onClose: () => void }> = ({ open, onC
             </div>
             <Divider />
             <List>
-                {user && (
+                {isLoggedIn && (
                     <Fragment>
                         <Link to="/" component={RouterLink} onClick={() => onClose()}>
                             <ListItem button>

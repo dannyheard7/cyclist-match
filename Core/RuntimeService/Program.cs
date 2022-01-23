@@ -2,24 +2,29 @@ using System;
 using System.Globalization;
 using Auth;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Persistence.SQL;
 using RuntimeService.Services;
+using RuntimeService.Settings;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
-builder.Services.AddHttpContextAccessor();
-builder.Services.AddHttpClient();
-
-builder.Services.AddPersistence(builder.Configuration);
-builder.Services.AddAuth(builder.Configuration);
+builder.Services
+    .AddHttpContextAccessor()
+    .AddHttpClient();
 
 builder.Services
+    .AddPersistence(builder.Configuration)
+    .AddAuth(builder.Configuration)
     .AddScoped<IProfileService, ProfileService>()
     .AddScoped<ICurrentUserService, CurrentUserService>();
 
+builder.Services.Configure<ClientConfigSettings>(options =>
+    builder.Configuration.GetSection(ClientConfigSettings.Key).Bind(options));
+    
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

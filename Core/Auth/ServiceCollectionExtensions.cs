@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 
 namespace Auth
 {
@@ -8,9 +9,8 @@ namespace Auth
     {
         public static IServiceCollection AddAuth(this IServiceCollection services, IConfiguration configuration)
         {
-            Auth0Settings settings = new Auth0Settings();
-            configuration.GetSection("Auth0").Bind(settings);
-            services.Configure<Auth0Settings>(options => configuration.GetSection("Auth0").Bind(options));
+            Auth0Settings settings = configuration.GetSection(Auth0Settings.Key).Get<Auth0Settings>();
+            services.Configure<Auth0Settings>(_ => Options.Create(settings));
             
             services.AddAuthentication(options => {
                     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
