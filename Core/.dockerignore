@@ -1,0 +1,11 @@
+.git
+*Dockerfile*
+*docker-compose*
+node_modules/
+*.env
+.vscode
+README.md
+bin/
+obj/
+build/
+appsettings.Development.json

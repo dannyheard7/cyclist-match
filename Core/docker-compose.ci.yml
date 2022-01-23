@@ -1,0 +1,9 @@
+version: "3.7"
+
+services:
+  api:
+    build: .
+    environment:
+      ConnectionStrings__CyclingBuddiesContext: Server=postgres;Port=5432;Database=cycling_buddies;User ID=postgres;Password=postgres
+    ports:
+      - "5100:80"

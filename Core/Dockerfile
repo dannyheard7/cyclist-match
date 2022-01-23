@@ -1,18 +1,30 @@
-FROM mcr.microsoft.com/dotnet/sdk:5.0-alpine AS build-env
+
+FROM node:16-alpine AS node
+FROM mcr.microsoft.com/dotnet/sdk:6.0-alpine AS build-env
+
+COPY --from=node /usr/lib /usr/lib
+COPY --from=node /usr/local/share /usr/local/share
+COPY --from=node /usr/local/lib /usr/local/lib
+COPY --from=node /usr/local/include /usr/local/include
+COPY --from=node /usr/local/bin /usr/local/bin
+
 WORKDIR /app
 
-# Copy csproj and restore as distinct layers
 COPY ["RuntimeService/RuntimeService.csproj", "RuntimeService/"]
 RUN dotnet restore "RuntimeService/RuntimeService.csproj"
 
-# Copy everything else and build
 COPY . ./
 
 ARG CONF=Release
 RUN dotnet publish -c ${CONF} -o out
 
-# Build runtime image
-FROM mcr.microsoft.com/dotnet/aspnet:5.0-alpine
+FROM mcr.microsoft.com/dotnet/aspnet:6.0-alpine
 WORKDIR /app
 COPY --from=build-env /app/out .
+
+RUN addgroup --system serviceuser && \
+    adduser --system serviceuser -G serviceuser;
+
+USER serviceuser
+
 ENTRYPOINT ["dotnet", "RuntimeService.dll"]

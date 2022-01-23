@@ -1,3 +1,5 @@
+using System;
+using System.Globalization;
 using Auth;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,7 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient();
-            
+
 builder.Services.AddPersistence(builder.Configuration);
 builder.Services.AddAuth(builder.Configuration);
 
@@ -27,7 +29,18 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseStaticFiles();
+app.UseDefaultFiles();
+app.UseStaticFiles(new StaticFileOptions
+{
+    OnPrepareResponse = ctx =>
+    {
+        if (ctx.File.Name.EndsWith(".js") || ctx.File.Name.EndsWith(".css"))
+        {
+            ctx.Context.Response.Headers.CacheControl = "public";
+            ctx.Context.Response.Headers.Expires = DateTime.UtcNow.AddYears(1).ToString("R", CultureInfo.InvariantCulture);
+        }
+    }
+});
 app.UseRouting();
 
 app
@@ -35,6 +48,6 @@ app
     .UseAuthorization();
 
 app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
-
+app.MapFallbackToFile("index.html");
 
 app.Run();
