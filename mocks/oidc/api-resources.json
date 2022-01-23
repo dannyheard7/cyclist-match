@@ -1,0 +1,14 @@
+[
+    {
+        "Name": "http://cycling-buddies.com",
+        "Scopes": [
+            "http://cycling-buddies.com"
+        ],
+        "UserClaims": [
+            "given_name",
+            "family_name",
+            "email",
+            "picture"
+        ]
+    }
+]

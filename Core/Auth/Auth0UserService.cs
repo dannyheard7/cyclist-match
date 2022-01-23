@@ -12,12 +12,12 @@ namespace Auth
     internal class Auth0UserService : IAuthenticationUserService
     {
         private readonly IHttpClientFactory _httpClientFactory;
-        private readonly IOptions<Auth0Settings> _options;
+        private readonly OidcSettings _settings;
         
-        public Auth0UserService(IHttpClientFactory httpClientFactory, IOptions<Auth0Settings> options)
+        public Auth0UserService(IHttpClientFactory httpClientFactory, IOptions<OidcSettings> options)
         {
             _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
-            _options = options ?? throw new ArgumentNullException(nameof(options));
+            _settings = options?.Value ?? throw new ArgumentNullException(nameof(options));
         }
 
         public Task<string> GetExternalUserId(ClaimsPrincipal claimsPrincipal)
@@ -31,7 +31,7 @@ namespace Auth
                 
             using var request = new HttpRequestMessage {
                 Method = HttpMethod.Get,
-                RequestUri = new Uri(new Uri(_options.Value.Domain), "userinfo"),
+                RequestUri = new Uri(new Uri(_settings.Domain), _settings.UserInfoEndpoint),
                 Headers = {
                     { HeaderNames.Authorization, bearerToken},
                 }

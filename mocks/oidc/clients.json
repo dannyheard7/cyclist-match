@@ -1,0 +1,36 @@
+[
+    {
+        "ClientId": "cyling-buddies-client",
+        "Description": "Client for implicit flow",
+        "AllowedGrantTypes": [
+            "authorization_code"
+        ],
+        "ClientSecrets": [],
+        "AllowAccessTokensViaBrowser": true,
+        "RedirectUris": [
+            "http://localhost:3000/oidc-signin",
+            "http://localhost:3000/oidc-silent-renew"
+        ],
+        "Claims": [],
+        "AllowedScopes": [
+            "openid",
+            "profile",
+            "email",
+            "http://cycling-buddies.com"
+        ],
+        "RequireClientSecret": false,
+        "IdentityTokenLifetime": 3600,
+        "AccessTokenLifetime": 3600
+    },
+    {
+        "ClientId": "authorization_code-mock-client",
+        "Description": "Client for authorization code flow",
+        "AllowedGrantTypes": [
+            "authorization_code"
+        ],
+        "RequireClientSecret": false,
+        "AllowedScopes": [
+            "YML47qr009Kw2iL2UKOth2fE4INri3h6"
+        ]
+    }
+]

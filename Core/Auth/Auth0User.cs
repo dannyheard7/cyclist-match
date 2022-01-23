@@ -6,24 +6,28 @@ namespace Auth
 {
     internal class Auth0User : IOIDCUser
     {
+        public Auth0User(string id, string givenNames, string familyName, string picture, string email)
+        {
+            Id = id;
+            GivenNames = givenNames;
+            FamilyName = familyName;
+            Picture = picture;
+            Email = email;
+        }
+
         [JsonPropertyName("sub")]
-        [JsonInclude]
-        public string Id { get; private set; }
+        public string Id { get; }
 
         [JsonPropertyName("given_name")]
-        [JsonInclude]
-        public string GivenNames { get; private set; }
+        public string GivenNames { get; }
 
         [JsonPropertyName("family_name")]
-        [JsonInclude]
-        public string FamilyName { get; private set; }
+        public string FamilyName { get; }
 
         [JsonPropertyName("picture")]
-        [JsonInclude]
-        public string Picture { get; private set; }
+        public string Picture { get; }
 
         [JsonPropertyName("email")]
-        [JsonInclude]
-        public string Email { get; private set; }
+        public string Email { get; }
     }
 }
