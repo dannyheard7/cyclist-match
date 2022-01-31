@@ -14,7 +14,7 @@ const Account: React.FC = () => {
     const { mutate, isSuccess, isLoading, isError } = useMutation(() => api.delete(`auth/user`));
 
     useEffect(() => {
-        if (isSuccess) {
+        if (isSuccess && signOut) {
             signOut();
         }
     }, [isSuccess, signOut]);

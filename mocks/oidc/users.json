@@ -21,5 +21,28 @@
                 "Value": "test@example.com"
             }
         ]
+    },
+    {
+        "SubjectId": "861f4316-360a-4c93-a126-f9bd53a10c55",
+        "Username": "danny",
+        "Password": "heard",
+        "Claims": [
+            {
+                "Type": "name",
+                "Value": "Danny Heard"
+            },
+            {
+                "Type": "given_name",
+                "Value": "Danny"
+            },
+            {
+                "Type": "family_name",
+                "Value": "Heard"
+            },
+            {
+                "Type": "email",
+                "Value": "dannyheard7@gmail.com"
+            }
+        ]
     }
 ]

@@ -1,5 +1,11 @@
-﻿namespace MatchingService;
+﻿using Microsoft.Extensions.DependencyInjection;
+
+namespace MatchingService;
 
 public static class ServiceCollectionExtension
 {
+    public static void AddMatchingService(this IServiceCollection serviceCollection)
+    {
+        serviceCollection.AddScoped<IMatchingService, MatchingService>();
+    }
 }

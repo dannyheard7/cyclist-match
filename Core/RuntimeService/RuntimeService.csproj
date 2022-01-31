@@ -6,12 +6,11 @@
 
         <SpaRoot>..\Client\</SpaRoot>
         <DefaultItemExcludes>$(DefaultItemExcludes);$(SpaRoot)node_modules\**</DefaultItemExcludes>
-        <SpaProxyServerUrl>https://localhost:44473</SpaProxyServerUrl>
-        <SpaProxyLaunchCommand>npm start</SpaProxyLaunchCommand>
     </PropertyGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\Auth\Auth.csproj" />
+      <ProjectReference Include="..\MatchingService\MatchingService.csproj" />
       <ProjectReference Include="..\Persistence.SQL\Persistence.SQL.csproj" />
     </ItemGroup>
 

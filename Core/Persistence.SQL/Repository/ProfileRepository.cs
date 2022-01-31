@@ -5,8 +5,10 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using NetTopologySuite.Geometries;
 using Persistence.Entity;
+using Persistence.Filter;
 using Persistence.Repository;
 using Persistence.SQL.Entities;
+using Persistence.SQL.Filters;
 using Persistence.SQL.Mapper;
 using Persistence.Types.DTO;
 
@@ -64,6 +66,39 @@ namespace Persistence.SQL.Repository
                 }
             });
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<IEnumerable<ProfileDTO>> Get(ProfileFilter filter)
+        {
+            var dbSet = _context.Profiles.AsQueryable();
+
+            if (filter.IdFilter != null)
+            {
+                dbSet = dbSet.ApplyFilter(nameof(ProfileEntity.UserId), filter.IdFilter);
+            }
+
+            if (filter.Availability != null)
+            {
+                dbSet = dbSet.ApplyFilter(nameof(ProfileEntity.Availability), filter.Availability);
+            }
+            
+            if (filter.CyclingTypes != null)
+            {
+                dbSet = dbSet.ApplyFilter(nameof(ProfileEntity.CyclingTypes), filter.CyclingTypes);
+            }
+
+            if (filter.AverageDistanceFilter != null)
+            {
+                dbSet = dbSet.ApplyFilter(nameof(ProfileEntity.AverageDistance), filter.AverageDistanceFilter);
+            }
+            
+            if (filter.AverageSpeedFilter != null)
+            {
+                dbSet = dbSet.ApplyFilter(nameof(ProfileEntity.AverageSpeed), filter.AverageSpeedFilter);
+            }
+
+            var results = await dbSet.AsNoTracking().ToListAsync();
+            return results.Select(ProfileMapper.Map);
         }
     }
 }

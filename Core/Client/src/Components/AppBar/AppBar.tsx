@@ -56,7 +56,7 @@ const AppMenu: React.FC = () => {
                     </Typography>
 
                     <div className={classes.grow} />
-                    {profile ? (
+                    {profile && logout ? (
                         <Fragment>
                             <div className={classes.padding}>
                                 <IconButton color="inherit" onClick={() => push('/conversations')}>
@@ -95,7 +95,7 @@ const AppMenu: React.FC = () => {
                         </Fragment>
                     ) : (
                         <div style={{ marginLeft: 'auto', cursor: 'pointer' }}>
-                            <ListItemText onClick={() => login()}>Login</ListItemText>
+                            <ListItemText onClick={() => login && login()}>Login</ListItemText>
                         </div>
                     )}
                 </Toolbar>

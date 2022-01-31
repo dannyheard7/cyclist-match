@@ -2,6 +2,7 @@ using System;
 using System.Globalization;
 using Auth;
 using Hangfire;
+using MatchingService;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,6 +13,7 @@ using RuntimeService.Settings;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddHealthChecks();
 builder.Services.AddControllers();
 builder.Services
     .AddHttpContextAccessor()
@@ -23,8 +25,9 @@ builder.Services
     .AddScoped<IProfileService, ProfileService>()
     .AddScoped<ICurrentUserService, CurrentUserService>();
 
-builder.Services.Configure<ClientConfigSettings>(options => 
-builder.Configuration.GetSection(ClientConfigSettings.Key).Bind(options));
+builder.Services.AddMatchingService();
+
+builder.Services.Configure<ClientConfigSettings>(options => builder.Configuration.GetSection(ClientConfigSettings.Key).Bind(options));
 
 builder.Services.AddHangfire(configuration =>
     {
@@ -65,7 +68,8 @@ app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllers();
     endpoints.MapHangfireDashboard();
+    endpoints.MapHealthChecks("/healthz");
+    endpoints.MapFallbackToFile("index.html");
 });
-app.MapFallbackToFile("index.html");
 
 app.Run();

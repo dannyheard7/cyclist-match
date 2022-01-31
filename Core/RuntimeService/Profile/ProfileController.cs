@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Auth;
+using Hangfire;
+using MatchingService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Persistence.Types.DTO;
@@ -16,11 +18,16 @@ namespace RuntimeService.Controllers
     {
         private readonly IProfileService _profileService;
         private readonly ICurrentUserService _currentUserService;
+        private readonly IBackgroundJobClient _backgroundJobClient;
         
-        public ProfileController(IProfileService profileService, ICurrentUserService currentUserService)
+        public ProfileController(
+            IProfileService profileService,
+            ICurrentUserService currentUserService,
+            IBackgroundJobClient backgroundJobClient)
         {
             _profileService = profileService ?? throw new ArgumentNullException(nameof(profileService));
             _currentUserService = currentUserService ?? throw new ArgumentNullException(nameof(currentUserService));
+            _backgroundJobClient = backgroundJobClient ?? throw new ArgumentNullException(nameof(backgroundJobClient));
         }
 
         [HttpGet("{userId}")]
@@ -50,6 +57,8 @@ namespace RuntimeService.Controllers
                 currentUser.Id);
         
             await _profileService.Create(profile);
+
+            _backgroundJobClient.Enqueue<IMatchingService>(service => service.MatchRelevantProfiles(profile.UserId));
             return Ok(profile);
         }
     }

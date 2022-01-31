@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Persistence.Entity;
+using Persistence.Filter;
 using Persistence.Types.DTO;
 
 namespace Persistence.Repository
@@ -14,6 +15,6 @@ namespace Persistence.Repository
 
         public Task Create(CreateProfileDTO profile);
         
-        // public Task<IEnumerable<ProfileDTO>> GetMatchingProfiles(IUser user);
+        public Task<IEnumerable<ProfileDTO>> Get(ProfileFilter filter);
     }
 }

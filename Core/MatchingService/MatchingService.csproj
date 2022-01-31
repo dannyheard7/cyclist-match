@@ -10,4 +10,8 @@
       <PackageReference Include="Hangfire" Version="1.7.28" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\Persistence\Persistence.csproj" />
+    </ItemGroup>
+
 </Project>

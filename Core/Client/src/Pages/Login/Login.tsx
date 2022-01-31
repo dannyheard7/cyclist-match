@@ -2,10 +2,13 @@ import { Grid, Link, Typography } from '@material-ui/core';
 import React from 'react';
 import { useLocation } from 'react-router-dom';
 import { useAuthentication } from '../../Components/Authentication/AuthWrapper';
+import Loading from '../../Components/Loading/Loading';
 
 const Login: React.FC = () => {
     const { signInRedirect: signin } = useAuthentication();
     const { state } = useLocation<{ referrer: string | undefined }>();
+
+    if (!signin) return <Loading />;
 
     return (
         <Grid container spacing={2}>
