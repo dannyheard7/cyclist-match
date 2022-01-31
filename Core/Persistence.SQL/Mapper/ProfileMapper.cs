@@ -13,7 +13,7 @@ internal static class ProfileMapper
         return new ProfileDTO(profileEntity.UserId,
             profileEntity.User.DisplayName,
             profileEntity.User.Picture,
-            new Location(profileEntity.Location.X, profileEntity.Location.Y),
+            LocationMapper.Map(profileEntity.Location),
             profileEntity.CyclingTypes,
             profileEntity.Availability,
             profileEntity.AverageDistance,

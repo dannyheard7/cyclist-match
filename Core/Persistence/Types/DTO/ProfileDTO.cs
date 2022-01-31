@@ -9,7 +9,7 @@ namespace Persistence.Types.DTO
         public ProfileDTO(
             Guid userId,
             string userDisplayName,
-            string userPicture,
+            string? userPicture,
             Location location,
             IReadOnlyCollection<CyclingType> cyclingTypes,
             IReadOnlyCollection<Availability> availability,
@@ -32,7 +32,7 @@ namespace Persistence.Types.DTO
 
         public Guid UserId { get; }
         public string UserDisplayName { get; }
-        public string UserPicture { get; }
+        public string? UserPicture { get; }
         public Location Location { get; }
         public IReadOnlyCollection<CyclingType> CyclingTypes { get; }
         public IReadOnlyCollection<Availability> Availability { get; }

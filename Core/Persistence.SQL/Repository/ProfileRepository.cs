@@ -54,7 +54,7 @@ namespace Persistence.SQL.Repository
                 AverageSpeed = profile.AverageSpeed,
                 Availability = new List<Availability>(profile.Availability),
                 CyclingTypes = new List<CyclingType>(profile.CyclingTypes),
-                Location = new Point(new Coordinate(profile.Location.Longitude, profile.Location.Longitude)),
+                Location = LocationMapper.Map(profile.Location),
                 User = new UserEntity
                 {
                     Id = profile.UserId,
@@ -97,7 +97,12 @@ namespace Persistence.SQL.Repository
                 dbSet = dbSet.ApplyFilter(nameof(ProfileEntity.AverageSpeed), filter.AverageSpeedFilter);
             }
 
-            var results = await dbSet.AsNoTracking().ToListAsync();
+            if (filter.LocationFilter != null)
+            {
+                dbSet = dbSet.ApplyFilter(nameof(ProfileEntity.Location), filter.LocationFilter);
+            }
+
+            var results = await dbSet.Include(x => x.User).AsNoTracking().ToListAsync();
             return results.Select(ProfileMapper.Map);
         }
     }
