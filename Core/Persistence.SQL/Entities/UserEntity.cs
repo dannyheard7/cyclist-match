@@ -21,4 +21,6 @@ internal class UserEntity
     public DateTime UpdatedAt { get; set; }
     
     public ProfileEntity Profile { get; init; }
+    
+    // public ICollection<MatchEntity> Matches { get; set; }
 }

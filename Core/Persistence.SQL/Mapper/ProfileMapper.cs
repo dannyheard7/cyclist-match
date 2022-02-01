@@ -22,4 +22,9 @@ internal static class ProfileMapper
             profileEntity.User.UpdatedAt
         );
     }
+
+    public static MatchDTO Map(this MatchEntity matchEntity)
+    {
+        return new MatchDTO(matchEntity.SourceUser.Profile.Map(), matchEntity.TargetUser.Profile.Map(), matchEntity.Relevance);
+    }
 }

@@ -1,16 +1,23 @@
-import { useQuery } from "react-query";
-import { User } from "../Common/Interfaces/User";
-import { useApi } from "./useApi";
+import { useQuery } from 'react-query';
+import Profile from '../Common/Interfaces/Profile';
+import { HTTPError, useApi } from './useApi';
 
-const useCurrentUser = (options: PositionOptions = {}) => {
+const useCurrentUser = (load: boolean = true) => {
     const api = useApi();
-    const { data, isLoading, error } = useQuery('fetchUser', () => api.get("auth/user").json<User>());
+    const { data, isLoading, error, refetch } = useQuery<Profile, HTTPError>(
+        'fetchUser',
+        () => api.get('auth/user').json<Profile>(),
+        {
+            enabled: load,
+        },
+    );
 
     return {
+        fetch: refetch,
         user: data,
         loading: isLoading,
-        error
-    }
+        error,
+    };
 };
 
 export default useCurrentUser;

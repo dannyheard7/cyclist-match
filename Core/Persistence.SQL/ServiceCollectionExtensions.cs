@@ -32,7 +32,8 @@ namespace Persistence.SQL
                         }));
 
             return services
-                .AddScoped<IProfileRepository, ProfileRepository>();
+                .AddScoped<IProfileRepository, ProfileRepository>()
+                .AddScoped<IProfileMatchRepository, ProfileMatchRepository>();
         }
 
         public static IGlobalConfiguration UseHangfirePersistence(this IGlobalConfiguration hangfireConfiguration, IConfiguration configuration)

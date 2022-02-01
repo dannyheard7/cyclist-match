@@ -52,7 +52,6 @@ const CreateProfile: React.FC = () => {
                 <ProfileForm
                     defaultValues={{
                         ...user,
-                        displayName: `${user.givenNames || ''} ${user.familyName || ''}`.trim(),
                     }}
                     onSubmit={mutate}
                 />

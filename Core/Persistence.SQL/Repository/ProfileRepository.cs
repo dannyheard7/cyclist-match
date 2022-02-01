@@ -105,5 +105,7 @@ namespace Persistence.SQL.Repository
             var results = await dbSet.Include(x => x.User).AsNoTracking().ToListAsync();
             return results.Select(ProfileMapper.Map);
         }
+
+       
     }
 }

@@ -12,10 +12,14 @@ internal class MatchingService : IMatchingService
     private const double DistanceDeviationPercentage = 0.3;
 
     private readonly IProfileRepository _profileRepository;
-
-    public MatchingService(IProfileRepository profileRepository)
+    private readonly IProfileMatchRepository _profileMatchRepository;
+    private readonly IRelevanceCalculator _relevanceCalculator;
+    
+    public MatchingService(IProfileRepository profileRepository, IProfileMatchRepository profileMatchRepository, IRelevanceCalculator relevanceCalculator)
     {
         _profileRepository = profileRepository;
+        _profileMatchRepository = profileMatchRepository;
+        _relevanceCalculator = relevanceCalculator;
     }
 
     public async Task MatchRelevantProfiles(Guid profiledId)
@@ -40,15 +44,20 @@ internal class MatchingService : IMatchingService
         var results = await _profileRepository.Get(filter);
 
         var matches = results
-            .Select(x =>  new Match(profile, x, CalculateRelevance(profile, x)));
+            .Select(x =>
+            {
+                var exactRelevance = _relevanceCalculator.Calculate(profile, x);
+                var normalisedRelevance = (float)Math.Round(Math.Max(Math.Min(exactRelevance, 0), 1), 5);
+                
+                return new MatchDTO(profile, x, normalisedRelevance);
+            })
+            .ToList();
+
+        await _profileMatchRepository.UpdateProfileMatches(profile, matches);
     }
 
-    private decimal CalculateRelevance(ProfileDTO a, ProfileDTO b)
+    public Task<IEnumerable<ProfileDTO>> GetMatchedProfiles(ProfileDTO profile)
     {
-        // Let's start with distance
-        var distance = a.Location.DistanceTo(b.Location);
-        if (distance == 0) return 1;
-        
-        return (decimal)(1 / a.Location.DistanceTo(b.Location));
+        return _profileMatchRepository.GetMatchedProfiles(profile);
     }
 }

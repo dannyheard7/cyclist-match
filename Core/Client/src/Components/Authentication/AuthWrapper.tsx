@@ -1,7 +1,7 @@
 import ky from 'ky';
 import { AuthProvider, useAuth, User, UserManager } from 'oidc-react';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { useMutation } from 'react-query';
+import { useMutation, useQuery } from 'react-query';
 import { useHistory, useLocation } from 'react-router-dom';
 import Profile from '../../Common/Interfaces/Profile';
 import { useApiCustomAuth } from '../../Hooks/useApi';
@@ -63,14 +63,20 @@ export const AuthWrapper: React.FC = ({ children }) => {
 
     const api = useApiCustomAuth(user?.access_token);
     const {
-        mutate: apiLogin,
+        refetch: apiLogin,
         isLoading: apiLoginLoading,
         data: apiLoginData,
         error: apiLoginError,
-    } = useMutation<Profile, ky.HTTPError>(async () => {
-        const res = await api.post(`auth/login`);
-        return await res.json();
-    });
+    } = useQuery<Profile, ky.HTTPError>(
+        'fetchCurrentUser',
+        async () => {
+            const res = await api.get(`auth/user`);
+            return await res.json();
+        },
+        {
+            enabled: false,
+        },
+    );
 
     const profileDoesNotExist = apiLoginError?.response?.status === 404;
     useEffect(() => {

@@ -6,6 +6,8 @@ public static class ServiceCollectionExtension
 {
     public static void AddMatchingService(this IServiceCollection serviceCollection)
     {
-        serviceCollection.AddScoped<IMatchingService, MatchingService>();
+        serviceCollection
+            .AddSingleton<IRelevanceCalculator, BasicRelevanceCalculator>()
+            .AddScoped<IMatchingService, MatchingService>();
     }
 }

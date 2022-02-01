@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Auth;
 using Hangfire;
@@ -17,17 +18,16 @@ namespace RuntimeService.Controllers
     public class ProfileController : ControllerBase
     {
         private readonly IProfileService _profileService;
+        private readonly IMatchingService _matchingService;
         private readonly ICurrentUserService _currentUserService;
         private readonly IBackgroundJobClient _backgroundJobClient;
         
-        public ProfileController(
-            IProfileService profileService,
-            ICurrentUserService currentUserService,
-            IBackgroundJobClient backgroundJobClient)
+        public ProfileController(IProfileService profileService, IMatchingService matchingService, ICurrentUserService currentUserService, IBackgroundJobClient backgroundJobClient)
         {
-            _profileService = profileService ?? throw new ArgumentNullException(nameof(profileService));
-            _currentUserService = currentUserService ?? throw new ArgumentNullException(nameof(currentUserService));
-            _backgroundJobClient = backgroundJobClient ?? throw new ArgumentNullException(nameof(backgroundJobClient));
+            _profileService = profileService;
+            _matchingService = matchingService;
+            _currentUserService = currentUserService;
+            _backgroundJobClient = backgroundJobClient;
         }
 
         [HttpGet("{userId}")]
@@ -60,6 +60,19 @@ namespace RuntimeService.Controllers
 
             _backgroundJobClient.Enqueue<IMatchingService>(service => service.MatchRelevantProfiles(profile.UserId));
             return Ok(profile);
+        }
+        
+        [HttpGet("{userId}/matches")]
+        public async Task<ActionResult<IEnumerable<ProfileDTO>>> GetProfileMatches(Guid userId)
+        {
+            var profile = await _profileService.GetById(userId);
+            if (profile == null) return NotFound();
+
+            var matches = await _matchingService.GetMatchedProfiles(profile);
+            return Ok( new []
+            {
+                matches
+            });
         }
     }
 }

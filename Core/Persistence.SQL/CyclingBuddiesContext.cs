@@ -13,6 +13,12 @@ internal class CyclingBuddiesContext : DbContext
     
     public DbSet<ProfileEntity> Profiles { get; init; }
     
+    public DbSet<MatchEntity> ProfileMatches { get; init; }
+    
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder.UseSnakeCaseNamingConvention();
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+    }
 }
