@@ -52,6 +52,8 @@ internal class MatchingService : IMatchingService
                 return new MatchDTO(profile, x, normalisedRelevance);
             })
             .ToList();
+        
+        // TODO: rematch the matches matches
 
         await _profileMatchRepository.UpdateProfileMatches(profile, matches);
     }

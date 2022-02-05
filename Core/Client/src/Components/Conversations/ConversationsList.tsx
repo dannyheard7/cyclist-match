@@ -62,7 +62,7 @@ const ConversationsList: React.FC = () => {
                                     onClick={() => push(`/conversations/${otherParticipant.userId}`)}
                                     style={{ cursor: 'pointer' }}
                                 >
-                                    <CardHeader title={otherParticipant.displayName} />
+                                    <CardHeader title={otherParticipant.userDisplayName} />
                                     <CardContent>
                                         <Typography>{conversation.messages[0].text}</Typography>
 

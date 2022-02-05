@@ -3,13 +3,12 @@ import CyclingType from '../Enums/CyclingType';
 import { User } from './User';
 
 export default interface Profile extends User {
-    displayName: string;
+    userDisplayName: string;
     locationName: string;
     cyclingTypes: Array<CyclingType>;
     availability: Array<Availability>;
-    minDistance: number;
-    maxDistance: number;
-    speed: number;
+    averageDistance: number;
+    averageSpeed: number;
     distanceFromUserKM: number;
-    profileImage?: string;
+    userPicture: string | null;
 }

@@ -72,7 +72,7 @@ const ConversationPage: React.FC = () => {
             <div className={classes.participant}>
                 <Typography>
                     <Box fontWeight="fontWeightBold" m={1}>
-                        {participant.displayName}
+                        {participant.userDisplayName}
                     </Box>
                 </Typography>
             </div>

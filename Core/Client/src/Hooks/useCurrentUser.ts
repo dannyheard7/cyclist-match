@@ -16,7 +16,7 @@ const useCurrentUser = (load: boolean = true) => {
         fetch: refetch,
         user: data,
         loading: isLoading,
-        error,
+        error
     };
 };
 

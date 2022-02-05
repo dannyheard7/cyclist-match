@@ -1,7 +1,7 @@
-import { Card, CardContent, CardHeader, Divider, Grid, Typography, useTheme } from '@material-ui/core';
+import { Card, CardActionArea, CardContent, CardHeader, Divider, Grid, Typography, useTheme } from '@material-ui/core';
 import React, { useEffect } from 'react';
 import { useQuery } from 'react-query';
-import { useHistory } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 import Profile from '../../Common/Interfaces/Profile';
 import { User } from '../../Common/Interfaces/User';
 import { useApi } from '../../Hooks/useApi';
@@ -16,10 +16,9 @@ interface ProfileMatchesResponse {
 const ProfileMatches: React.FC = () => {
     const theme = useTheme();
     const api = useApi();
-    const { push } = useHistory();
 
     const { user } = useCurrentUser();
-    const { data, isLoading, isError, refetch } = useQuery(
+    const { data, isLoading, isError, refetch, isIdle } = useQuery(
         'fetchProfileMatches',
         () => api.get(`profiles/${user!.userId}/matches`).json<ProfileMatchesResponse>(),
         { enabled: false },
@@ -29,7 +28,7 @@ const ProfileMatches: React.FC = () => {
         if (user) refetch();
     }, [user, refetch]);
 
-    if (isLoading) return <Loading />;
+    if (isLoading || isIdle) return <Loading />;
     else if (isError || !data) return <ErrorMessage />;
 
     return (
@@ -43,19 +42,21 @@ const ProfileMatches: React.FC = () => {
             <Grid container item xs={12} spacing={1}>
                 {data.matches.map((match) => (
                     <Grid item xs={12} key={match.userId}>
-                        <Card onClick={() => push(`conversations/${match.userId}`)} style={{ cursor: 'pointer' }}>
-                            <CardHeader title={match.displayName} />
-                            <CardContent>
-                                <Typography>
-                                    {match.minDistance} - {match.maxDistance}Km
-                                </Typography>
-                                <Typography>{match.speed}Km/H</Typography>
-                                <Typography>{match.cyclingTypes.join(', ')}</Typography>
-                                <Typography>{match.availability.join(', ')}</Typography>
-                                <Typography>
-                                    {match.locationName} - {match.distanceFromUserKM} km away
-                                </Typography>
-                            </CardContent>
+                        <Card style={{ cursor: 'pointer' }}>
+                            <CardActionArea component={Link} to={`conversations/${match.userId}` as any} >
+                                <CardHeader title={match.userDisplayName} />
+                                <CardContent>
+                                    <Typography>
+                                        {match.averageDistance}Km
+                                    </Typography>
+                                    <Typography>{match.averageSpeed}Km/H</Typography>
+                                    <Typography>{match.cyclingTypes.join(', ')}</Typography>
+                                    <Typography>{match.availability.join(', ')}</Typography>
+                                    <Typography>
+                                        {match.locationName} - {match.distanceFromUserKM} km away
+                                    </Typography>
+                                </CardContent>
+                            </CardActionArea>
                         </Card>
                     </Grid>
                 ))}

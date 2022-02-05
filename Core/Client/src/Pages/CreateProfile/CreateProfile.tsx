@@ -1,14 +1,13 @@
 import { Divider, Grid, Typography, useTheme } from '@material-ui/core';
 import React, { useEffect } from 'react';
-import { useMutation } from 'react-query';
+import { useMutation, useQueryClient } from 'react-query';
 import { useHistory } from 'react-router-dom';
 import Availability from '../../Common/Enums/Availability';
 import CyclingType from '../../Common/Enums/CyclingType';
-import ErrorMessage from '../../Components/ErrorMessage/ErrorMessage';
+import { useAuthentication } from '../../Components/Authentication/AuthWrapper';
 import Loading from '../../Components/Loading/Loading';
 import ProfileForm from '../../Components/ProfileForm/ProfileForm';
 import { useApi } from '../../Hooks/useApi';
-import useCurrentUser from '../../Hooks/useCurrentUser';
 
 interface CreateProfileVariables {
     displayName: string;
@@ -24,21 +23,23 @@ interface CreateProfileVariables {
 }
 
 const CreateProfile: React.FC = () => {
+    const queryClient = useQueryClient();
     const theme = useTheme();
     const api = useApi();
     const { push } = useHistory();
-    const { user, loading, error } = useCurrentUser();
+    const { profile } = useAuthentication();
 
     const { mutate, isSuccess, isLoading } = useMutation((input: CreateProfileVariables) =>
         api.post(`profiles`, { json: input }).json<{ hasProfile: boolean }>(),
     );
 
     useEffect(() => {
-        if (isSuccess) push('/');
+        if (isSuccess) {
+            queryClient
+                .refetchQueries('fetchCurrentUser')
+                .then(() => push('/'));
+        }
     }, [isSuccess, push]);
-
-    if (loading) return <Loading />;
-    else if (error || !user) return <ErrorMessage />;
 
     return (
         <Grid container spacing={2}>
@@ -50,10 +51,11 @@ const CreateProfile: React.FC = () => {
             <Divider style={{ margin: theme.spacing(1, 0), width: '100%' }} />
             <Grid item xs={12}>
                 <ProfileForm
-                    defaultValues={{
-                        ...user,
-                    }}
+                    defaultValues={profile ? {
+                        displayName: `${profile.given_name} ${profile.family_name}`
+                    } : undefined}
                     onSubmit={mutate}
+                    disabled={isLoading || isSuccess}
                 />
             </Grid>
             <Grid>{isLoading && <Loading />}</Grid>

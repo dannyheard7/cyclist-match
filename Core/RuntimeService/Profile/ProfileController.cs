@@ -61,18 +61,25 @@ namespace RuntimeService.Controllers
             _backgroundJobClient.Enqueue<IMatchingService>(service => service.MatchRelevantProfiles(profile.UserId));
             return Ok(profile);
         }
+
+        public class MatchesResponse
+        {
+            public MatchesResponse(IEnumerable<ProfileDTO> matches)
+            {
+                Matches = matches;
+            }
+
+            public IEnumerable<ProfileDTO> Matches { get; }
+        }
         
         [HttpGet("{userId}/matches")]
-        public async Task<ActionResult<IEnumerable<ProfileDTO>>> GetProfileMatches(Guid userId)
+        public async Task<ActionResult<MatchesResponse>> GetProfileMatches(Guid userId)
         {
             var profile = await _profileService.GetById(userId);
             if (profile == null) return NotFound();
 
             var matches = await _matchingService.GetMatchedProfiles(profile);
-            return Ok( new []
-            {
-                matches
-            });
+            return Ok(new MatchesResponse(matches));
         }
     }
 }
