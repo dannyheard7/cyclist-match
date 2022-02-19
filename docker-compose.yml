@@ -2,6 +2,7 @@ version: "3.7"
 
 volumes:
   postgres_data: {}
+
 services:
   postgres:
     image: postgis/postgis:14-3.2-alpine
@@ -34,3 +35,25 @@ services:
     volumes:
       - ./mocks/oidc:/tmp/config:ro
       - ~/.aspnet/https:/https:ro
+
+  im-db:
+    image: postgres:14-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: im
+      POSTGRES_INITDB_ARGS: '--encoding=UTF-8 --lc-collate=C --lc-ctype=C'
+      LC_COLLATE: 'C'
+      LC_CTYPE: 'C'
+
+  im-server:
+    image: matrixdotorg/synapse:v1.52.0
+    environment:
+      - SYNAPSE_SERVER_NAME=localhost
+      - SYNAPSE_REPORT_STATS=yes
+    volumes:
+      - ./matrix:/data
+    ports:
+      - 8008:8008
+    depends_on:
+      - im-db

@@ -40,7 +40,7 @@ namespace Auth
             var response = await httpClient.SendAsync(request);
             response.EnsureSuccessStatusCode();
 
-            return JsonSerializer.Deserialize<Auth0User>(await response.Content.ReadAsStringAsync());
+            return await JsonSerializer.DeserializeAsync<Auth0User>(await response.Content.ReadAsStreamAsync());
         }
     }
 }

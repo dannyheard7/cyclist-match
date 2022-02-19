@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Auth;
+using ChatService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Persistence.Types.DTO;
@@ -13,14 +14,20 @@ namespace RuntimeService.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthenticationUserService _authenticationUserService;
-        private readonly ICurrentUserService _currentUserService;
+        private readonly IUserContext _userContext;
         private readonly IProfileService _profileService;
+        private readonly IChatClientFactory _chatClientFactory;
         
-        public AuthController(IAuthenticationUserService authenticationUserService, ICurrentUserService currentUserService, IProfileService profileService)
+        public AuthController(
+            IAuthenticationUserService authenticationUserService,
+            IUserContext userContext,
+            IProfileService profileService,
+            IChatClientFactory chatClientFactory)
         {
             _authenticationUserService = authenticationUserService;
-            _currentUserService = currentUserService;
+            _userContext = userContext;
             _profileService = profileService;
+            _chatClientFactory = chatClientFactory;
         }
 
         [HttpGet("user")]
@@ -33,6 +40,9 @@ namespace RuntimeService.Controllers
             {
                 return NotFound();
             }
+            
+            var client = _chatClientFactory.GetClient();
+            await client.GetConversations();
 
             return Ok(profile);
         }

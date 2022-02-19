@@ -19,14 +19,14 @@ namespace RuntimeService.Controllers
     {
         private readonly IProfileService _profileService;
         private readonly IMatchingService _matchingService;
-        private readonly ICurrentUserService _currentUserService;
+        private readonly IUserContext _userContext;
         private readonly IBackgroundJobClient _backgroundJobClient;
         
-        public ProfileController(IProfileService profileService, IMatchingService matchingService, ICurrentUserService currentUserService, IBackgroundJobClient backgroundJobClient)
+        public ProfileController(IProfileService profileService, IMatchingService matchingService, IUserContext userContext, IBackgroundJobClient backgroundJobClient)
         {
             _profileService = profileService;
             _matchingService = matchingService;
-            _currentUserService = currentUserService;
+            _userContext = userContext;
             _backgroundJobClient = backgroundJobClient;
         }
 
@@ -41,7 +41,7 @@ namespace RuntimeService.Controllers
         [HttpPost]
         public async Task<ActionResult<ProfileDTO>> CreateProfile([FromBody] ProfileInput input)
         {
-            var currentUser = await _currentUserService.GetUser();
+            var currentUser = await _userContext.GetUser();
            
             var profile = new CreateProfileDTO(
                 Guid.NewGuid(),

@@ -1,10 +1,10 @@
 using System;
 using System.Globalization;
 using Auth;
+using ChatService;
 using Hangfire;
 using MatchingService;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Persistence.SQL;
@@ -22,12 +22,13 @@ builder.Services
 builder.Services
     .AddPersistence(builder.Configuration)
     .AddAuth(builder.Configuration)
-    .AddScoped<IProfileService, ProfileService>()
-    .AddScoped<ICurrentUserService, CurrentUserService>();
+    .AddScoped<IProfileService, ProfileService>();
 
-builder.Services.AddMatchingService();
+builder.Services
+    .AddChatService(builder.Configuration)
+    .AddMatchingService();
 
-builder.Services.Configure<ClientConfigSettings>(options => builder.Configuration.GetSection(ClientConfigSettings.Key).Bind(options));
+builder.Services.Configure<ClientConfigSettings>(builder.Configuration.GetSection(ClientConfigSettings.Key));
 
 builder.Services.AddHangfire(configuration =>
     {

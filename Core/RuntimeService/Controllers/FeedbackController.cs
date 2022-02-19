@@ -27,11 +27,11 @@ namespace RuntimeService.Controllers
     public class FeedbackController : ControllerBase
     {
         private readonly MailOptions _mailOptions;
-        private readonly ICurrentUserService _currentUserService;
+        private readonly IUserContext _userContext;
         
-        public FeedbackController(ICurrentUserService currentUserService, IConfiguration configuration)
+        public FeedbackController(IUserContext userContext, IConfiguration configuration)
         {
-            _currentUserService = currentUserService;
+            _userContext = userContext;
             _mailOptions = configuration.GetSection(MailOptions.Mail).Get<MailOptions>();
         }
         
@@ -48,7 +48,7 @@ namespace RuntimeService.Controllers
 
             try
             {
-                var user = await _currentUserService.GetUser();
+                var user = await _userContext.GetUser();
                 emailAddress = user.Email;
             } catch(UnauthorizedAccessException){}
             

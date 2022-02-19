@@ -23,7 +23,8 @@ namespace Auth
                     options.Audience = oidcSettings.Audience;
                 });
             return services
-                .AddScoped<IAuthenticationUserService, Auth0UserService>();
+                .AddSingleton<IAuthenticationUserService, Auth0UserService>()
+                .AddSingleton<IUserContext, UserContext>();
         }
     }
 }

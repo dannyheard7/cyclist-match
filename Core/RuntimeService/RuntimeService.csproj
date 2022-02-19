@@ -10,6 +10,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Auth\Auth.csproj" />
+      <ProjectReference Include="..\ChatService\ChatService.csproj" />
       <ProjectReference Include="..\MatchingService\MatchingService.csproj" />
       <ProjectReference Include="..\Persistence.SQL\Persistence.SQL.csproj" />
     </ItemGroup>
@@ -19,12 +20,17 @@
       <PackageReference Include="MailKit" Version="3.1.0" />
       <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.0" />
       <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="6.0.1" />
+      <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="6.0.0" />
     </ItemGroup>
 
     <ItemGroup>
         <!-- Don't publish the SPA source files -->
         <Content Remove="$(SpaRoot)**" />
         <None Remove="$(SpaRoot)**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Services" />
     </ItemGroup>
 
     <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">
