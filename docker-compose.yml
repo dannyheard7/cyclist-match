@@ -3,6 +3,10 @@ version: "3.7"
 volumes:
   postgres_data: {}
 
+networks:
+  proxy:
+    driver: bridge
+
 services:
   postgres:
     image: postgis/postgis:14-3.2-alpine
@@ -17,10 +21,9 @@ services:
 
   oidc:
     image: soluto/oidc-server-mock
-    ports:
-      - "44363:443"
+    container_name: oidc
     environment:
-      ASPNETCORE_URLS: https://+:443;http://+80
+      ASPNETCORE_URLS: https://+:443;http://+8-
       ASPNETCORE_HTTPS_PORT: 443
       ASPNETCORE_Kestrel__Certificates__Default__Password: password
       ASPNETCORE_Kestrel__Certificates__Default__Path: /https/aireframe-oidc-mock.pfx
@@ -30,14 +33,44 @@ services:
       API_RESOURCES_PATH: /tmp/config/api-resources.json
       SERVER_OPTIONS_INLINE: |
         {
-          "IssuerUri": "https://localhost:44363",
+          "IssuerUri": "https://oidc.localhost",
         }
     volumes:
       - ./mocks/oidc:/tmp/config:ro
       - ~/.aspnet/https:/https:ro
+    networks:
+      - proxy
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.oidc.tls=true
+      - traefik.http.routers.oidc.rule=Host("oidc.localhost")
+      - traefik.frontend.rule=Host:oidc.localhost
+      - "traefik.http.services.oidc.loadbalancer.server.port=443"
+      - "traefik.http.services.oidc.loadbalancer.server.scheme=https"
+
+  traefik:
+    image: traefik:v2.6
+    ports:
+      - 80:80
+      - 443:443
+      - "8080:8080"
+    restart: always
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - ./docker/traefik/dynamic_conf.yaml:/etc/traefik/dynamic_conf.yaml:ro
+      - ./docker/traefik/traefik.yaml:/etc/traefik/traefik.yaml:ro
+      - ./certs:/etc/certs:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      proxy:
+        aliases:
+          - oidc.localhost
 
   im-db:
     image: postgres:14-alpine
+    networks:
+      - proxy
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -47,10 +80,15 @@ services:
       LC_CTYPE: 'C'
 
   im-server:
-    image: matrixdotorg/synapse:v1.52.0
+    container_name: im-server
+    build:
+      context: .
+      dockerfile: ./docker/Synapse/Dockerfile
     environment:
       - SYNAPSE_SERVER_NAME=localhost
-      - SYNAPSE_REPORT_STATS=yes
+    restart: unless-stopped
+    networks:
+      - proxy
     volumes:
       - ./matrix:/data
     ports:

@@ -46,21 +46,12 @@ internal class MatrixClient : IChatClient
 
     public async Task<IReadOnlyCollection<Conversation>> GetConversations()
     {
-        var requestMessage = BuildRequestMessage(HttpMethod.Get,"message/inbox");
+        var requestMessage = BuildRequestMessage(HttpMethod.Get, "joined_rooms");
         
         var response = await Send(requestMessage);
         var content = await response.Content.ReadAsStringAsync();
-        var inbox = await JsonSerializer.DeserializeAsync<PaginatedResults<MessageBundle>>(await response.Content.ReadAsStreamAsync());
+        var inbox = await JsonSerializer.DeserializeAsync<JoinedRooms>(await response.Content.ReadAsStreamAsync());
 
-        return inbox.Results.Select(bundle =>
-        {
-            var participants = new List<string>
-            {
-                bundle.Message.CreatedBy
-            };
-            participants.AddRange(bundle.Message.Recepients);
-
-            return new Conversation(participants, bundle.Message.CreatedOn);
-        }).ToList();
+        return new List<Conversation>();
     }
 }

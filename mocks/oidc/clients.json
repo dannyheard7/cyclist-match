@@ -5,7 +5,9 @@
         "AllowedGrantTypes": [
             "authorization_code"
         ],
-        "ClientSecrets": [],
+        "ClientSecrets": [
+            "abc"
+        ],
         "AllowAccessTokensViaBrowser": true,
         "RedirectUris": [
             "http://localhost:3000/oidc-signin",

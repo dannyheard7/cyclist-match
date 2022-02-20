@@ -1831,14 +1831,10 @@ saml2_config:
 oidc_providers:
   - idp_id: cycling-buddies
     idp_name: "Cycling Buddies OpenID provider"
-    discover: false
-    issuer: "https://localhost:44363"
+    issuer: "https://oidc.localhost"
     client_id: "cyling-buddies-client"
-    client_auth_method: none
-    authorization_endpoint: "https://localhost:44363/connect/authorize"
-    token_endpoint: "https://localhost:44363/connect/token"
-    userinfo_endpoint: "http://oidc/connect/userinfo"
-    scopes: ["profile"]
+    client_secret: "abc"
+    scopes: ["openid", "profile"]
     user_mapping_provider:
       config:
         subject_claim: "sub"
