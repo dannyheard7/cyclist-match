@@ -1,4 +1,5 @@
-using Persistence.Types.DTO;
+
+using Persistence.Profile.Types.DTO;
 
 namespace MatchingService;
 

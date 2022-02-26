@@ -1,12 +1,11 @@
-﻿using System;
-using Hangfire;
+﻿using Hangfire;
 using Hangfire.PostgreSql;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Persistence.Repository;
+using Persistence.Profile;
 using Persistence.SQL.Migrations;
-using Persistence.SQL.Repository;
+using Persistence.SQL.Profile;
 
 namespace Persistence.SQL
 {
@@ -22,7 +21,7 @@ namespace Persistence.SQL
                 .AddHostedService<DatabaseMigratorHostedService>();
             
             services
-                .AddDbContext<CyclingBuddiesContext>(options => options
+                .AddDbContext<ProfileContext>(options => options
                     .UseNpgsql(
                         connectionString, 
                         o =>

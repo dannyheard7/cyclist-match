@@ -1,12 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Hangfire.States;
 using LinqKit;
 using Microsoft.EntityFrameworkCore;
-using NetTopologySuite.Geometries;
 using Persistence.Filter;
-using Persistence.SQL.Mapper;
 
 namespace Persistence.SQL.Filters;
 
@@ -42,11 +39,5 @@ internal static class FilterExtensions
         }
 
         return queryable.Where(predicate);
-    }
-    
-    public static IQueryable<T> ApplyFilter<T>(this IQueryable<T> queryable, string propertyName, LocationFilter filter) where T : class
-    {
-        var convertedPoint = filter.Location.Map();
-        return queryable.Where(p => EF.Property<Point>(p, propertyName).IsWithinDistance(convertedPoint, filter.MaxDistanceKm * 1000));
     }
 }

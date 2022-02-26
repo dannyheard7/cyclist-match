@@ -6,7 +6,7 @@ using Hangfire;
 using MatchingService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Persistence.Types.DTO;
+using Persistence.Profile.Types.DTO;
 using RuntimeService.ProfileApi;
 using RuntimeService.Services;
 

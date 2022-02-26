@@ -13,7 +13,7 @@ namespace Auth
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly OidcSettings _settings;
-        
+
         public Auth0UserService(IHttpClientFactory httpClientFactory, IOptions<OidcSettings> options)
         {
             _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
@@ -28,15 +28,17 @@ namespace Auth
         public async Task<IOIDCUser> GetUser(ClaimsPrincipal claimsPrincipal, string bearerToken)
         {
             var httpClient = _httpClientFactory.CreateClient();
-                
-            using var request = new HttpRequestMessage {
+
+            // TODO: call well-known endpoint instead of manually passing in the endpoints
+            using var request = new HttpRequestMessage
+            {
                 Method = HttpMethod.Get,
                 RequestUri = new Uri(new Uri(_settings.Host), _settings.UserInfoEndpoint),
                 Headers = {
                     { HeaderNames.Authorization, bearerToken},
                 }
             };
-                
+
             var response = await httpClient.SendAsync(request);
             response.EnsureSuccessStatusCode();
 

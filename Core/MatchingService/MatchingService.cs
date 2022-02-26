@@ -1,7 +1,8 @@
-using Persistence.Entity;
 using Persistence.Filter;
-using Persistence.Repository;
-using Persistence.Types.DTO;
+using Persistence.Profile;
+using Persistence.Profile.Filter;
+using Persistence.Profile.Types;
+using Persistence.Profile.Types.DTO;
 
 namespace MatchingService;
 

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Auth;
-using Persistence.Repository;
-using Persistence.Types.DTO;
+using Persistence.Profile;
+using Persistence.Profile.Types.DTO;
 
 namespace RuntimeService.Services
 {

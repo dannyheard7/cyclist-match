@@ -3,7 +3,7 @@ using Auth;
 using ChatService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Persistence.Types.DTO;
+using Persistence.Profile.Types.DTO;
 using RuntimeService.Services;
 
 namespace RuntimeService.Controllers

@@ -1,6 +1,5 @@
 using System.Collections.Generic;
-using Persistence.Entity;
-using Persistence.Types;
+using Persistence.Profile.Types;
 
 namespace RuntimeService.ProfileApi;
 
