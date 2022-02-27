@@ -8,10 +8,14 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Persistence.SQL;
+using ProfileService;
 using RuntimeService.Services;
 using RuntimeService.Settings;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services
+    .AddScoped<IUserContext, UserContext>();
 
 builder.Services.AddHealthChecks();
 builder.Services.AddControllers();
@@ -21,10 +25,10 @@ builder.Services
 
 builder.Services
     .AddPersistence(builder.Configuration)
-    .AddAuth(builder.Configuration)
-    .AddScoped<IProfileService, ProfileService>();
+    .AddAuth(builder.Configuration);
 
 builder.Services
+    .AddProfileService()
     .AddChatService(builder.Configuration)
     .AddMatchingService();
 

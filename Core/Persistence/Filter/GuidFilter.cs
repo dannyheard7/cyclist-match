@@ -6,10 +6,11 @@ namespace Persistence.Filter;
 
 public class GuidFilter
 {
-    public GuidFilter(IReadOnlyCollection<Guid>? noneOf)
-    {
-        NoneOf = noneOf ?? new List<Guid>();
-    }
+    public IReadOnlyCollection<Guid>? NoneOf { get; private init; }
+    
+    public IReadOnlyCollection<Guid>? AnyOf { get; private init; }
 
-    public IReadOnlyCollection<Guid> NoneOf { get; }
+    public static GuidFilter WithNoneOf(IReadOnlyCollection<Guid> ids) => new GuidFilter { NoneOf = ids };
+
+    public static GuidFilter WithAnyOf(IReadOnlyCollection<Guid> ids) => new GuidFilter { AnyOf = ids };
 }

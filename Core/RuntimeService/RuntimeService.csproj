@@ -13,6 +13,7 @@
       <ProjectReference Include="..\ChatService\ChatService.csproj" />
       <ProjectReference Include="..\MatchingService\MatchingService.csproj" />
       <ProjectReference Include="..\Persistence.SQL\Persistence.SQL.csproj" />
+      <ProjectReference Include="..\ProfileService\ProfileService.csproj" />
     </ItemGroup>
 
     <ItemGroup>
@@ -27,10 +28,6 @@
         <!-- Don't publish the SPA source files -->
         <Content Remove="$(SpaRoot)**" />
         <None Remove="$(SpaRoot)**" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Services" />
     </ItemGroup>
 
     <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Persistence.Profile.Types;
 
-namespace RuntimeService.ProfileApi;
+namespace RuntimeService.Controllers.Models;
 
 public class ProfileInput
 {

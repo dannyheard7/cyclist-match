@@ -11,9 +11,19 @@ internal static class FilterExtensions
 {
     public static IQueryable<T> ApplyFilter<T>(this IQueryable<T> queryable, string propertyName, GuidFilter filter) where T : class
     {
-        return queryable.Where(p => !filter.NoneOf.Contains(EF.Property<Guid>(p, propertyName)));
+        if (filter.NoneOf != null)
+        {
+            return queryable.Where(p => !filter.NoneOf.Contains(EF.Property<Guid>(p, propertyName)));
+        }
+        
+        if(filter.AnyOf != null)
+        {
+            return queryable.Where(p => filter.AnyOf.Contains(EF.Property<Guid>(p, propertyName)));
+        }
+
+        throw new InvalidFilterException();
     }
-    
+
     public static IQueryable<T> ApplyFilter<T>(this IQueryable<T> queryable, string propertyName, IntegerFilter filter) where T : class
     {
         if (filter.EqualTo != null)

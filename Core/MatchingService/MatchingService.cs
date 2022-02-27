@@ -34,7 +34,7 @@ internal class MatchingService : IMatchingService
             Convert.ToInt32(Math.Ceiling(profile.AverageDistance * DistanceDeviationPercentage));
 
         var filter = new ProfileFilter(
-            idFilter: new GuidFilter(new List<Guid> { profiledId }),
+            idFilter: GuidFilter.WithNoneOf(new List<Guid> { profiledId }),
             locationFilter: new LocationFilter(profile.Location, MaximumDistanceKm),
             averageSpeedFilter: new IntegerFilter(profile.AverageSpeed-averageSpeedDeviation, profile.AverageSpeed+averageSpeedDeviation),
             averageDistanceFilter: new IntegerFilter(profile.AverageDistance-averageDistanceDeviation, profile.AverageDistance+averageDistanceDeviation),
@@ -53,8 +53,6 @@ internal class MatchingService : IMatchingService
                 return new MatchDTO(profile, x, normalisedRelevance);
             })
             .ToList();
-        
-        // TODO: rematch the matches matches
 
         await _profileMatchRepository.UpdateProfileMatches(profile, matches);
     }

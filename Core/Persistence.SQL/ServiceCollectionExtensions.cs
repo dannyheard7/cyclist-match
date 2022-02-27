@@ -3,7 +3,9 @@ using Hangfire.PostgreSql;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Persistence.Messaging;
 using Persistence.Profile;
+using Persistence.SQL.Messaging;
 using Persistence.SQL.Migrations;
 using Persistence.SQL.Profile;
 
@@ -21,7 +23,7 @@ namespace Persistence.SQL
                 .AddHostedService<DatabaseMigratorHostedService>();
             
             services
-                .AddDbContext<ProfileContext>(options => options
+                .AddDbContext<PersistenceContext>(options => options
                     .UseNpgsql(
                         connectionString, 
                         o =>
@@ -29,6 +31,8 @@ namespace Persistence.SQL
                             o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
                             o.UseNetTopologySuite();
                         }));
+
+            services.AddScoped<IMessagingRepository, MessagingRepository>();
 
             return services
                 .AddScoped<IProfileRepository, ProfileRepository>()

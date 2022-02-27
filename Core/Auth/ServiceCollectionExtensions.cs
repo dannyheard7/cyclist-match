@@ -22,9 +22,9 @@ namespace Auth
                     options.Authority = oidcSettings.Host;
                     options.Audience = oidcSettings.Audience;
                 });
+            
             return services
-                .AddSingleton<IAuthenticationUserService, Auth0UserService>()
-                .AddSingleton<IUserContext, UserContext>();
+                .AddSingleton<IUserService, Auth0Service>();
         }
     }
 }

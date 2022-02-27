@@ -20,7 +20,7 @@ const ProfileMatches: React.FC = () => {
     const { user } = useCurrentUser();
     const { data, isLoading, isError, refetch, isIdle } = useQuery(
         'fetchProfileMatches',
-        () => api.get(`profiles/${user!.userId}/matches`).json<ProfileMatchesResponse>(),
+        () => api.get(`matches`).json<ProfileMatchesResponse>(),
         { enabled: false },
     );
 

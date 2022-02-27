@@ -9,12 +9,12 @@ using Persistence;
 
 namespace Auth
 {
-    internal class Auth0UserService : IAuthenticationUserService
+    internal class Auth0Service : IUserService
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly OidcSettings _settings;
 
-        public Auth0UserService(IHttpClientFactory httpClientFactory, IOptions<OidcSettings> options)
+        public Auth0Service(IHttpClientFactory httpClientFactory, IOptions<OidcSettings> options)
         {
             _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
             _settings = options?.Value ?? throw new ArgumentNullException(nameof(options));

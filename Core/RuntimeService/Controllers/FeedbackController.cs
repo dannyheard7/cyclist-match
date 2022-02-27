@@ -1,12 +1,13 @@
 ﻿using System;
+using System.Text;
 using System.Threading.Tasks;
-using Auth;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using MimeKit;
 using MimeKit.Text;
+using RuntimeService.Services;
 
 namespace RuntimeService.Controllers
 {
@@ -44,19 +45,39 @@ namespace RuntimeService.Controllers
         [HttpPost]
         public async Task<IActionResult> PostFeedback([FromBody] FeedbackInput input)
         {
-            var emailAddress = input.Email;
+            var stringBuilder = new StringBuilder();
+
+            stringBuilder.AppendLine("Feedback form submitted");
+            stringBuilder.AppendLine(input.Message);
+
+            if (input.Email != null)
+            {
+                stringBuilder.AppendLine(input.Email);
+
+            }
 
             try
             {
-                var user = await _userContext.GetUser();
-                emailAddress = user.Email;
-            } catch(UnauthorizedAccessException){}
+                var profile = await _userContext.GetUserProfile();
+
+                if (profile != null)
+                {
+                    stringBuilder.AppendLine($"User - Id: {profile.UserId}, Name: {profile.UserDisplayName}");
+                }
+            }
+            catch (Exception)
+            {
+                
+            }
             
             var email = new MimeMessage();
             email.From.Add(MailboxAddress.Parse(_mailOptions.UserName));
             email.To.Add(MailboxAddress.Parse(_mailOptions.FeedbackEmail));
             email.Subject = "Feedback Submitted";
-            email.Body = new TextPart(TextFormat.Html) { Text = $@"{emailAddress} - {input.Message}"};
+            email.Body = new TextPart(TextFormat.Html)
+            {
+                Text = stringBuilder.ToString()
+            };
             
             using var smtp = new SmtpClient();
             await smtp.ConnectAsync(_mailOptions.Host, _mailOptions.Port, SecureSocketOptions.StartTls);

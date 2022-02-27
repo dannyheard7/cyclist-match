@@ -14,6 +14,8 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Auth\Auth.csproj" />
+      <ProjectReference Include="..\Common\Common.csproj" />
+      <ProjectReference Include="..\ProfileService\ProfileService.csproj" />
     </ItemGroup>
 
 </Project>

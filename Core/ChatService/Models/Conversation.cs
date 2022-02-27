@@ -1,14 +1,17 @@
-﻿namespace ChatService.Models;
+﻿using Persistence.Messaging.Types;
+using Persistence.Profile.Types.DTO;
+
+namespace ChatService.Models;
 
 public class Conversation
 {
-    public Conversation(IReadOnlyCollection<string> participants, DateTime lastMessageTime)
+    public Conversation(IReadOnlySet<ProfileDTO> participants, IReadOnlySet<ConversationMessage> messages)
     {
         Participants = participants;
-        LastMessageTime = lastMessageTime;
+        Messages = messages;
     }
 
-    public IReadOnlyCollection<string> Participants { get; }
+    public IReadOnlySet<ProfileDTO> Participants { get; }
     
-    public DateTime LastMessageTime { get; }
+    public IReadOnlySet<ConversationMessage> Messages { get; }
 }

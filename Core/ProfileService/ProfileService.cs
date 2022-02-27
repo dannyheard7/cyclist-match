@@ -1,12 +1,10 @@
-﻿using System;
-using System.Threading.Tasks;
-using Auth;
-using Persistence.Profile;
+﻿using Persistence.Profile;
+using Persistence.Profile.Filter;
 using Persistence.Profile.Types.DTO;
 
-namespace RuntimeService.Services
+namespace ProfileService
 {
-    public class ProfileService : IProfileService
+    internal class ProfileService : IProfileService
     {
         private readonly IProfileRepository _profileRepository;
         
@@ -15,8 +13,10 @@ namespace RuntimeService.Services
             _profileRepository = profileRepository ?? throw new ArgumentNullException(nameof(profileRepository));
         }
 
-        public Task<ProfileDTO?> GetByOidcUser(IOIDCUser oidcUser) =>
-            _profileRepository.GetByExternalUserId(oidcUser.Id);
+        public Task<IEnumerable<ProfileDTO>> Get(ProfileFilter filter) => _profileRepository.Get(filter);
+
+        public Task<ProfileDTO?> GetByExternalId(string externalUserId) =>
+            _profileRepository.GetByExternalUserId(externalUserId);
 
         public Task<ProfileDTO?> GetById(Guid userId) =>  _profileRepository.GetByUserId(userId);
         

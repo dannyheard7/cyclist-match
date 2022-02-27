@@ -53,7 +53,7 @@ const useConversation = (userId: string): UseConversationHook => {
     } = useQuery<Conversation, HTTPError>(
         `getConversation-${userId}`,
         async () => {
-            var conversationResult = await api.get(`conversations/users?id=${userId}`).json<ConversationResult>();
+            var conversationResult = await api.get(`messages?userId=${userId}`).json<ConversationResult>();
             return convertConversationResult(conversationResult, user!);
         },
         {

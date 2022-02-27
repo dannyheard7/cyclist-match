@@ -15,9 +15,9 @@ namespace Persistence.SQL.Profile
 {
     internal class ProfileRepository : IProfileRepository
     {
-        private readonly ProfileContext _context;
+        private readonly PersistenceContext _context;
 
-        public ProfileRepository(ProfileContext context)
+        public ProfileRepository(PersistenceContext context)
         {
             _context = context;
         }
