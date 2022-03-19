@@ -19,13 +19,14 @@ internal class MessagingRepository : IMessagingRepository
         _context = context;
     }
 
-    public async Task<Guid?> GetConversationId(List<Guid> userIds)
+    public async Task<Guid?> GetConversationId(IReadOnlyCollection<Guid> userIds)
     {
+        var userIdsAsList = userIds.ToList();
         return await _context
             .ConversationParticipantsAggregates
             .Where(x => 
-                x.Participants.All(i => userIds.Contains(i)) &&
-                userIds.All(i => x.Participants.Contains(i)))
+                x.Participants.All(i => userIdsAsList.Contains(i)) &&
+                userIdsAsList.All(i => x.Participants.Contains(i)))
             .Select(x => x.ConversationId as Guid?)
             .FirstOrDefaultAsync();
     }

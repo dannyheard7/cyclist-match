@@ -28,14 +28,14 @@ export function convertConversationResult(conversationResult: ConversationResult
     );
 }
 
+interface SendMessageInput {
+    body: string;
+}
+
 type UseConversationHook = [
     { conversation: Conversation | undefined; loading: boolean; error: any },
-    { sendMessage: (values: { message: string }) => void },
+    { sendMessage: (values: SendMessageInput) => void },
 ];
-
-interface SendMessageInput {
-    message: string;
-}
 
 const useConversation = (userIds: string[]): UseConversationHook => {
     const api = useApi();
@@ -68,14 +68,15 @@ const useConversation = (userIds: string[]): UseConversationHook => {
     }, [user, refetch]);
 
     const { mutate: sendMessage } = useMutation<MessageResult, HTTPError, SendMessageInput>(
-        (input: SendMessageInput) =>
-            api
+        async (input: SendMessageInput) =>
+            await api
                 .post(`conversations/message`, {
                     json: { ...input, recipients: data!.filterParticipants(user!).map((x) => x.userId) },
                 })
                 .json<MessageResult>(),
         {
             onSuccess: (mutationData, _) => {
+                console.error('here');
                 queryCache.setQueryData<Conversation>(`getConversation-${userIds}`, (old) => {
                     const newMessage: Message = new Message(
                         mutationData.id,

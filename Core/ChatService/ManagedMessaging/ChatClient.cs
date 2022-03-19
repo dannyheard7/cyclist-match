@@ -33,7 +33,7 @@ internal class ChatClient : IChatClient
             throw new ArgumentException("Not enough userIds specified", nameof(userIds));
         }
         
-        var conversationId = await _messagingRepository.GetConversationId(userIds.ToList());
+        var conversationId = await _messagingRepository.GetConversationId(userIds);
         if (conversationId == null)
         {
             return null;
@@ -55,7 +55,7 @@ internal class ChatClient : IChatClient
             messages.Add(new ConversationMessage(sender, message.SentAt, message.ReadAt, message.Body));
         }
 
-        return new Conversation(conversationId.Value, participantsById.Values.ToHashSet(), messages);
+        return new Conversation(participantsById.Values.ToHashSet(), messages);
     }
 
     public async Task<MessageDTO> SendMessage(Guid senderId, IReadOnlySet<Guid> recipients, string body)
@@ -72,7 +72,7 @@ internal class ChatClient : IChatClient
         
         using var transactionsScope = TransactionScopeBuilder.CreateReadCommitted(TransactionScopeAsyncFlowOption.Enabled);
 
-        var allIds = new List<Guid>(recipients) { senderId };
+        var allIds = new HashSet<Guid>(recipients) { senderId };
         
         var conversationId = await _messagingRepository.GetConversationId(allIds);
         if (conversationId == null)

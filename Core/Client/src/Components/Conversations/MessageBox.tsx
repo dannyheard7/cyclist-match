@@ -1,21 +1,20 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { IconButton, InputAdornment, TextField } from "@material-ui/core";
+import { zodResolver } from '@hookform/resolvers/zod';
+import { IconButton, InputAdornment, TextField } from '@material-ui/core';
 import SendIcon from '@material-ui/icons/Send';
-import React from "react";
-import { useForm } from "react-hook-form";
+import React from 'react';
+import { useForm } from 'react-hook-form';
 import * as zod from 'zod';
 
 const schema = zod.object({
-    message: zod.string().nonempty('Required'),
+    body: zod.string().nonempty('Required'),
 });
 
 type SchemaType = zod.infer<typeof schema>;
 
 interface Props {
-    onSubmit: (values: SchemaType) => void,
-    disabled?: boolean
+    onSubmit: (values: SchemaType) => void;
+    disabled?: boolean;
 }
-
 
 const MessageBox: React.FC<Props> = ({ onSubmit: onSubmitCallback, disabled }) => {
     const resolver = zodResolver(schema);
@@ -24,20 +23,20 @@ const MessageBox: React.FC<Props> = ({ onSubmit: onSubmitCallback, disabled }) =
     const onSubmit = (values: SchemaType) => {
         onSubmitCallback(values);
         reset();
-    }
+    };
     const onFormSubmit = handleSubmit(onSubmit);
 
     const onEnterPress = (e: React.KeyboardEvent) => {
-        if (e.key === "Enter" && e.shiftKey === false) {
+        if (e.key === 'Enter' && e.shiftKey === false) {
             e.preventDefault();
             onFormSubmit();
         }
-    }
+    };
 
     return (
         <form onSubmit={onFormSubmit}>
             <TextField
-                name="message"
+                name="body"
                 label="Message"
                 inputRef={register()}
                 fullWidth
@@ -49,10 +48,11 @@ const MessageBox: React.FC<Props> = ({ onSubmit: onSubmitCallback, disabled }) =
                             <IconButton type="submit" disabled={disabled}>
                                 <SendIcon />
                             </IconButton>
-                        </InputAdornment>),
+                        </InputAdornment>
+                    ),
                 }}
                 disabled={disabled}
-                error={errors.message !== undefined}
+                error={errors.body !== undefined}
             />
         </form>
     );

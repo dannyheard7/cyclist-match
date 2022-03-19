@@ -7,7 +7,7 @@ namespace Persistence.Messaging;
 
 public interface IMessagingRepository
 {
-    Task<Guid?> GetConversationId(List<Guid> userIds);
+    Task<Guid?> GetConversationId(IReadOnlyCollection<Guid> userIds);
     
     public Task<IReadOnlyCollection<MessageDTO>> GetConversationMessages(Guid conversationId);
 

@@ -6,7 +6,6 @@ public class Conversation
 {
     public Conversation(IReadOnlySet<ProfileDTO> participants, IReadOnlySet<ConversationMessage> messages)
     {
-        Id = id;
         Participants = participants;
         Messages = messages;
     }
