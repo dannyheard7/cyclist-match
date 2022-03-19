@@ -43,7 +43,7 @@ const ProfileMatches: React.FC = () => {
                 {data.matches.map((match) => (
                     <Grid item xs={12} key={match.userId}>
                         <Card style={{ cursor: 'pointer' }}>
-                            <CardActionArea component={Link} to={`conversations/${match.userId}` as any} >
+                            <CardActionArea component={Link} to={`conversation?userId=${match.userId}`} >
                                 <CardHeader title={match.userDisplayName} />
                                 <CardContent>
                                     <Typography>

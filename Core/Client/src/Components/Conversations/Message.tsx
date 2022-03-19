@@ -1,15 +1,16 @@
 import { Box, Grow, Typography } from '@material-ui/core';
 import React from 'react';
-import Message from '../../Common/Interfaces/Message';
+import { Message } from '../../Common/Interfaces/Message';
+import { User } from '../../Common/Interfaces/User';
 import { formatMessageTimestamp } from '../../Common/Utils';
 
 
-const MessageComponent: React.FC<{ message: Message }> = ({ message }) => {
-    const paddingLeft = message.currentUserIsSender ? '20%' : 0;
-    const paddingRight = message.currentUserIsSender ? 0 : '20%';
-    const bgcolor = message.currentUserIsSender ? 'primary.main' : 'background.paper';
-    const color = message.currentUserIsSender ? 'primary.contrastText' : 'text.primary';
-    const justifyContent = message.currentUserIsSender ? 'flex-end' : 'flex-start';
+const MessageComponent: React.FC<{ message: Message, display: "sender" | "receiver" }> = ({ message, display }) => {
+    const paddingLeft = display === "sender" ? '20%' : 0;
+    const paddingRight = display === "sender" ? 0 : '20%';
+    const bgcolor = display === "sender" ? 'primary.main' : 'background.paper';
+    const color = display === "sender" ? 'primary.contrastText' : 'text.primary';
+    const justifyContent = display === "sender" ? 'flex-end' : 'flex-start';
 
     return (
         <Grow in>
@@ -31,7 +32,7 @@ const MessageComponent: React.FC<{ message: Message }> = ({ message }) => {
                     boxShadow={2}
                 >
                     <Typography style={{ overflowWrap: 'break-word', whiteSpace: 'pre-wrap' }} >
-                        {message.text}
+                        {message.body}
                     </Typography>
                     <Typography>
                         <Box fontWeight="fontWeightLight" marginTop={1} fontSize={11}>

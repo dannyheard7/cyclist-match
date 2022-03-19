@@ -1,16 +1,17 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace RuntimeService.Controllers.Models;
 
 public class MessageInput
 {
-    public MessageInput(Guid recipientId, string body)
+    public MessageInput(IReadOnlySet<Guid> recipients, string body)
     {
-        RecipientId = recipientId;
+        Recipients = recipients;
         Body = body;
     }
-
-    public Guid RecipientId { get; }
     
+    public IReadOnlySet<Guid> Recipients { get; }
+
     public string Body { get; }
 }

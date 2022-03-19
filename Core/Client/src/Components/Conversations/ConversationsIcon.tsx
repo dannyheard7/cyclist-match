@@ -7,7 +7,7 @@ import { useApi } from "../../Hooks/useApi";
 
 const ConversationsIcon: React.FC = () => {
     const api = useApi();
-    const { data } = useQuery(Query.NUMBER_UNREAD_CONVERSATIONS, () => api.get("conversations/unread/count").json<number>());
+    const { data } = useQuery(Query.NUMBER_UNREAD_CONVERSATIONS, () => api.get("conversations?unread=true&pageSize=0").json<number>());
 
     if (data) {
         return (

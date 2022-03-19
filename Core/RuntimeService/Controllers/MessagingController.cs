@@ -12,7 +12,7 @@ using RuntimeService.Services;
 namespace RuntimeService.Controllers;
 
 [ApiController]
-[Route("api/messages")]
+[Route("api/conversations")]
 [Authorize]
 public class MessagingController
 {
@@ -27,19 +27,30 @@ public class MessagingController
         _userService = userService;
     }
 
-    [HttpPost]
-    public async Task<MessageDTO> SendMessage([FromBody] MessageInput input)
-    {
-        var sender = await _userService.GetUserProfile();
-        return await _chatClient.SendMessage(sender.UserId, new HashSet<Guid> { input.RecipientId }, input.Body);
-    }
-
     [HttpGet]
-    public async Task<Conversation> GetConversation([FromQuery(Name = "userId")] IReadOnlyCollection<Guid> userIds)
+    public async Task<IReadOnlyCollection<Conversation>> GetConversations(
+        [FromQuery(Name = "unread")] bool unread = false,
+        [FromQuery(Name = "pageSize")] int pageSize = 15
+        )
+    {
+        var currentUser = await _userService.GetUserProfile();
+        return await _chatClient.GetUserConversations(currentUser.UserId);
+    }
+    
+
+    [HttpGet("byUsers")]
+    public async Task<Conversation?> GetConversation([FromQuery(Name = "userId")] IReadOnlyCollection<Guid> userIds)
     {
         var currentUser = await _userService.GetUserProfile();
 
         var allIds = new HashSet<Guid>(userIds) { currentUser.UserId };
         return await _chatClient.GetConversationBetweenUsers(allIds);
+    }
+
+    [HttpPost("message")]
+    public async Task<MessageDTO> SendMessage([FromBody] MessageInput input)
+    {
+        var sender = await _userService.GetUserProfile();
+        return await _chatClient.SendMessage(sender.UserId, input.Recipients, input.Body);
     }
 }

@@ -20,8 +20,8 @@ internal class ChatClient : IChatClient
         _messagingRepository = messagingRepository;
         _profileService = profileService;
     }
-
-    public Task<IReadOnlyCollection<Conversation>> GetConversations()
+    
+    public Task<IReadOnlyCollection<Conversation>> GetUserConversations(Guid userId)
     {
         throw new NotImplementedException();
     }
@@ -55,7 +55,7 @@ internal class ChatClient : IChatClient
             messages.Add(new ConversationMessage(sender, message.SentAt, message.ReadAt, message.Body));
         }
 
-        return new Conversation(participantsById.Values.ToHashSet(), messages);
+        return new Conversation(conversationId.Value, participantsById.Values.ToHashSet(), messages);
     }
 
     public async Task<MessageDTO> SendMessage(Guid senderId, IReadOnlySet<Guid> recipients, string body)

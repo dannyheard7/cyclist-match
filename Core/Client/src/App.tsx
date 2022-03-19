@@ -33,10 +33,10 @@ const Routes: React.FC = () => {
             <AuthenticatedRoute exact path="/account">
                 <Account />
             </AuthenticatedRoute>
-            <AuthenticatedRoute exact path="/conversations/:id">
+            <AuthenticatedRoute exact path="/conversation">
                 <ConversationPage />
             </AuthenticatedRoute>
-            <AuthenticatedRoute path="/conversations">
+            <AuthenticatedRoute exact path="/conversations">
                 <ConversationsList />
             </AuthenticatedRoute>
             <AuthenticatedRoute path="/">

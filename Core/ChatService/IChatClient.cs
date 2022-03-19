@@ -5,7 +5,7 @@ namespace ChatService;
 
 public interface IChatClient
 {
-    public Task<IReadOnlyCollection<Conversation>> GetConversations();
+    public Task<IReadOnlyCollection<Conversation>> GetUserConversations(Guid userId);
 
     Task<Conversation?> GetConversationBetweenUsers(IReadOnlySet<Guid> userIds);
 

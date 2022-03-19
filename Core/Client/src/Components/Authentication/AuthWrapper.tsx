@@ -79,11 +79,10 @@ export const AuthWrapper: React.FC = ({ children }) => {
     );
 
     const profileDoesNotExist =
-        (initializing || apiLoginLoading) ? undefined :
-            apiLoginError?.response?.status === 404 ?? undefined;
+        initializing || apiLoginLoading ? undefined : apiLoginError?.response?.status === 404 ?? undefined;
 
     useEffect(() => {
-        if (user) {
+        if (user && initializing) {
             setInitializing(false);
             if (apiLoginData) {
                 if (user?.state?.targetUrl !== undefined && pathname !== user?.state?.targetUrl) {

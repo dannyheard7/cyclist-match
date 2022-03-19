@@ -6,6 +6,8 @@ import MessageBox from "../../Components/Conversations/MessageBox";
 import ErrorMessage from "../../Components/ErrorMessage/ErrorMessage";
 import Loading from "../../Components/Loading/Loading";
 import useConversation from '../../Hooks/useConversation';
+import useCurrentUser from "../../Hooks/useCurrentUser";
+import useQueryParams from "../../Hooks/useQuery";
 
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
@@ -51,10 +53,11 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 }));
 
 const ConversationPage: React.FC = () => {
-    const { id } = useParams<{ id: string }>();
+    const query = useQueryParams();
     const classes = useStyles();
     const containerRef = useRef<HTMLDivElement>(null);
-    const [{ participant, messages, loading, error }, { sendMessage }] = useConversation(id);
+    const { user } = useCurrentUser();
+    const [{ conversation, loading, error }, { sendMessage }] = useConversation(query.getAll("userId"));
 
     useEffect(() => {
         if (containerRef.current) {
@@ -62,23 +65,26 @@ const ConversationPage: React.FC = () => {
             containerRef.current?.scrollTo(0, height);
         }
 
-    }, [messages, containerRef])
+    }, [conversation, containerRef])
 
     if (loading) return <Loading />;
-    if (error || !messages || !participant) return <ErrorMessage />;
+    if (error || !conversation || !user) return <ErrorMessage />;
+
 
     return (
         <div className={classes.container} ref={containerRef}>
             <div className={classes.participant}>
                 <Typography>
                     <Box fontWeight="fontWeightBold" m={1}>
-                        {participant.userDisplayName}
+                        {
+                            conversation.filterParticipants(user).map(x => x.userDisplayName).join(", ")
+                        }
                     </Box>
                 </Typography>
             </div>
             <div className={classes.messages} >
                 {
-                    messages.map(message => (<Message message={message} key={message.id} />))
+                    conversation.messages.map(message => (<Message message={message} display={message.isUserSender(user) ? "sender" : "receiver"} key={message.id} />))
                 }
             </div>
             <div className={classes.messageBox}>
