@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Common;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Messaging;
 using Persistence.Messaging.Types;
@@ -19,6 +20,40 @@ internal class MessagingRepository : IMessagingRepository
         _context = context;
     }
 
+    public async Task<Page<MessageDTO>> GetUserConversations(Guid userId, PageRequest pageRequest, bool unreadOnly)
+    {
+        var conversationIds = await _context
+            .ConversationParticipantsAggregates
+            .Where(x => x.Participants.Contains(userId))
+            .Select(x => x.ConversationId)
+            .ToListAsync();
+        
+        var query = 
+            _context
+            .Conversations
+            .AsNoTracking()
+            .Include(x => x.Messages)
+            .ThenInclude(x => x.Recipients)
+            .Where(x => conversationIds.Contains(x.Id) && x.Messages.Any(y => y.Recipients.Any(z => z.RecipientId == userId && (!unreadOnly || z.ReadAt == null))))
+            .Select(x => x.Messages.OrderByDescending(y => y.SentAt).FirstOrDefault())
+            .Where(x => x != null) as IQueryable<MessageEntity>;
+            
+            
+        var messages = await 
+            query
+            .OrderByDescending(x => x!.SentAt)
+            .Skip(pageRequest.Skip)
+            .Take(pageRequest.PageSize)
+            .GroupBy (p => new { Total = query.Count() })
+            .FirstAsync();
+        
+
+        return new Page<MessageDTO>(
+            messages.Select(x => x!.Map()).ToList(),
+            pageRequest.Page,
+            messages.Key.Total);
+    }
+
     public async Task<Guid?> GetConversationId(IReadOnlyCollection<Guid> userIds)
     {
         var userIdsAsList = userIds.ToList();
@@ -31,7 +66,7 @@ internal class MessagingRepository : IMessagingRepository
             .FirstOrDefaultAsync();
     }
  
-    public async Task<IReadOnlyCollection<MessageDTO>> GetConversationMessages(Guid conversationId)
+    public async Task<IReadOnlyCollection<MessageDTO>> GetConversationMessages(Guid conversationId, PageRequest pageRequest)
     {
         var messages = await
             _context
@@ -39,6 +74,8 @@ internal class MessagingRepository : IMessagingRepository
                 .Include(x => x.Recipients)
                 .Where(x => x.ConversationId == conversationId)
                 .OrderByDescending(x => x.SentAt)
+                .Skip(pageRequest.Skip)
+                .Take(pageRequest.PageSize)
                 .AsNoTracking()
                 .ToListAsync();
 

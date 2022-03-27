@@ -20,10 +20,16 @@ internal class ChatClient : IChatClient
         _messagingRepository = messagingRepository;
         _profileService = profileService;
     }
-    
-    public Task<IReadOnlyCollection<Conversation>> GetUserConversations(Guid userId)
+
+    private ConversationMessage Convert(MessageDTO message, ProfileDTO sender)
     {
-        throw new NotImplementedException();
+        return new ConversationMessage(sender, message.SentAt, message.ReadAt, message.Body);
+    }
+
+    public async Task<Page<Conversation>> GetUserConversations(Guid userId, PageRequest? pageRequest)
+    {
+        var conversations = await _messagingRepository.GetUserConversations(userId, pageRequest ?? PageRequest.All, true);
+        return new Page<Conversation>(new List<Conversation>(), conversations.PageNumber, conversations.TotalCount);
     }
 
     public async Task<Conversation?> GetConversationBetweenUsers(IReadOnlySet<Guid> userIds)
@@ -39,7 +45,7 @@ internal class ChatClient : IChatClient
             return null;
         }
         
-        var allMessages = await _messagingRepository.GetConversationMessages(conversationId.Value);
+        var allMessages = await _messagingRepository.GetConversationMessages(conversationId.Value, PageRequest.All);
 
         var participantIds =
             allMessages
@@ -52,7 +58,7 @@ internal class ChatClient : IChatClient
         foreach (var message in allMessages)
         {
             var sender = participantsById[message.SenderId];
-            messages.Add(new ConversationMessage(sender, message.SentAt, message.ReadAt, message.Body));
+            messages.Add(Convert(message, sender));
         }
 
         return new Conversation(participantsById.Values.ToHashSet(), messages);

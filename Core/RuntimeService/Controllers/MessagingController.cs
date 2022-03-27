@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using ChatService;
 using ChatService.Models;
+using Common;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Persistence.Messaging.Types;
@@ -28,13 +29,16 @@ public class MessagingController
     }
 
     [HttpGet]
-    public async Task<IReadOnlyCollection<Conversation>> GetConversations(
+    public async Task<Page<Conversation>> GetConversations(
         [FromQuery(Name = "unread")] bool unread = false,
-        [FromQuery(Name = "pageSize")] int pageSize = 15
+        [FromQuery(Name = "pageSize")] int pageSize = 15,
+        [FromQuery(Name="page")] int? page = 0
         )
     {
         var currentUser = await _userService.GetUserProfile();
-        return await _chatClient.GetUserConversations(currentUser.UserId);
+
+        var pageRequest = new PageRequest(pageSize, page);
+        return await _chatClient.GetUserConversations(currentUser.UserId, pageRequest);
     }
     
 

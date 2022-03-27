@@ -18,7 +18,11 @@ internal class MessageRecipient
     public Guid MessageId { get; init; }
     
     public DateTime? ReadAt { get; set; }
-    
+
+    [NotMapped]
+    public bool Read => ReadAt != null;
+
+
     public MessageEntity Message { get; init; }
     
     public UserEntity Recipient { get; init; }
