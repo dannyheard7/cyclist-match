@@ -22,36 +22,28 @@ internal class MessagingRepository : IMessagingRepository
 
     public async Task<Page<MessageDTO>> GetUserConversations(Guid userId, PageRequest pageRequest, bool unreadOnly)
     {
-        var conversationIds = await _context
-            .ConversationParticipantsAggregates
-            .Where(x => x.Participants.Contains(userId))
-            .Select(x => x.ConversationId)
-            .ToListAsync();
-        
-        var query = 
+        var query =
             _context
-            .Conversations
-            .AsNoTracking()
-            .Include(x => x.Messages)
-            .ThenInclude(x => x.Recipients)
-            .Where(x => conversationIds.Contains(x.Id) && x.Messages.Any(y => y.Recipients.Any(z => z.RecipientId == userId && (!unreadOnly || z.ReadAt == null))))
-            .Select(x => x.Messages.OrderByDescending(y => y.SentAt).FirstOrDefault())
-            .Where(x => x != null) as IQueryable<MessageEntity>;
-            
-            
+                .Conversations
+                .AsNoTracking()
+                .Include(x => x.Messages)
+                .ThenInclude(x => x.Recipients)
+                .Where(x => x.Messages.Any(y =>
+                    y.Recipients.Any(z => z.RecipientId == userId && (!unreadOnly || z.ReadAt == null))))
+                .Select(x => x.Messages.OrderByDescending(y => y.SentAt).FirstOrDefault())
+             .Where(x => x != null) as IQueryable<MessageEntity>;
+        
         var messages = await 
             query
             .OrderByDescending(x => x!.SentAt)
             .Skip(pageRequest.Skip)
             .Take(pageRequest.PageSize)
-            .GroupBy (p => new { Total = query.Count() })
-            .FirstAsync();
+            .ToListAsync();
         
-
         return new Page<MessageDTO>(
             messages.Select(x => x!.Map()).ToList(),
             pageRequest.Page,
-            messages.Key.Total);
+            await query.CountAsync());
     }
 
     public async Task<Guid?> GetConversationId(IReadOnlyCollection<Guid> userIds)
