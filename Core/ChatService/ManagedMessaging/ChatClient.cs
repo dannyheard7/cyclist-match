@@ -26,9 +26,9 @@ internal class ChatClient : IChatClient
         return new ConversationMessage(sender, message.SentAt, message.ReadAt, message.Body);
     }
 
-    public async Task<Page<Conversation>> GetUserConversations(Guid userId, PageRequest? pageRequest)
+    public async Task<Page<Conversation>> GetUserConversations(Guid userId, PageRequest? pageRequest, bool unreadOnly)
     {
-        var conversations = await _messagingRepository.GetUserConversations(userId, pageRequest ?? PageRequest.All, true);
+        var conversations = await _messagingRepository.GetUserConversations(userId, pageRequest ?? PageRequest.All, unreadOnly);
         return new Page<Conversation>(new List<Conversation>(), conversations.PageNumber, conversations.TotalCount);
     }
 

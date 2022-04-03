@@ -27,7 +27,6 @@ namespace Persistence.SQL.Profile
             var result = await _context.Profiles
                 .Where(x => x.User.ExternalId == externalUserId)
                 .Include(x => x.User)
-                .AsNoTracking()
                 .SingleOrDefaultAsync();
 
             return result?.Map();
@@ -38,7 +37,6 @@ namespace Persistence.SQL.Profile
             var result = await _context.Profiles
                 .Where(x => x.UserId == userId)
                 .Include(x => x.User)
-                .AsNoTracking()
                 .SingleOrDefaultAsync();
 
             return result?.Map();
@@ -101,10 +99,8 @@ namespace Persistence.SQL.Profile
                 dbSet = dbSet.ApplyFilter(nameof(ProfileEntity.Location), filter.LocationFilter);
             }
 
-            var results = await dbSet.Include(x => x.User).AsNoTracking().ToListAsync();
+            var results = await dbSet.Include(x => x.User).ToListAsync();
             return results.Select(ProfileMapper.Map);
         }
-
-       
     }
 }

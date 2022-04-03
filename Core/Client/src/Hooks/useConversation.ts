@@ -7,19 +7,19 @@ import { Query } from '../Common/Queries';
 import { HTTPError, useApi } from './useApi';
 import useCurrentUser from './useCurrentUser';
 
-interface MessageResult {
+interface ApiMessage {
     id: string;
     read: boolean;
     body: string;
     sentAt: string;
     sender: Profile;
 }
-export interface ConversationResult {
+export interface ApiConversation {
     participants: Array<Profile>;
-    messages: Array<MessageResult>;
+    messages: Array<ApiMessage>;
 }
 
-export function convertConversationResult(conversationResult: ConversationResult): Conversation {
+export function convertConversationResult(conversationResult: ApiConversation): Conversation {
     return new Conversation(
         conversationResult.participants,
         conversationResult.messages.map(
@@ -52,7 +52,7 @@ const useConversation = (userIds: string[]): UseConversationHook => {
         async () => {
             var conversationResult = await api
                 .get(`conversations/byUsers?${userIds.map((x) => `userId=${x}`).join('&')}`)
-                .json<ConversationResult>();
+                .json<ApiConversation>();
             return convertConversationResult(conversationResult);
         },
         {
@@ -67,23 +67,22 @@ const useConversation = (userIds: string[]): UseConversationHook => {
         if (user) refetch();
     }, [user, refetch]);
 
-    const { mutate: sendMessage } = useMutation<MessageResult, HTTPError, SendMessageInput>(
+    const { mutate: sendMessage } = useMutation<Omit<ApiMessage, 'sender'>, HTTPError, SendMessageInput>(
         async (input: SendMessageInput) =>
             await api
                 .post(`conversations/message`, {
                     json: { ...input, recipients: data!.filterParticipants(user!).map((x) => x.userId) },
                 })
-                .json<MessageResult>(),
+                .json<Omit<ApiMessage, 'sender'>>(),
         {
             onSuccess: (mutationData, _) => {
-                console.error('here');
                 queryCache.setQueryData<Conversation>(`getConversation-${userIds}`, (old) => {
                     const newMessage: Message = new Message(
                         mutationData.id,
                         mutationData.read,
                         mutationData.body,
                         new Date(mutationData.sentAt),
-                        mutationData.sender,
+                        user!,
                     );
 
                     if (!old) {

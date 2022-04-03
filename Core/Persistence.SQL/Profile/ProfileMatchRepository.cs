@@ -27,7 +27,6 @@ internal class ProfileMatchRepository : IProfileMatchRepository
             .Include(x => x.TargetUser)
             .ThenInclude(x => x.Profile)
             .OrderByDescending(x => x.Relevance)
-            .AsNoTracking()
             .ToListAsync();
 
         return results.Select(x => x.TargetUser.Profile.Map());
@@ -35,10 +34,15 @@ internal class ProfileMatchRepository : IProfileMatchRepository
     
     public async Task UpdateProfileMatches(ProfileDTO profileDto, IReadOnlyCollection<MatchDTO> matches)
     {
-        _context.RemoveRange(_context.ProfileMatches.Where(x => x.SourceUserId == profileDto.UserId));
+        _context.RemoveRange(_context.ProfileMatches
+            .Where(x => x.SourceUserId == profileDto.UserId || x.TargetUserId == profileDto.UserId));
         await _context.ProfileMatches
             .AddRangeAsync(matches
                 .Select(m => new MatchEntity(Guid.NewGuid(), m.SourceProfile.UserId, m.TargetProfile.UserId, m.RelevanceScore)));
+        
+        await _context.ProfileMatches
+            .AddRangeAsync(matches
+                .Select(m => new MatchEntity(Guid.NewGuid(), m.TargetProfile.UserId, m.SourceProfile.UserId, m.RelevanceScore)));
 
         await _context.SaveChangesAsync();
     }

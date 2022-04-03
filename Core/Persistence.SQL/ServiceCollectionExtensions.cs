@@ -24,6 +24,7 @@ namespace Persistence.SQL
             
             services
                 .AddDbContext<PersistenceContext>(options => options
+                    .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
                     .UseNpgsql(
                         connectionString, 
                         o =>

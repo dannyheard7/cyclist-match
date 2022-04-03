@@ -6,7 +6,7 @@ namespace ChatService;
 
 public interface IChatClient
 {
-    public Task<Page<Conversation>> GetUserConversations(Guid userId, PageRequest? pageRequest);
+    public Task<Page<Conversation>> GetUserConversations(Guid userId, PageRequest? pageRequest, bool unreadOnly);
 
     Task<Conversation?> GetConversationBetweenUsers(IReadOnlySet<Guid> userIds);
 

@@ -1,24 +1,21 @@
 import { Box, Card, CardContent, CardHeader, Divider, Grid, Typography, useTheme } from '@material-ui/core';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useQuery } from 'react-query';
 import { useHistory } from 'react-router-dom';
 import { Conversation } from '../../Common/Interfaces/Conversation';
+import { Page } from '../../Common/Interfaces/Page';
 import { formatMessageTimestamp } from '../../Common/Utils';
 import { HTTPError, useApi } from '../../Hooks/useApi';
-import { ConversationResult, convertConversationResult } from '../../Hooks/useConversation';
+import { ApiConversation, convertConversationResult } from '../../Hooks/useConversation';
 import useCurrentUser from '../../Hooks/useCurrentUser';
 import ErrorMessage from '../ErrorMessage/ErrorMessage';
 import Loading from '../Loading/Loading';
 
-interface ConversationsResponse {
-    conversations: Array<ConversationResult>;
-}
-
 const useConversations = () => {
     const api = useApi();
     const { data, isLoading } = useQuery<Array<Conversation>, HTTPError>('fetchConversations', async () => {
-        const covnersationResponse = await api.get('conversations').json<ConversationsResponse>();
-        return covnersationResponse.conversations.map(convertConversationResult);
+        const covnersationResponse = await api.get('conversations').json<Page<ApiConversation>>();
+        return covnersationResponse.items.map(convertConversationResult);
     });
 
     return {

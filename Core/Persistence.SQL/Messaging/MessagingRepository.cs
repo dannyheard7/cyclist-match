@@ -25,7 +25,6 @@ internal class MessagingRepository : IMessagingRepository
         var query =
             _context
                 .Conversations
-                .AsNoTracking()
                 .Include(x => x.Messages)
                 .ThenInclude(x => x.Recipients)
                 .Where(x => x.Messages.Any(y =>
@@ -68,10 +67,9 @@ internal class MessagingRepository : IMessagingRepository
                 .OrderByDescending(x => x.SentAt)
                 .Skip(pageRequest.Skip)
                 .Take(pageRequest.PageSize)
-                .AsNoTracking()
                 .ToListAsync();
 
-        return messages.Select(x => x.Map()).ToList();
+        return messages.Select(x => x.Map()).Reverse().ToList();
     }
 
     public async Task<Guid> CreateConversation()

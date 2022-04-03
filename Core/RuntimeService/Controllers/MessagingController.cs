@@ -38,9 +38,8 @@ public class MessagingController
         var currentUser = await _userService.GetUserProfile();
 
         var pageRequest = new PageRequest(pageSize, page);
-        return await _chatClient.GetUserConversations(currentUser.UserId, pageRequest);
+        return await _chatClient.GetUserConversations(currentUser.UserId, pageRequest, unread);
     }
-    
 
     [HttpGet("byUsers")]
     public async Task<Conversation?> GetConversation([FromQuery(Name = "userId")] IReadOnlyCollection<Guid> userIds)
