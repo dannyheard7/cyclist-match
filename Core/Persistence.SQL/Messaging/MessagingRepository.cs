@@ -87,24 +87,17 @@ internal class MessagingRepository : IMessagingRepository
     public async Task CreateMessages(IReadOnlyCollection<MessageDTO> messageDtos)
     {
         var messages = messageDtos
-            .GroupBy(x => new
-            {
-                Id = x.Id,
-                SenderId = x.SenderId,
-                Body = x.Body,
-                SentAt = x.SentAt,
-                ConversationId = x.ConversationId
-            })
             .Select(message =>
             {
                 return new MessageEntity
                 {
-                    Id = message.Key.Id,
-                    Body = message.Key.Body,
-                    SenderId = message.Key.SenderId,
-                    SentAt = message.Key.SentAt,
-                    ConversationId = message.Key.ConversationId,
+                    Id = message.Id,
+                    Body = message.Body,
+                    SenderId = message.SenderId,
+                    SentAt = message.SentAt,
+                    ConversationId = message.ConversationId,
                     Recipients = message
+                        .Recipients
                         .Select(mr => new MessageRecipient
                         {
                             Id = Guid.NewGuid(),

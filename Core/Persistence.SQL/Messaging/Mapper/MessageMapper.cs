@@ -9,14 +9,14 @@ internal static class MessageMapper
 {
     public static MessageDTO Map(this MessageEntity messageEntity)
     {
-        var recipient = messageEntity.Recipients.First();
         return new MessageDTO(
             id: messageEntity.Id,
             conversationId: messageEntity.ConversationId,
             sender: messageEntity.SenderId,
-            recipient: recipient.RecipientId,
+            recipients: messageEntity.Recipients
+                .Select(x => new MessageRecipientDTO(x.Id, x.ReadAt))
+                .ToList(),
             sentAt: messageEntity.SentAt,
-            readAt: recipient.ReadAt,
             body: messageEntity.Body);
     }
 }

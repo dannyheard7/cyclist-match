@@ -21,18 +21,63 @@ internal class ChatClient : IChatClient
         _profileService = profileService;
     }
 
-    private ConversationMessage Convert(MessageDTO message, ProfileDTO sender)
+    private ConversationMessage Convert(
+        Guid currentUserId,
+        MessageDTO message,
+        ProfileDTO sender)
     {
-        return new ConversationMessage(sender, message.SentAt, message.ReadAt, message.Body);
+        return new ConversationMessage(
+            sender,
+            message.SentAt,
+            message.Recipients
+                .Single(x => x.RecipientId == currentUserId).ReadAt,
+            message.Body);
+    }
+    
+    private async Task<IReadOnlyDictionary<Guid, ProfileDTO>> GetParticipantProfiles(IReadOnlyCollection<MessageDTO> messages)
+    {
+        if (!messages.Any())
+        {
+            return new Dictionary<Guid, ProfileDTO>();
+        }
+
+        var participantIds =
+            messages
+                .SelectMany(x => x.Recipients)
+                .Select(x => x.RecipientId)
+                .ToHashSet();
+        var participantResults = await _profileService.Get(new ProfileFilter(idFilter: GuidFilter.WithAnyOf(participantIds)));
+        return participantResults.ToDictionary(x => x.UserId, x => x);
     }
 
     public async Task<Page<Conversation>> GetUserConversations(Guid userId, PageRequest? pageRequest, bool unreadOnly)
     {
-        var conversations = await _messagingRepository.GetUserConversations(userId, pageRequest ?? PageRequest.All, unreadOnly);
-        return new Page<Conversation>(new List<Conversation>(), conversations.PageNumber, conversations.TotalCount);
+        var allConversationMessages = await _messagingRepository.GetUserConversations(userId, pageRequest ?? PageRequest.All, unreadOnly);
+        
+        var participantsById = await GetParticipantProfiles(allConversationMessages.Items);
+        var conversations = allConversationMessages.Items
+            .GroupBy(x => x.ConversationId)
+            .Select(conversation =>
+            {
+                var participants = conversation
+                    .SelectMany(x => x.Recipients)
+                    .Select(x => x.RecipientId)
+                    .Distinct()
+                    .Select(participantId => participantsById[participantId])
+                    .ToHashSet();
+
+                var messages = conversation
+                    .Select(message => Convert(userId, message, participantsById[message.SenderId]))
+                    .ToHashSet();
+
+                return new Conversation(participants, messages);
+            })
+            .ToList();
+        
+        return new Page<Conversation>(conversations, allConversationMessages.PageNumber, allConversationMessages.TotalCount);
     }
 
-    public async Task<Conversation?> GetConversationBetweenUsers(IReadOnlySet<Guid> userIds)
+    public async Task<Conversation?> GetConversationBetweenUsers(Guid currentUserId, IReadOnlySet<Guid> userIds)
     {
         if (userIds.Count < 2)
         {
@@ -46,19 +91,13 @@ internal class ChatClient : IChatClient
         }
         
         var allMessages = await _messagingRepository.GetConversationMessages(conversationId.Value, PageRequest.All);
-
-        var participantIds =
-            allMessages
-                .SelectMany(message => new List<Guid> { message.RecipientId, message.SenderId })
-                .ToHashSet();
-        var participantResults = await _profileService.Get(new ProfileFilter(idFilter: GuidFilter.WithAnyOf(participantIds)));
-        var participantsById = participantResults.ToDictionary(x => x.UserId, x => x);
+        var participantsById = await GetParticipantProfiles(allMessages);
 
         HashSet<ConversationMessage> messages = new HashSet<ConversationMessage>();
         foreach (var message in allMessages)
         {
             var sender = participantsById[message.SenderId];
-            messages.Add(Convert(message, sender));
+            messages.Add(Convert(currentUserId, message, sender));
         }
 
         return new Conversation(participantsById.Values.ToHashSet(), messages);
@@ -87,37 +126,27 @@ internal class ChatClient : IChatClient
         }
 
         var sentAt = DateTime.UtcNow;
-        var messageId = Guid.NewGuid();
-
-        List<MessageDTO> messagesToSend = new List<MessageDTO>
+        var messageRecipients = new List<MessageRecipientDTO>
         {
-            new MessageDTO(
-                messageId,
-                conversationId.Value,
-                senderId,
-                senderId,
-                sentAt,
-                sentAt,
-                body
-            )
+            new MessageRecipientDTO(senderId, sentAt)
         };
-        
+
         foreach (var recipient in recipients)
         {
-            messagesToSend.Add(new MessageDTO(
-                messageId,
-                conversationId.Value,
-                senderId,
-                recipient,
-                sentAt,
-                null,
-                body
-            ));
+            messageRecipients.Add(new MessageRecipientDTO(recipient, null));
         }
         
-        await _messagingRepository.CreateMessages(messagesToSend);
+        var message = new MessageDTO(
+            Guid.NewGuid(),
+            conversationId.Value,
+            senderId,
+            messageRecipients,
+            sentAt,
+            body);
+        
+        await _messagingRepository.CreateMessages(new []{ message });
 
         transactionsScope.Complete();
-        return messagesToSend.First();
+        return message;
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Persistence.Profile.Types.DTO;
 
 namespace Persistence.Messaging.Types;
@@ -9,17 +10,15 @@ public class MessageDTO
         Guid id,
         Guid conversationId,
         Guid sender,
-        Guid recipient,
+        IReadOnlyCollection<MessageRecipientDTO> recipients,
         DateTime sentAt,
-        DateTime? readAt,
         string body)
     {
         Id = id;
         ConversationId = conversationId;
         SenderId = sender;
-        RecipientId = recipient;
+        Recipients = recipients;
         SentAt = sentAt;
-        ReadAt = readAt;
         Body = body;
     }
     
@@ -29,11 +28,9 @@ public class MessageDTO
 
     public Guid SenderId { get; }
     
-    public Guid RecipientId { get; }
+    public IReadOnlyCollection<MessageRecipientDTO> Recipients { get; }
     
     public DateTime SentAt { get; }
-
-    public DateTime? ReadAt { get; }
 
     public string Body { get; }
 }

@@ -47,7 +47,7 @@ public class MessagingController
         var currentUser = await _userService.GetUserProfile();
 
         var allIds = new HashSet<Guid>(userIds) { currentUser.UserId };
-        return await _chatClient.GetConversationBetweenUsers(allIds);
+        return await _chatClient.GetConversationBetweenUsers(currentUser.UserId, allIds);
     }
 
     [HttpPost("message")]
