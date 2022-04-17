@@ -1,15 +1,16 @@
 import ky from 'ky';
-import { AuthProvider, useAuth, User, UserManager } from 'oidc-react';
+import { AuthContextProps, AuthProvider, useAuth, User, UserManager } from 'oidc-react';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useMutation, useQuery } from 'react-query';
 import { useHistory, useLocation } from 'react-router-dom';
 import Profile from '../../Common/Interfaces/Profile';
-import { useApiCustomAuth } from '../../Hooks/useApi';
+import { HTTPStatusCodes, useApi, useApiCustomAuth } from '../../Hooks/useApi';
 import { useAppContext } from '../AppContext/AppContextProvider';
 
 interface IAuthWrapperContext {
     loading: boolean;
     isError: boolean;
+    profileExists: boolean;
 }
 export const AuthWrapperContext = React.createContext<IAuthWrapperContext | null>(null);
 
@@ -75,11 +76,18 @@ export const AuthWrapper: React.FC = ({ children }) => {
         },
         {
             enabled: false,
+            onError: (error) => {
+                if (error.response.status === HTTPStatusCodes.Status401) {
+                    userManager.signoutRedirect();
+                }
+            },
         },
     );
 
     const profileDoesNotExist =
-        initializing || apiLoginLoading ? undefined : apiLoginError?.response?.status === 404 ?? undefined;
+        initializing || apiLoginLoading
+            ? undefined
+            : apiLoginError?.response?.status === HTTPStatusCodes.Status404 ?? undefined;
 
     useEffect(() => {
         if (user && initializing) {
@@ -90,9 +98,9 @@ export const AuthWrapper: React.FC = ({ children }) => {
                 } else {
                     replace(window.location.pathname); // remove code query param
                 }
-            } else if (profileDoesNotExist) {
-                replace('/profile/create');
             }
+        } else if (profileDoesNotExist) {
+            replace('/profile/create');
         }
 
         if (apiLoginError) {
@@ -149,6 +157,7 @@ export const AuthWrapper: React.FC = ({ children }) => {
                 value={{
                     loading,
                     isError: isError ?? false,
+                    profileExists: !profileDoesNotExist,
                 }}
             >
                 {children}
@@ -157,37 +166,80 @@ export const AuthWrapper: React.FC = ({ children }) => {
     );
 };
 
-export const useAuthentication = () => {
+interface BaseState {
+    isLoading: boolean;
+    isLoggedIn: undefined;
+    isError: boolean;
+}
+
+interface UnauthenticatedState extends Omit<BaseState, 'isLoggedIn'> {
+    isLoggedIn: false;
+    signIn: AuthContextProps['signIn'];
+}
+
+export interface AuthenticatedState extends Omit<BaseState, 'isLoggedIn'> {
+    isLoggedIn: true;
+    oidcProfile: User['profile'];
+    bearerToken: string;
+    appProfileExists: boolean;
+    signOut: AuthContextProps['signOut'];
+}
+
+export const useAuthentication = (): BaseState | UnauthenticatedState | AuthenticatedState => {
     const { userData, signIn, signOutRedirect, userManager } = useAuth();
     const authWrapperContext = useContext(AuthWrapperContext);
 
     if (!authWrapperContext) throw new Error('AuthWrapperContext not registered');
 
-    const signOutAndRedirect = () => {
+    const signOutAndRedirect = async (args?: unknown) => {
         window.localStorage.clear();
-        signOutRedirect({ id_token_hint: userData?.id_token });
-    };
-
-    const refreshSession = () => {
-        userManager.signinSilent().catch(() => signOutAndRedirect());
+        await signOutRedirect(args);
     };
 
     if (authWrapperContext.loading) {
-        return { loading: true, isLoggedIn: false };
+        return { isLoading: true, isError: false, isLoggedIn: undefined };
     }
 
     if (authWrapperContext.isError) {
-        return { loading: false, isError: true, isLoggedIn: false };
+        return { isLoading: false, isError: true, isLoggedIn: undefined };
+    }
+
+    if (userData) {
+        return {
+            isLoading: false,
+            isError: false,
+            isLoggedIn: true,
+            bearerToken: userData.access_token,
+            appProfileExists: authWrapperContext.profileExists,
+            oidcProfile: userData.profile,
+            signOut: signOutAndRedirect,
+        };
     }
 
     return {
-        loading: false,
+        isLoading: false,
         isError: false,
-        isLoggedIn: userData !== undefined && userData !== null,
-        bearerToken: userData?.access_token,
-        profile: userData?.profile,
-        signInRedirect: signIn,
-        refreshSession,
-        signOut: signOutAndRedirect,
+        isLoggedIn: false,
+        signIn: signIn,
     };
+};
+
+export const useAuthenticatedState = (): AuthenticatedState => {
+    const authState = useAuthentication();
+
+    if (!authState.isLoggedIn) {
+        throw new Error('Expected user to be logged in');
+    }
+
+    return authState;
+};
+
+export const useUnauthenticatedState = (): UnauthenticatedState => {
+    const authState = useAuthentication();
+
+    if (authState.isLoggedIn !== false) {
+        throw new Error('Expected user not to be logged in');
+    }
+
+    return authState;
 };

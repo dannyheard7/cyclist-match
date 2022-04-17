@@ -4,7 +4,7 @@ import { useMutation, useQueryClient } from 'react-query';
 import { useHistory } from 'react-router-dom';
 import Availability from '../../Common/Enums/Availability';
 import CyclingType from '../../Common/Enums/CyclingType';
-import { useAuthentication } from '../../Components/Authentication/AuthWrapper';
+import { useAuthenticatedState, useAuthentication } from '../../Components/Authentication/AuthWrapper';
 import Loading from '../../Components/Loading/Loading';
 import ProfileForm from '../../Components/ProfileForm/ProfileForm';
 import { useApi } from '../../Hooks/useApi';
@@ -27,7 +27,7 @@ const CreateProfile: React.FC = () => {
     const theme = useTheme();
     const api = useApi();
     const { push } = useHistory();
-    const { profile } = useAuthentication();
+    const { oidcProfile } = useAuthenticatedState();
 
     const { mutate, isSuccess, isLoading } = useMutation((input: CreateProfileVariables) =>
         api.post(`profiles`, { json: input }).json<{ hasProfile: boolean }>(),
@@ -35,9 +35,7 @@ const CreateProfile: React.FC = () => {
 
     useEffect(() => {
         if (isSuccess) {
-            queryClient
-                .refetchQueries('fetchCurrentUser')
-                .then(() => push('/'));
+            queryClient.refetchQueries('fetchCurrentUser').then(() => push('/'));
         }
     }, [isSuccess, push]);
 
@@ -51,9 +49,9 @@ const CreateProfile: React.FC = () => {
             <Divider style={{ margin: theme.spacing(1, 0), width: '100%' }} />
             <Grid item xs={12}>
                 <ProfileForm
-                    defaultValues={profile ? {
-                        displayName: `${profile.given_name} ${profile.family_name}`
-                    } : undefined}
+                    defaultValues={{
+                        displayName: `${oidcProfile.given_name} ${oidcProfile.family_name}`,
+                    }}
                     onSubmit={mutate}
                     disabled={isLoading || isSuccess}
                 />

@@ -84,31 +84,45 @@ internal class MessagingRepository : IMessagingRepository
         return id;
     }
 
-    public async Task CreateMessages(IReadOnlyCollection<MessageDTO> messageDtos)
-    {
-        var messages = messageDtos
-            .Select(message =>
-            {
-                return new MessageEntity
+    public async Task CreateMessage(MessageDTO messageDto)
+    { 
+        var message = new MessageEntity
+        {
+            Id = messageDto.Id,
+            Body = messageDto.Body,
+            SenderId = messageDto.SenderId,
+            SentAt = messageDto.SentAt,
+            ConversationId = messageDto.ConversationId,
+            Recipients = messageDto
+                .Recipients
+                .Select(mr => new MessageRecipient
                 {
-                    Id = message.Id,
-                    Body = message.Body,
-                    SenderId = message.SenderId,
-                    SentAt = message.SentAt,
-                    ConversationId = message.ConversationId,
-                    Recipients = message
-                        .Recipients
-                        .Select(mr => new MessageRecipient
-                        {
-                            Id = Guid.NewGuid(),
-                            RecipientId = mr.RecipientId,
-                            ReadAt = mr.ReadAt
-                        })
-                        .ToList()
-                };
-            });
+                    Id = Guid.NewGuid(),
+                    RecipientId = mr.RecipientId,
+                    ReadAt = mr.ReadAt
+                })
+                .ToList()
+        };
 
-        await _context.Messages.AddRangeAsync(messages);
+        await _context.Messages.AddAsync(message);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task UpdateMessage(MessageDTO messageDto)
+    {
+        var existingMessage = await _context.Messages
+            .Include(x => x.Recipients)
+            .SingleAsync(x => x.Id == messageDto.Id);
+
+        // The only thing we update is the readAt time
+        foreach (var recipient in existingMessage.Recipients)
+        {
+            var updatedRecipient = messageDto.Recipients.Single(x => x.RecipientId == recipient.RecipientId);
+            recipient.ReadAt = updatedRecipient.ReadAt;
+
+            _context.Entry(recipient).State = EntityState.Modified;
+        }
+
         await _context.SaveChangesAsync();
     }
 }

@@ -42,6 +42,10 @@ export const useApiCustomAuth = (bearerToken: string | undefined, onUnauthentica
 };
 
 export const useApi = () => {
-    const { bearerToken, signOut } = useAuthentication();
-    return useApiCustomAuth(bearerToken, signOut);
+    const authState = useAuthentication();
+
+    return useApiCustomAuth(
+        authState.isLoggedIn ? authState.bearerToken : undefined,
+        authState.isLoggedIn ? authState.signOut : undefined,
+    );
 };

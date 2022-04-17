@@ -12,5 +12,7 @@ public class MessageRecipientDTO
 
     public Guid RecipientId { get; }
     
-    public DateTime? ReadAt { get; }
+    public DateTime? ReadAt { get; set; }
+
+    public bool Read => ReadAt != null;
 }

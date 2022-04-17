@@ -1,20 +1,20 @@
 import { Button, Divider, Grid, Typography, useTheme } from '@material-ui/core';
 import React, { useEffect } from 'react';
 import { useMutation } from 'react-query';
-import { useAuthentication } from '../../Components/Authentication/AuthWrapper';
+import { useAuthenticatedState } from '../../Components/Authentication/AuthWrapper';
 import ErrorMessage from '../../Components/ErrorMessage/ErrorMessage';
 import Loading from '../../Components/Loading/Loading';
 import { useApi } from '../../Hooks/useApi';
 
 const Account: React.FC = () => {
     const theme = useTheme();
-    const { signOut } = useAuthentication();
+    const { signOut } = useAuthenticatedState();
     const api = useApi();
 
     const { mutate, isSuccess, isLoading, isError } = useMutation(() => api.delete(`auth/user`));
 
     useEffect(() => {
-        if (isSuccess && signOut) {
+        if (isSuccess) {
             signOut();
         }
     }, [isSuccess, signOut]);

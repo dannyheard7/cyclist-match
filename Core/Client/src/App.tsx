@@ -14,13 +14,14 @@ import ConversationPage from './Pages/Conversation/ConversationPage';
 import CreateProfile from './Pages/CreateProfile/CreateProfile';
 import Dashboard from './Pages/Dashboard/Dashboard';
 import Login from './Pages/Login/Login';
+import { UnauthenticatedRoute } from './Components/Authentication/UnauthenticatedRoute';
 
 const Routes: React.FC = () => {
     return (
         <Switch>
-            <Route exact path="/login">
+            <UnauthenticatedRoute exact path="/login">
                 <Login />
-            </Route>
+            </UnauthenticatedRoute>
             <Route exact path="/feedback">
                 <Feedback />
             </Route>

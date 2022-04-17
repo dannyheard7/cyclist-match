@@ -16,5 +16,7 @@ public interface IMessagingRepository
 
     public Task<Guid> CreateConversation();
 
-    public Task CreateMessages(IReadOnlyCollection<MessageDTO> messages);
+    public Task CreateMessage(MessageDTO message);
+
+    public Task UpdateMessage(MessageDTO message);
 }

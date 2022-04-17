@@ -50,6 +50,29 @@ internal class ChatClient : IChatClient
         return participantResults.ToDictionary(x => x.UserId, x => x);
     }
 
+    private async Task MarkMessagesAsRead(IReadOnlyCollection<MessageDTO> messages, Guid userId, DateTime readAtTime)
+    {
+        if (readAtTime.Kind == DateTimeKind.Unspecified)
+        {
+            throw new ArgumentException("DateTime kind must be specified", nameof(readAtTime));
+        }
+
+        using var transactionsScope = TransactionScopeBuilder.CreateReadCommitted(TransactionScopeAsyncFlowOption.Enabled);
+
+        foreach (var message in messages)
+        {
+            var currentUserRecipient = message.Recipients.Single(x => x.RecipientId == userId);
+            if (!currentUserRecipient.Read)
+            {
+                currentUserRecipient.ReadAt = readAtTime;
+            }
+            
+            await _messagingRepository.UpdateMessage(message);
+        }
+
+        transactionsScope.Complete();
+    }
+
     public async Task<Page<Conversation>> GetUserConversations(Guid userId, PageRequest? pageRequest, bool unreadOnly)
     {
         var allConversationMessages = await _messagingRepository.GetUserConversations(userId, pageRequest ?? PageRequest.All, unreadOnly);
@@ -100,6 +123,11 @@ internal class ChatClient : IChatClient
             messages.Add(Convert(currentUserId, message, sender));
         }
 
+        await MarkMessagesAsRead(
+            allMessages,
+            currentUserId,
+            DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Utc));
+        
         return new Conversation(participantsById.Values.ToHashSet(), messages);
     }
 
@@ -144,7 +172,7 @@ internal class ChatClient : IChatClient
             sentAt,
             body);
         
-        await _messagingRepository.CreateMessages(new []{ message });
+        await _messagingRepository.CreateMessage(message);
 
         transactionsScope.Complete();
         return message;

@@ -6,7 +6,7 @@ import { useAuthentication } from '../Authentication/AuthWrapper';
 
 const GoogleAnalytics: React.FC = () => {
     const { gaTrackingId } = useAppContext();
-    const { profile } = useAuthentication();
+    const authState = useAuthentication();
 
     const [previous, setPrevious] = useState<{
         pathname: string;
@@ -17,12 +17,18 @@ const GoogleAnalytics: React.FC = () => {
     const logPageChange = (pathname: string, search: string = '') => {
         const page = pathname + search;
         const { location } = window;
-        ReactGA.set({
+
+        const reactGaParams: ReactGA.FieldsObject = {
             page,
             location: `${location.origin}${page}`,
-            userId: profile?.sub,
-        });
+        };
+        if (authState.isLoggedIn) {
+            reactGaParams.userId = authState.oidcProfile.sub;
+        }
+
+        ReactGA.set(reactGaParams);
         ReactGA.pageview(page);
+
         setPrevious({
             pathname,
             search,

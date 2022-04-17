@@ -15,7 +15,7 @@ namespace RuntimeService.Controllers;
 [ApiController]
 [Route("api/conversations")]
 [Authorize]
-public class MessagingController
+public class MessagingController : ControllerBase
 {
     private readonly IChatClient _chatClient;
     private readonly IUserContext _userService;
@@ -29,31 +29,44 @@ public class MessagingController
     }
 
     [HttpGet]
-    public async Task<Page<Conversation>> GetConversations(
+    public async Task<ActionResult<Page<Conversation>>> GetConversations(
         [FromQuery(Name = "unread")] bool unread = false,
         [FromQuery(Name = "pageSize")] int pageSize = 15,
         [FromQuery(Name="page")] int? page = 0
         )
     {
-        var currentUser = await _userService.GetUserProfile();
+        var currentUser = await _userService.GetUserProfileOrDefault();
+        if (currentUser == null)
+        {
+            return Forbid();
+        }
 
         var pageRequest = new PageRequest(pageSize, page);
         return await _chatClient.GetUserConversations(currentUser.UserId, pageRequest, unread);
     }
 
     [HttpGet("byUsers")]
-    public async Task<Conversation?> GetConversation([FromQuery(Name = "userId")] IReadOnlyCollection<Guid> userIds)
+    public async Task<ActionResult<Conversation?>> GetConversation([FromQuery(Name = "userId")] IReadOnlyCollection<Guid> userIds)
     {
-        var currentUser = await _userService.GetUserProfile();
+        var currentUser = await _userService.GetUserProfileOrDefault();
+        if (currentUser == null)
+        {
+            return Forbid();
+        }
 
         var allIds = new HashSet<Guid>(userIds) { currentUser.UserId };
         return await _chatClient.GetConversationBetweenUsers(currentUser.UserId, allIds);
     }
 
     [HttpPost("message")]
-    public async Task<MessageDTO> SendMessage([FromBody] MessageInput input)
+    public async Task<ActionResult<MessageDTO>> SendMessage([FromBody] MessageInput input)
     {
-        var sender = await _userService.GetUserProfile();
-        return await _chatClient.SendMessage(sender.UserId, input.Recipients, input.Body);
+        var currentUser = await _userService.GetUserProfileOrDefault();
+        if (currentUser == null)
+        {
+            return Forbid();
+        }
+        
+        return await _chatClient.SendMessage(currentUser.UserId, input.Recipients, input.Body);
     }
 }

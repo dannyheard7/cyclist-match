@@ -4,23 +4,15 @@ import ErrorMessage from '../ErrorMessage/ErrorMessage';
 import Loading from '../Loading/Loading';
 import { useAuthentication } from './AuthWrapper';
 
-export const AuthenticatedRoute: React.FC<RouteProps> = (props: RouteProps) => {
-    const { pathname: currentLocation } = useLocation();
+export const UnauthenticatedRoute: React.FC<RouteProps> = (props: RouteProps) => {
     const { isLoggedIn, isLoading, isError } = useAuthentication();
 
     if (isLoading) return <Loading />;
-    if (isError) return <ErrorMessage />;
+    if (isError || isLoggedIn === undefined) return <ErrorMessage />;
 
-    if (isLoggedIn) {
+    if (!isLoggedIn) {
         return <Route {...props} />;
     } else {
-        return (
-            <Redirect
-                to={{
-                    pathname: '/login',
-                    state: { targetUrl: currentLocation },
-                }}
-            />
-        );
+        return <Redirect to={{ pathname: '/' }} />;
     }
 };

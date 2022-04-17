@@ -14,7 +14,7 @@ internal static class MessageMapper
             conversationId: messageEntity.ConversationId,
             sender: messageEntity.SenderId,
             recipients: messageEntity.Recipients
-                .Select(x => new MessageRecipientDTO(x.Id, x.ReadAt))
+                .Select(x => new MessageRecipientDTO(x.RecipientId, x.ReadAt))
                 .ToList(),
             sentAt: messageEntity.SentAt,
             body: messageEntity.Body);
