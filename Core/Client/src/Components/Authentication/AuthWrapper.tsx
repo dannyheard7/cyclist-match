@@ -1,10 +1,10 @@
 import ky from 'ky';
 import { AuthContextProps, AuthProvider, useAuth, User, UserManager } from 'oidc-react';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { useMutation, useQuery } from 'react-query';
+import { useQuery } from 'react-query';
 import { useHistory, useLocation } from 'react-router-dom';
 import Profile from '../../Common/Interfaces/Profile';
-import { HTTPStatusCodes, useApi, useApiCustomAuth } from '../../Hooks/useApi';
+import { HTTPStatusCodes, useApiCustomAuth } from '../../Hooks/useApi';
 import { useAppContext } from '../AppContext/AppContextProvider';
 
 interface IAuthWrapperContext {
@@ -186,7 +186,7 @@ export interface AuthenticatedState extends Omit<BaseState, 'isLoggedIn'> {
 }
 
 export const useAuthentication = (): BaseState | UnauthenticatedState | AuthenticatedState => {
-    const { userData, signIn, signOutRedirect, userManager } = useAuth();
+    const { userData, signIn, signOutRedirect } = useAuth();
     const authWrapperContext = useContext(AuthWrapperContext);
 
     if (!authWrapperContext) throw new Error('AuthWrapperContext not registered');

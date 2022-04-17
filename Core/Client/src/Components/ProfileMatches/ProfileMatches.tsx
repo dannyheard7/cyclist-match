@@ -1,9 +1,8 @@
 import { Card, CardActionArea, CardContent, CardHeader, Divider, Grid, Typography, useTheme } from '@material-ui/core';
 import React, { useEffect } from 'react';
 import { useQuery } from 'react-query';
-import { Link, useHistory } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import Profile from '../../Common/Interfaces/Profile';
-import { User } from '../../Common/Interfaces/User';
 import { useApi } from '../../Hooks/useApi';
 import useCurrentUser from '../../Hooks/useCurrentUser';
 import ErrorMessage from '../ErrorMessage/ErrorMessage';
@@ -43,12 +42,10 @@ const ProfileMatches: React.FC = () => {
                 {data.matches.map((match) => (
                     <Grid item xs={12} key={match.userId}>
                         <Card style={{ cursor: 'pointer' }}>
-                            <CardActionArea component={Link} to={`conversation?userId=${match.userId}`} >
+                            <CardActionArea component={Link} to={`conversation?userId=${match.userId}`}>
                                 <CardHeader title={match.userDisplayName} />
                                 <CardContent>
-                                    <Typography>
-                                        {match.averageDistance}Km
-                                    </Typography>
+                                    <Typography>{match.averageDistance}Km</Typography>
                                     <Typography>{match.averageSpeed}Km/H</Typography>
                                     <Typography>{match.cyclingTypes.join(', ')}</Typography>
                                     <Typography>{match.availability.join(', ')}</Typography>

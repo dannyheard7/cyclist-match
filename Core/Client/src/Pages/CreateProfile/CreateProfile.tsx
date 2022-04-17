@@ -4,7 +4,7 @@ import { useMutation, useQueryClient } from 'react-query';
 import { useHistory } from 'react-router-dom';
 import Availability from '../../Common/Enums/Availability';
 import CyclingType from '../../Common/Enums/CyclingType';
-import { useAuthenticatedState, useAuthentication } from '../../Components/Authentication/AuthWrapper';
+import { useAuthenticatedState } from '../../Components/Authentication/AuthWrapper';
 import Loading from '../../Components/Loading/Loading';
 import ProfileForm from '../../Components/ProfileForm/ProfileForm';
 import { useApi } from '../../Hooks/useApi';
