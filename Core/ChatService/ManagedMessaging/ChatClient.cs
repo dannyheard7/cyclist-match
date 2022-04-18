@@ -100,7 +100,7 @@ internal class ChatClient : IChatClient
         return new Page<Conversation>(conversations, allConversationMessages.PageNumber, allConversationMessages.TotalCount);
     }
 
-    public async Task<Conversation?> GetConversationBetweenUsers(Guid currentUserId, IReadOnlySet<Guid> userIds)
+    public async Task<Conversation> GetConversationBetweenUsers(Guid currentUserId, IReadOnlySet<Guid> userIds)
     {
         if (userIds.Count < 2)
         {
@@ -110,7 +110,8 @@ internal class ChatClient : IChatClient
         var conversationId = await _messagingRepository.GetConversationId(userIds);
         if (conversationId == null)
         {
-            return null;
+            var participants = await _profileService.Get(new ProfileFilter(idFilter: GuidFilter.WithAnyOf(new List<Guid>(userIds) { currentUserId })));
+            return new Conversation(participants.ToHashSet(), new HashSet<ConversationMessage>());
         }
         
         var allMessages = await _messagingRepository.GetConversationMessages(conversationId.Value, PageRequest.All);

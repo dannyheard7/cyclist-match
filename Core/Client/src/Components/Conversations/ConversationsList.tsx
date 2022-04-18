@@ -52,7 +52,10 @@ const ConversationsList: React.FC = () => {
                                 onClick={() =>
                                     push(`/conversation?${participantIds.map((id) => `userId=${id}`).join(`&`)}`)
                                 }
-                                style={{ cursor: 'pointer' }}
+                                style={{
+                                    cursor: 'pointer',
+                                    backgroundColor: !conversation.messages[0].read ? 'green' : undefined,
+                                }}
                             >
                                 <CardHeader title={otherParticipants.map((x) => x.userDisplayName).join(', ')} />
                                 <CardContent>

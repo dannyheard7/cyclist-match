@@ -119,7 +119,6 @@ internal class MessagingRepository : IMessagingRepository
         {
             var updatedRecipient = messageDto.Recipients.Single(x => x.RecipientId == recipient.RecipientId);
             recipient.ReadAt = updatedRecipient.ReadAt;
-
             _context.Entry(recipient).State = EntityState.Modified;
         }
 
