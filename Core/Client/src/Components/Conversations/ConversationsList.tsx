@@ -1,7 +1,7 @@
 import { Box, Card, CardContent, CardHeader, Divider, Grid, Typography, useTheme } from '@mui/material';
 import React from 'react';
 import { useQuery } from 'react-query';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Conversation } from '../../Common/Interfaces/Conversation';
 import { Page } from '../../Common/Interfaces/Page';
 import { formatMessageTimestamp } from '../../Common/Utils';
@@ -26,7 +26,7 @@ const useConversations = () => {
 
 const ConversationsList: React.FC = () => {
     const theme = useTheme();
-    const { push } = useHistory();
+    const push = useNavigate();
     const { user } = useCurrentUser();
     const { conversations, loading } = useConversations();
 

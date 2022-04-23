@@ -1,10 +1,15 @@
 import * as React from 'react';
-import { Redirect, Route, RouteProps, useLocation } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import ErrorMessage from '../ErrorMessage/ErrorMessage';
 import Loading from '../Loading/Loading';
 import { useAuthentication } from './AuthWrapper';
 
-export const AuthenticatedRoute: React.FC<RouteProps> = (props: RouteProps) => {
+interface RequireAuthProps {
+    redirectTo?: string;
+    children?: React.ReactNode;
+}
+
+export const RequireAuth: React.FC<RequireAuthProps> = ({ redirectTo = '/login', children }) => {
     const { pathname: currentLocation } = useLocation();
     const { isLoggedIn, isLoading, isError } = useAuthentication();
 
@@ -12,14 +17,14 @@ export const AuthenticatedRoute: React.FC<RouteProps> = (props: RouteProps) => {
     if (isError) return <ErrorMessage />;
 
     if (isLoggedIn) {
-        return <Route {...props} />;
+        return <>{children}</>;
     } else {
         return (
-            <Redirect
+            <Navigate
                 to={{
-                    pathname: '/login',
-                    state: { targetUrl: currentLocation },
+                    pathname: redirectTo,
                 }}
+                state={{ targetUrl: currentLocation }}
             />
         );
     }

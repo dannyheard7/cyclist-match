@@ -15,7 +15,7 @@ import {
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import React, { Fragment, useRef, useState } from 'react';
-import { Link as RouterLink, useHistory } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { AuthenticatedState, useAuthentication } from '../Authentication/AuthWrapper';
 import ConversationsIcon from '../Conversations/ConversationsIcon';
 import AppDrawer, { DRAWER_WIDTH } from './AppDrawer';
@@ -35,12 +35,14 @@ const classes = {
     padding: `${PREFIX}-padding`,
 };
 
-const StyledAppBar = styled(AppBar)<{ drawerOpen: boolean }>(({ theme, drawerOpen }) => ({
+const StyledAppBar = styled(AppBar, {
+    shouldForwardProp: (prop) => !prop.toString().startsWith('$'),
+})<{ $drawerOpen: boolean }>(({ theme, $drawerOpen }) => ({
     transition: theme.transitions.create(['margin', 'width'], {
         easing: theme.transitions.easing.sharp,
         duration: theme.transitions.duration.leavingScreen,
     }),
-    ...(drawerOpen && {
+    ...($drawerOpen && {
         width: `calc(100% - ${DRAWER_WIDTH}px)`,
         marginLeft: DRAWER_WIDTH,
         transition: theme.transitions.create(['margin', 'width'], {
@@ -50,9 +52,11 @@ const StyledAppBar = styled(AppBar)<{ drawerOpen: boolean }>(({ theme, drawerOpe
     }),
 }));
 
-const StyledMenuIcon = styled(IconButton)<{ drawerOpen: boolean }>(({ theme, drawerOpen }) => ({
+const StyledMenuIcon = styled(IconButton, {
+    shouldForwardProp: (prop) => !prop.toString().startsWith('$'),
+})<{ $drawerOpen: boolean }>(({ theme, $drawerOpen }) => ({
     marginRight: theme.spacing(2),
-    ...(drawerOpen && {
+    ...($drawerOpen && {
         display: 'none',
     }),
 }));
@@ -62,7 +66,7 @@ const AppMenuRight: React.FC<{ authState: AuthenticatedState }> = ({
 }) => {
     const [userMenuOpen, setUserMenuOpen] = useState<boolean>(false);
     const anchorEl = useRef(null);
-    const { push } = useHistory();
+    const push = useNavigate();
 
     return (
         <Fragment>
@@ -115,13 +119,13 @@ const AppMenu: React.FC = () => {
     return (
         <div>
             <AppDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
-            <StyledAppBar position="fixed" drawerOpen={drawerOpen}>
+            <StyledAppBar position="fixed" $drawerOpen={drawerOpen}>
                 <Toolbar>
                     <Grid container direction="row" justifyContent="space-between">
                         <Grid item container direction="row" xs={4} alignItems="center">
                             <StyledMenuIcon
                                 edge="start"
-                                drawerOpen={drawerOpen}
+                                $drawerOpen={drawerOpen}
                                 color="inherit"
                                 aria-label="menu"
                                 onClick={() => setDrawerOpen(true)}

@@ -5,7 +5,7 @@ import { useUnauthenticatedState } from '../../Components/Authentication/AuthWra
 
 const Login: React.FC = () => {
     const { signIn } = useUnauthenticatedState();
-    const { state } = useLocation<{ referrer: string | undefined }>();
+    const { state } = useLocation() as { state: { referrer: string | undefined } | undefined };
 
     return (
         <Grid container spacing={2}>

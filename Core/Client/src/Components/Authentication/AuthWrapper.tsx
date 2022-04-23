@@ -1,10 +1,17 @@
 import { AuthContextProps, AuthProvider, useAuth, User, UserManager } from 'oidc-react';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useQuery } from 'react-query';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Profile from '../../Common/Interfaces/Profile';
 import { HTTPStatusCodes, useApiCustomAuth, HTTPError } from '../../Hooks/useApi';
 import { useAppContext } from '../AppContext/AppContextProvider';
+
+// TODO: this must stay until oidc-react supports the React 18 typings
+declare module 'react' {
+    interface FunctionComponent<P = {}> {
+        (props: PropsWithChildren<P>, context?: any): ReactElement<any, any> | null;
+    }
+}
 
 interface IAuthWrapperContext {
     loading: boolean;
@@ -13,12 +20,12 @@ interface IAuthWrapperContext {
 }
 export const AuthWrapperContext = React.createContext<IAuthWrapperContext | null>(null);
 
-export const AuthWrapper: React.FC = ({ children }) => {
+export const AuthWrapper: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
     const {
         authority: { host, scope, clientId, extraParams },
         host: { client: clientHost },
     } = useAppContext();
-    const { replace } = useHistory();
+    const replace = useNavigate();
     const { search, pathname } = useLocation();
     const [initializing, setInitializing] = useState(true);
     const [user, setUser] = useState<User | null>(null);

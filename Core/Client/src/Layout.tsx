@@ -14,7 +14,7 @@ const Main = styled('div')(({ theme }) => ({
     },
 }));
 
-export const Layout: React.FC = ({ children }) => {
+export const Layout: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
     return (
         <Fragment>
             <AppBar />

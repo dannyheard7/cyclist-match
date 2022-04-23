@@ -1,7 +1,7 @@
 import { Divider, Grid, Typography, useTheme } from '@mui/material';
 import React, { useEffect } from 'react';
 import { useMutation, useQueryClient } from 'react-query';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Availability from '../../Common/Enums/Availability';
 import CyclingType from '../../Common/Enums/CyclingType';
 import { useAuthenticatedState } from '../../Components/Authentication/AuthWrapper';
@@ -26,7 +26,7 @@ const CreateProfile: React.FC = () => {
     const queryClient = useQueryClient();
     const theme = useTheme();
     const api = useApi();
-    const { push } = useHistory();
+    const navigate = useNavigate();
     const { oidcProfile } = useAuthenticatedState();
 
     const { mutate, isSuccess, isLoading } = useMutation((input: CreateProfileVariables) =>
@@ -35,9 +35,9 @@ const CreateProfile: React.FC = () => {
 
     useEffect(() => {
         if (isSuccess) {
-            queryClient.refetchQueries('fetchCurrentUser').then(() => push('/'));
+            queryClient.refetchQueries('fetchCurrentUser').then(() => navigate('/'));
         }
-    }, [isSuccess, push]);
+    }, [isSuccess, navigate]);
 
     return (
         <Grid container spacing={2}>

@@ -26,7 +26,7 @@ interface ConfigResponse {
 
 export const AppContext = React.createContext<IAppContext | null>(null);
 
-export const AppContextProvider: React.FC = ({ children }) => {
+export const AppContextProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
     const { data, isLoading } = useQuery<ConfigResponse, HTTPError>(
         'fetchConfig',
         async () => {
