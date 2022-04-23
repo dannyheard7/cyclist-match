@@ -67,14 +67,7 @@ const App: React.FC = () => {
                                             element={
                                                 <RequireAuth>
                                                     <ConversationPage />
-                                                </RequireAuth>
-                                            }
-                                        />
-                                        <Route
-                                            path="conversations"
-                                            element={
-                                                <RequireAuth>
-                                                    <ConversationsList />
+                                                    <Route path="s" element={<ConversationsList />} />
                                                 </RequireAuth>
                                             }
                                         />

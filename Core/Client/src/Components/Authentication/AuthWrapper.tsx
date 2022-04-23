@@ -1,23 +1,19 @@
-import { AuthContextProps, AuthProvider, useAuth, User, UserManager } from 'oidc-react';
+import { User, UserManager } from 'oidc-client';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useQuery } from 'react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Profile from '../../Common/Interfaces/Profile';
 import { HTTPStatusCodes, useApiCustomAuth, HTTPError } from '../../Hooks/useApi';
 import { useAppContext } from '../AppContext/AppContextProvider';
-
-// TODO: this must stay until oidc-react supports the React 18 typings
-declare module 'react' {
-    interface FunctionComponent<P = {}> {
-        (props: PropsWithChildren<P>, context?: any): ReactElement<any, any> | null;
-    }
-}
-
 interface IAuthWrapperContext {
     loading: boolean;
     isError: boolean;
-    profileExists: boolean;
+    signIn: (args?: unknown) => void;
+    signOut: (args?: unknown) => void;
+    oidcUser: User | null;
+    profile: Profile | null;
 }
+
 export const AuthWrapperContext = React.createContext<IAuthWrapperContext | null>(null);
 
 export const AuthWrapper: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
@@ -29,7 +25,6 @@ export const AuthWrapper: React.FC<{ children?: React.ReactNode }> = ({ children
     const { search, pathname } = useLocation();
     const [initializing, setInitializing] = useState(true);
     const [user, setUser] = useState<User | null>(null);
-    const [silentRenewFailed, setSilentRenewFailed] = useState<boolean>(false);
 
     const [userManager] = useState<UserManager>(
         new UserManager({
@@ -56,13 +51,27 @@ export const AuthWrapper: React.FC<{ children?: React.ReactNode }> = ({ children
         userManager.signoutRedirect();
     }, [userManager]);
 
-    const onSilentRenewFailed = useCallback(() => setSilentRenewFailed(true), [setSilentRenewFailed]);
+    const onUserSignedIn = useCallback(async () => {
+        const user = await userManager.getUser();
+        setUser(user);
+    }, []);
+
+    const onUserSignedOut = () => setUser(null);
+
+    const onSilentRenewFailed = () => {
+        setUser(null);
+        userManager.signoutRedirect();
+    };
 
     useEffect(() => {
+        userManager.events.addUserSignedIn(onUserSignedIn);
+        userManager.events.addUserSignedOut(onUserSignedOut);
         userManager.events.addSilentRenewError(onSilentRenewFailed);
         userManager.events.addAccessTokenExpired(onSessionEnd);
 
         return () => {
+            userManager.events.removeUserSignedIn(onUserSignedIn);
+            userManager.events.removeUserSignedOut(onUserSignedOut);
             userManager.events.removeSilentRenewError(onSilentRenewFailed);
             userManager.events.removeAccessTokenExpired(onSessionEnd);
         };
@@ -71,7 +80,6 @@ export const AuthWrapper: React.FC<{ children?: React.ReactNode }> = ({ children
     const api = useApiCustomAuth(user?.access_token);
     const {
         refetch: apiLogin,
-        isLoading: apiLoginLoading,
         data: apiLoginData,
         error: apiLoginError,
     } = useQuery<Profile, HTTPError>(
@@ -82,8 +90,20 @@ export const AuthWrapper: React.FC<{ children?: React.ReactNode }> = ({ children
         },
         {
             enabled: false,
+            onSettled: () => {
+                setInitializing(false);
+            },
+            onSuccess: (_) => {
+                if (user?.state?.targetUrl !== undefined && pathname !== user?.state?.targetUrl) {
+                    replace(user?.state?.targetUrl);
+                } else {
+                    replace(window.location.pathname); // remove code query param
+                }
+            },
             onError: (error) => {
-                if (error.response.status === HTTPStatusCodes.Status401) {
+                if (error.response.status === HTTPStatusCodes.Status404) {
+                    replace('/profile/create');
+                } else if (error.response.status === HTTPStatusCodes.Status401) {
                     userManager.signoutRedirect();
                 }
             },
@@ -91,32 +111,10 @@ export const AuthWrapper: React.FC<{ children?: React.ReactNode }> = ({ children
     );
 
     useEffect(() => {
-        if (user && initializing) apiLogin();
-    }, [user]);
-
-    const profileDoesNotExist =
-        initializing || apiLoginLoading
-            ? undefined
-            : apiLoginError?.response?.status === HTTPStatusCodes.Status404 ?? undefined;
-
-    useEffect(() => {
         if (user && initializing) {
-            setInitializing(false);
-            if (apiLoginData) {
-                if (user?.state?.targetUrl !== undefined && pathname !== user?.state?.targetUrl) {
-                    replace(user?.state?.targetUrl);
-                } else {
-                    replace(window.location.pathname); // remove code query param
-                }
-            }
-        } else if (profileDoesNotExist) {
-            replace('/profile/create');
+            apiLogin();
         }
-
-        if (apiLoginError) {
-            setInitializing(false);
-        }
-    }, [user, apiLoginData, apiLoginError, profileDoesNotExist, replace, pathname]);
+    }, [user, initializing]);
 
     const onSignIn = useCallback(
         (user: User | null) => {
@@ -134,43 +132,47 @@ export const AuthWrapper: React.FC<{ children?: React.ReactNode }> = ({ children
     useEffect(() => {
         const signInSilent = async () => {
             try {
-                if (!silentRenewFailed) {
-                    const user = await userManager.signinSilent();
-                    if (user === null) onSilentRenewFailed();
-
-                    onSignIn(user);
-                }
-            } catch (error) {
-                onSilentRenewFailed();
+                const user = await userManager.signinSilent();
+                onSignIn(user);
+            } catch {
+                setInitializing(false);
             }
         };
 
-        const getSession = async () => {
-            const user = await userManager.getUser();
-            onSignIn(user);
-
-            if (user === null && !isCodeCallback) await signInSilent();
+        const initialize = async () => {
+            if (isCodeCallback) {
+                const user = await userManager.signinRedirectCallback();
+                onSignIn(user);
+            } else {
+                const user = await userManager.getUser();
+                if (user === null) {
+                    await signInSilent();
+                } else {
+                    onSignIn(user);
+                }
+            }
         };
 
-        if (!isCodeCallback) getSession();
+        initialize();
         //eslint-disable-next-line
     }, []);
 
-    const loading = initializing || apiLoginLoading || (!user && isCodeCallback);
+    const profileDoesNotExist = apiLoginError?.response?.status === HTTPStatusCodes.Status404;
     const isError = apiLoginError && !profileDoesNotExist;
 
     return (
-        <AuthProvider userManager={userManager} autoSignIn={false} onSignIn={onSignIn}>
-            <AuthWrapperContext.Provider
-                value={{
-                    loading,
-                    isError: isError ?? false,
-                    profileExists: !profileDoesNotExist,
-                }}
-            >
-                {children}
-            </AuthWrapperContext.Provider>
-        </AuthProvider>
+        <AuthWrapperContext.Provider
+            value={{
+                loading: initializing,
+                oidcUser: user,
+                signIn: userManager.signinRedirect,
+                signOut: userManager.signoutRedirect,
+                isError: isError ?? false,
+                profile: apiLoginData ?? null,
+            }}
+        >
+            {children}
+        </AuthWrapperContext.Provider>
     );
 };
 
@@ -182,7 +184,7 @@ interface BaseState {
 
 interface UnauthenticatedState extends Omit<BaseState, 'isLoggedIn'> {
     isLoggedIn: false;
-    signIn: AuthContextProps['signIn'];
+    signIn: IAuthWrapperContext['signIn'];
 }
 
 export interface AuthenticatedState extends Omit<BaseState, 'isLoggedIn'> {
@@ -190,18 +192,17 @@ export interface AuthenticatedState extends Omit<BaseState, 'isLoggedIn'> {
     oidcProfile: User['profile'];
     bearerToken: string;
     appProfileExists: boolean;
-    signOut: AuthContextProps['signOut'];
+    signOut: IAuthWrapperContext['signOut'];
 }
 
 export const useAuthentication = (): BaseState | UnauthenticatedState | AuthenticatedState => {
-    const { userData, signIn, signOutRedirect } = useAuth();
     const authWrapperContext = useContext(AuthWrapperContext);
-
     if (!authWrapperContext) throw new Error('AuthWrapperContext not registered');
+    const { signOut, oidcUser: userData, signIn } = authWrapperContext;
 
     const signOutAndRedirect = async (args?: unknown) => {
         window.localStorage.clear();
-        await signOutRedirect(args);
+        await signOut(args);
     };
 
     if (authWrapperContext.loading) {
@@ -218,7 +219,7 @@ export const useAuthentication = (): BaseState | UnauthenticatedState | Authenti
             isError: false,
             isLoggedIn: true,
             bearerToken: userData.access_token,
-            appProfileExists: authWrapperContext.profileExists,
+            appProfileExists: authWrapperContext.profile != null,
             oidcProfile: userData.profile,
             signOut: signOutAndRedirect,
         };
