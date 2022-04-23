@@ -1,5 +1,5 @@
-import Badge from '@material-ui/core/Badge';
-import MailIcon from '@material-ui/icons/Mail';
+import Badge from '@mui/material/Badge';
+import MailIcon from '@mui/icons-material/Mail';
 import React from 'react';
 import { useQuery } from 'react-query';
 import { Page } from '../../Common/Interfaces/Page';

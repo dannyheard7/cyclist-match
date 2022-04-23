@@ -1,4 +1,4 @@
-import { Card, CardActionArea, CardContent, CardHeader, Divider, Grid, Typography, useTheme } from '@material-ui/core';
+import { Card, CardActionArea, CardContent, CardHeader, Divider, Grid, Typography, useTheme } from '@mui/material';
 import React, { useEffect } from 'react';
 import { useQuery } from 'react-query';
 import { Link } from 'react-router-dom';
@@ -32,7 +32,7 @@ const ProfileMatches: React.FC = () => {
 
     return (
         <Grid container spacing={2}>
-            <Grid container item xs={12} justify="center">
+            <Grid container item xs={12} justifyContent="center">
                 <Typography variant="h4" component="h2">
                     Top Matches
                 </Typography>

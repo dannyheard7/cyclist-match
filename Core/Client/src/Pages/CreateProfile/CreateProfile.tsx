@@ -1,4 +1,4 @@
-import { Divider, Grid, Typography, useTheme } from '@material-ui/core';
+import { Divider, Grid, Typography, useTheme } from '@mui/material';
 import React, { useEffect } from 'react';
 import { useMutation, useQueryClient } from 'react-query';
 import { useHistory } from 'react-router-dom';
@@ -41,7 +41,7 @@ const CreateProfile: React.FC = () => {
 
     return (
         <Grid container spacing={2}>
-            <Grid container item xs={12} justify="center">
+            <Grid container item xs={12} justifyContent="center">
                 <Typography variant="h4" component="h2">
                     Create Profile
                 </Typography>

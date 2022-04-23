@@ -1,4 +1,4 @@
-import { Button, Divider, Grid, Typography, useTheme } from '@material-ui/core';
+import { Button, Divider, Grid, Typography, useTheme } from '@mui/material';
 import React, { useEffect } from 'react';
 import { useMutation } from 'react-query';
 import { useAuthenticatedState } from '../../Components/Authentication/AuthWrapper';
@@ -21,7 +21,7 @@ const Account: React.FC = () => {
 
     return (
         <Grid container spacing={2}>
-            <Grid container item xs={12} justify="center">
+            <Grid container item xs={12} justifyContent="center">
                 <Typography variant="h4" component="h2">
                     Account
                 </Typography>

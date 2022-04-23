@@ -1,4 +1,4 @@
-import { Grid, Link, Typography } from '@material-ui/core';
+import { Grid, Link, Typography } from '@mui/material';
 import React from 'react';
 import { useLocation } from 'react-router-dom';
 import { useUnauthenticatedState } from '../../Components/Authentication/AuthWrapper';
@@ -21,7 +21,7 @@ const Login: React.FC = () => {
             </Grid>
             <Grid item xs={12}>
                 <Typography>
-                    <Link href="#" onClick={() => signIn(state?.referrer)}>
+                    <Link href="#" onClick={() => signIn(state?.referrer)} underline="hover">
                         Sign in
                     </Link>{' '}
                     to get started

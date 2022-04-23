@@ -1,4 +1,4 @@
-import { Box, Grow, Typography } from '@material-ui/core';
+import { Box, Grow, Typography } from '@mui/material';
 import React from 'react';
 import { Message } from '../../Common/Interfaces/Message';
 import { formatMessageTimestamp } from '../../Common/Utils';
@@ -26,7 +26,7 @@ const MessageComponent: React.FC<{ message: Message; display: 'sender' | 'receiv
                     paddingX={2}
                     bgcolor={bgcolor}
                     color={color}
-                    borderRadius={16}
+                    borderRadius="16px"
                     boxShadow={2}
                 >
                     <Typography style={{ overflowWrap: 'break-word', whiteSpace: 'pre-wrap' }}>

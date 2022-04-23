@@ -9,8 +9,8 @@ import {
     Typography,
     useTheme,
     Link,
-} from '@material-ui/core';
-import { AccountCircle, Menu as MenuIcon } from '@material-ui/icons';
+} from '@mui/material';
+import { AccountCircle, Menu as MenuIcon } from '@mui/icons-material';
 import classNames from 'classnames';
 import React, { Fragment, useRef, useState } from 'react';
 import { Link as RouterLink, useHistory } from 'react-router-dom';
@@ -32,7 +32,7 @@ const AppMenuRight: React.FC<{ authState: AuthenticatedState }> = ({
         <Fragment>
             {appProfileExists && (
                 <div className={classes.padding}>
-                    <IconButton color="inherit" onClick={() => push('/conversations')}>
+                    <IconButton color="inherit" onClick={() => push('/conversations')} size="large">
                         <ConversationsIcon />
                     </IconButton>
                 </div>
@@ -45,7 +45,7 @@ const AppMenuRight: React.FC<{ authState: AuthenticatedState }> = ({
                     onClick={() => setUserMenuOpen(!userMenuOpen)}
                     color="inherit"
                     ref={anchorEl}
-                >
+                    size="large">
                     <AccountCircle />
                 </IconButton>
             </div>
@@ -92,12 +92,16 @@ const AppMenu: React.FC = () => {
                         color="inherit"
                         aria-label="menu"
                         onClick={() => setDrawerOpen(true)}
-                    >
+                        size="large">
                         <MenuIcon />
                     </IconButton>
 
                     <Typography variant="h6" className={classes.title}>
-                        <Link component={RouterLink} to="/" style={{ color: 'white' }}>
+                        <Link
+                            component={RouterLink}
+                            to="/"
+                            style={{ color: 'white' }}
+                            underline="hover">
                             BuddyUp!
                         </Link>
                     </Typography>

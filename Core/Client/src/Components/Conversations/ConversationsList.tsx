@@ -1,4 +1,4 @@
-import { Box, Card, CardContent, CardHeader, Divider, Grid, Typography, useTheme } from '@material-ui/core';
+import { Box, Card, CardContent, CardHeader, Divider, Grid, Typography, useTheme } from '@mui/material';
 import React from 'react';
 import { useQuery } from 'react-query';
 import { useHistory } from 'react-router-dom';
@@ -31,18 +31,18 @@ const ConversationsList: React.FC = () => {
     const { conversations, loading } = useConversations();
 
     if (loading) return <Loading />;
-    else if (!conversations || !user) return <ErrorMessage />;
+    else if (!user) return <ErrorMessage />;
 
     return (
         <Grid container spacing={2}>
-            <Grid container item xs={12} justify="center">
+            <Grid container item xs={12} justifyContent="center">
                 <Typography variant="h4" component="h2">
                     Conversations
                 </Typography>
             </Grid>
             <Divider style={{ margin: theme.spacing(1, 0), width: '100%' }} />
             <Grid container item xs={12} spacing={1}>
-                {conversations.map((conversation) => {
+                {conversations?.map((conversation) => {
                     const otherParticipants = conversation.filterParticipants(user);
                     const participantIds = otherParticipants.map((x) => x.userId);
 

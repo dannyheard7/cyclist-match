@@ -1,5 +1,5 @@
-import { Divider, Drawer, IconButton, Link, List, ListItem, ListItemText, useTheme } from '@material-ui/core';
-import { ChevronLeft as ChevronLeftIcon, ChevronRight as ChevronRightIcon } from '@material-ui/icons';
+import { Divider, Drawer, IconButton, Link, List, ListItem, ListItemText, useTheme } from '@mui/material';
+import { ChevronLeft as ChevronLeftIcon, ChevronRight as ChevronRightIcon } from '@mui/icons-material';
 import React, { Fragment } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { useAuthentication } from '../Authentication/AuthWrapper';
@@ -21,7 +21,7 @@ const AppDrawer: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onC
             }}
         >
             <div className={classes.drawerHeader}>
-                <IconButton onClick={() => onClose()}>
+                <IconButton onClick={() => onClose()} size="large">
                     {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
                 </IconButton>
             </div>
@@ -29,7 +29,7 @@ const AppDrawer: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onC
             <List>
                 {isLoggedIn && (
                     <Fragment>
-                        <Link to="/" component={RouterLink} onClick={() => onClose()}>
+                        <Link to="/" component={RouterLink} onClick={() => onClose()} underline="hover">
                             <ListItem button>
                                 <ListItemText>Top Matches</ListItemText>
                             </ListItem>
@@ -37,12 +37,20 @@ const AppDrawer: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onC
                         <Divider />
                     </Fragment>
                 )}
-                <Link to="/feedback" component={RouterLink} onClick={() => onClose()}>
+                <Link
+                    to="/feedback"
+                    component={RouterLink}
+                    onClick={() => onClose()}
+                    underline="hover">
                     <ListItem button>
                         <ListItemText>Feedback</ListItemText>
                     </ListItem>
                 </Link>
-                <Link to="/privacy-policy" component={RouterLink} onClick={() => onClose()}>
+                <Link
+                    to="/privacy-policy"
+                    component={RouterLink}
+                    onClick={() => onClose()}
+                    underline="hover">
                     <ListItem button>
                         <ListItemText>Privacy Policy</ListItemText>
                     </ListItem>

@@ -1,4 +1,4 @@
-import { Button, FormGroup, Grid, TextField, Typography } from '@material-ui/core';
+import { Button, FormGroup, Grid, TextField, Typography } from '@mui/material';
 import React, { useRef } from 'react';
 import ReCAPTCHA from 'react-google-recaptcha';
 import { useForm } from 'react-hook-form';
@@ -95,7 +95,7 @@ const Feedback: React.FC = () => {
                             sitekey={recaptchaSiteKey}
                             onChange={onCaptchaVerify}
                         />
-                        <Grid item container justify="flex-end">
+                        <Grid item container justifyContent="flex-end">
                             <Button type="submit" variant="contained" color="primary">
                                 Submit
                             </Button>

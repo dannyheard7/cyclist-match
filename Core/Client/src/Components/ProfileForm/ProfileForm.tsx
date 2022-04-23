@@ -1,4 +1,5 @@
 import { ErrorMessage } from '@hookform/error-message';
+import { styled } from '@mui/material/styles';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
     Avatar,
@@ -8,11 +9,10 @@ import {
     Grid,
     IconButton,
     InputAdornment,
-    makeStyles,
     TextField,
     Theme,
-} from '@material-ui/core';
-import { MyLocation as GetLocationIcon } from '@material-ui/icons';
+} from '@mui/material';
+import { MyLocation as GetLocationIcon } from '@mui/icons-material';
 import React, { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import * as zod from 'zod';
@@ -21,11 +21,21 @@ import CyclingType from '../../Common/Enums/CyclingType';
 import { useApi } from '../../Hooks/useApi';
 import usePosition from '../../Hooks/usePosition';
 
-const useStyles = makeStyles((theme: Theme) => ({
-    avatar: {
+const PREFIX = 'ProfileForm';
+
+const classes = {
+    avatar: `${PREFIX}-avatar`
+};
+
+const Root = styled('form')((
+    {
+        theme: Theme
+    }
+) => ({
+    [`& .${classes.avatar}`]: {
         width: 60,
         height: 60,
-    },
+    }
 }));
 
 const schema = zod.object({
@@ -81,7 +91,7 @@ interface Props {
 }
 
 const ProfileForm: React.FC<Props> = ({ defaultValues, onSubmit: onSubmitCallback, disabled }) => {
-    const classes = useStyles();
+
 
     const resolver = zodResolver(schema);
     const { handleSubmit, register, setValue, control, errors, setError } = useForm({
@@ -132,9 +142,9 @@ const ProfileForm: React.FC<Props> = ({ defaultValues, onSubmit: onSubmitCallbac
     };
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <Root onSubmit={handleSubmit(onSubmit)}>
             <Grid container spacing={3}>
-                <Grid container item xs={12} justify="center">
+                <Grid container item xs={12} justifyContent="center">
                     <Avatar alt="Profile picture" src={defaultValues?.picture} className={classes.avatar} />
                 </Grid>
                 <Grid item xs={12}>
@@ -159,7 +169,7 @@ const ProfileForm: React.FC<Props> = ({ defaultValues, onSubmit: onSubmitCallbac
                                 InputProps={{
                                     endAdornment: (
                                         <InputAdornment position="start">
-                                            <IconButton onClick={() => getPosition()} disabled={disabled}>
+                                            <IconButton onClick={() => getPosition()} disabled={disabled} size="large">
                                                 <GetLocationIcon />
                                             </IconButton>
                                         </InputAdornment>
@@ -173,7 +183,7 @@ const ProfileForm: React.FC<Props> = ({ defaultValues, onSubmit: onSubmitCallbac
                     <ErrorMessage name="locationName" errors={errors} />
                 </Grid>
                 <Grid item xs={12}>
-                    <Grid container item xs={12} justify="flex-start">
+                    <Grid container item xs={12} justifyContent="flex-start">
                         {Object.entries(CyclingType).map(([key, name], index) => (
                             <FormControlLabel
                                 key={key}
@@ -203,7 +213,7 @@ const ProfileForm: React.FC<Props> = ({ defaultValues, onSubmit: onSubmitCallbac
                     </Grid>
                 </Grid>
                 <Grid item xs={12}>
-                    <Grid container item xs={12} justify="flex-start">
+                    <Grid container item xs={12} justifyContent="flex-start">
                         {Object.entries(Availability).map(([key, name], index) => (
                             <FormControlLabel
                                 key={key}
@@ -270,13 +280,13 @@ const ProfileForm: React.FC<Props> = ({ defaultValues, onSubmit: onSubmitCallbac
                     />
                     <ErrorMessage name="averageSpeed" errors={errors} />
                 </Grid>
-                <Grid container item justify="flex-end">
+                <Grid container item justifyContent="flex-end">
                     <Button type="submit" color="primary" variant="contained" disabled={disabled}>
                         Save
                     </Button>
                 </Grid>
             </Grid>
-        </form>
+        </Root>
     );
 };
 

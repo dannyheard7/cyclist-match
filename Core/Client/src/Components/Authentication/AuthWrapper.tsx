@@ -1,10 +1,9 @@
-import ky from 'ky';
 import { AuthContextProps, AuthProvider, useAuth, User, UserManager } from 'oidc-react';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useQuery } from 'react-query';
 import { useHistory, useLocation } from 'react-router-dom';
 import Profile from '../../Common/Interfaces/Profile';
-import { HTTPStatusCodes, useApiCustomAuth } from '../../Hooks/useApi';
+import { HTTPStatusCodes, useApiCustomAuth, HTTPError } from '../../Hooks/useApi';
 import { useAppContext } from '../AppContext/AppContextProvider';
 
 interface IAuthWrapperContext {
@@ -68,7 +67,7 @@ export const AuthWrapper: React.FC = ({ children }) => {
         isLoading: apiLoginLoading,
         data: apiLoginData,
         error: apiLoginError,
-    } = useQuery<Profile, ky.HTTPError>(
+    } = useQuery<Profile, HTTPError>(
         'fetchCurrentUser',
         async () => {
             const res = await api.get(`auth/user`);
@@ -83,6 +82,10 @@ export const AuthWrapper: React.FC = ({ children }) => {
             },
         },
     );
+
+    useEffect(() => {
+        if (user && initializing) apiLogin();
+    }, [user]);
 
     const profileDoesNotExist =
         initializing || apiLoginLoading
@@ -111,9 +114,7 @@ export const AuthWrapper: React.FC = ({ children }) => {
     const onSignIn = useCallback(
         (user: User | null) => {
             setUser(user);
-            if (user) {
-                apiLogin();
-            } else {
+            if (!user) {
                 setInitializing(false);
             }
         },

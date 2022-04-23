@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { IconButton, InputAdornment, TextField } from '@material-ui/core';
-import SendIcon from '@material-ui/icons/Send';
+import { IconButton, InputAdornment, TextField } from '@mui/material';
+import SendIcon from '@mui/icons-material/Send';
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import * as zod from 'zod';
@@ -45,7 +45,7 @@ const MessageBox: React.FC<Props> = ({ onSubmit: onSubmitCallback, disabled }) =
                 InputProps={{
                     endAdornment: (
                         <InputAdornment position="start">
-                            <IconButton type="submit" disabled={disabled}>
+                            <IconButton type="submit" disabled={disabled} size="large">
                                 <SendIcon />
                             </IconButton>
                         </InputAdornment>

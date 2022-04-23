@@ -1,16 +1,16 @@
-import ky from 'ky';
+import ky, { HTTPError } from 'ky';
 import { useMemo } from 'react';
 import { useAppContext } from '../Components/AppContext/AppContextProvider';
 import { useAuthentication } from '../Components/Authentication/AuthWrapper';
 
-export type HTTPError = ky.HTTPError;
 export enum HTTPStatusCodes {
     Status200 = 200,
     Status401 = 401,
     Status404 = 404,
 }
+export { HTTPError };
 
-export const useApiCustomAuth = (bearerToken: string | undefined, onUnauthenticatedResponse?: () => void) => {
+export const useApiCustomAuth = (bearerToken?: string, onUnauthenticatedResponse?: () => void) => {
     const {
         host: { api: apiHost },
     } = useAppContext();

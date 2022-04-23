@@ -1,4 +1,5 @@
-import { Box, createStyles, makeStyles, Theme, Typography } from '@material-ui/core';
+import { Box, Theme, Typography } from '@mui/material';
+import { styled } from '@mui/material/styles';
 import React, { useEffect, useRef } from 'react';
 import Message from '../../Components/Conversations/Message';
 import MessageBox from '../../Components/Conversations/MessageBox';
@@ -8,53 +9,63 @@ import useConversation from '../../Hooks/useConversation';
 import useCurrentUser from '../../Hooks/useCurrentUser';
 import useQueryParams from '../../Hooks/useQuery';
 
-const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
-        container: {
-            position: 'relative',
-            maxHeight: '84vh',
-            minHeight: '84vh',
-            overflowY: 'scroll',
-            overflowX: 'hidden',
-            width: '100%',
-            backgroundColor: theme.palette.background.default,
-            display: 'flex',
-            flexDirection: 'column',
+const PREFIX = 'ConversationPage';
+
+const classes = {
+    container: `${PREFIX}-container`,
+    participant: `${PREFIX}-participant`,
+    messages: `${PREFIX}-messages`,
+    messageBox: `${PREFIX}-messageBox`,
+};
+
+const Root = styled('div')(({ theme }) => ({
+    [`&.${classes.container}`]: {
+        position: 'relative',
+        maxHeight: '84vh',
+        minHeight: '84vh',
+        overflowY: 'scroll',
+        overflowX: 'hidden',
+        width: '100%',
+        backgroundColor: theme.palette.background.default,
+        display: 'flex',
+        flexDirection: 'column',
+    },
+
+    [`& .${classes.participant}`]: {
+        boxSizing: 'border-box',
+        position: 'sticky',
+        backgroundColor: theme.palette.background.default,
+        top: 0,
+        width: '100%',
+        padding: theme.spacing(1),
+        borderBottom: '1px solid black',
+    },
+
+    [`& .${classes.messages}`]: {
+        padding: theme.spacing(1),
+        flex: '1 1 0%',
+        WebkitOverflowScrolling: 'touch',
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        '& > *': {
+            maxWidth: '100%',
         },
-        participant: {
-            boxSizing: 'border-box',
-            position: 'sticky',
-            backgroundColor: theme.palette.background.default,
-            top: 0,
-            width: '100%',
-            padding: theme.spacing(1),
-            borderBottom: '1px solid black',
-        },
-        messages: {
-            padding: theme.spacing(1),
-            flex: '1 1 0%',
-            WebkitOverflowScrolling: 'touch',
-            height: '100%',
-            display: 'flex',
-            flexDirection: 'column',
-            '& > *': {
-                maxWidth: '100%',
-            },
-        },
-        messageBox: {
-            boxSizing: 'border-box',
-            position: 'sticky',
-            backgroundColor: theme.palette.background.default,
-            bottom: 0,
-            width: '100%',
-            padding: theme.spacing(1),
-        },
-    }),
-);
+    },
+
+    [`& .${classes.messageBox}`]: {
+        boxSizing: 'border-box',
+        position: 'sticky',
+        backgroundColor: theme.palette.background.default,
+        bottom: 0,
+        width: '100%',
+        padding: theme.spacing(1),
+    },
+}));
 
 const ConversationPage: React.FC = () => {
     const query = useQueryParams();
-    const classes = useStyles();
+
     const containerRef = useRef<HTMLDivElement>(null);
     const { user } = useCurrentUser();
     const [{ conversation, loading, error }, { sendMessage }] = useConversation(query.getAll('userId'));
@@ -70,7 +81,7 @@ const ConversationPage: React.FC = () => {
     if (error || !conversation || !user) return <ErrorMessage />;
 
     return (
-        <div className={classes.container} ref={containerRef}>
+        <Root className={classes.container} ref={containerRef}>
             <div className={classes.participant}>
                 <Typography>
                     <Box fontWeight="fontWeightBold" m={1}>
@@ -93,7 +104,7 @@ const ConversationPage: React.FC = () => {
             <div className={classes.messageBox}>
                 <MessageBox disabled={loading} onSubmit={(values) => sendMessage(values)} />
             </div>
-        </div>
+        </Root>
     );
 };
 
