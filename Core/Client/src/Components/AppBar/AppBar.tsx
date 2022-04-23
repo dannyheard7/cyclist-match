@@ -1,43 +1,79 @@
+import { AccountCircle, Menu as MenuIcon } from '@mui/icons-material';
 import {
     AppBar,
+    Box,
     Divider,
+    Grid,
+    Hidden,
     IconButton,
+    Link,
     ListItemText,
     Menu,
     MenuItem,
     Toolbar,
     Typography,
-    useTheme,
-    Link,
 } from '@mui/material';
-import { AccountCircle, Menu as MenuIcon } from '@mui/icons-material';
-import classNames from 'classnames';
+import { styled } from '@mui/material/styles';
 import React, { Fragment, useRef, useState } from 'react';
 import { Link as RouterLink, useHistory } from 'react-router-dom';
 import { AuthenticatedState, useAuthentication } from '../Authentication/AuthWrapper';
 import ConversationsIcon from '../Conversations/ConversationsIcon';
-import { useAppBarStyles } from './AppBar.styles';
-import AppDrawer from './AppDrawer';
+import AppDrawer, { DRAWER_WIDTH } from './AppDrawer';
+const PREFIX = 'AppMenu';
+
+const classes = {
+    root: `${PREFIX}-root`,
+    appBar: `${PREFIX}-appBar`,
+    appBarShift: `${PREFIX}-appBarShift`,
+    menuButton: `${PREFIX}-menuButton`,
+    hide: `${PREFIX}-hide`,
+    title: `${PREFIX}-title`,
+    drawer: `${PREFIX}-drawer`,
+    drawerPaper: `${PREFIX}-drawerPaper`,
+    drawerHeader: `${PREFIX}-drawerHeader`,
+    grow: `${PREFIX}-grow`,
+    padding: `${PREFIX}-padding`,
+};
+
+const StyledAppBar = styled(AppBar)<{ drawerOpen: boolean }>(({ theme, drawerOpen }) => ({
+    transition: theme.transitions.create(['margin', 'width'], {
+        easing: theme.transitions.easing.sharp,
+        duration: theme.transitions.duration.leavingScreen,
+    }),
+    ...(drawerOpen && {
+        width: `calc(100% - ${DRAWER_WIDTH}px)`,
+        marginLeft: DRAWER_WIDTH,
+        transition: theme.transitions.create(['margin', 'width'], {
+            easing: theme.transitions.easing.easeOut,
+            duration: theme.transitions.duration.enteringScreen,
+        }),
+    }),
+}));
+
+const StyledMenuIcon = styled(IconButton)<{ drawerOpen: boolean }>(({ theme, drawerOpen }) => ({
+    marginRight: theme.spacing(2),
+    ...(drawerOpen && {
+        display: 'none',
+    }),
+}));
 
 const AppMenuRight: React.FC<{ authState: AuthenticatedState }> = ({
     authState: { appProfileExists, oidcProfile, signOut },
 }) => {
-    const classes = useAppBarStyles();
     const [userMenuOpen, setUserMenuOpen] = useState<boolean>(false);
     const anchorEl = useRef(null);
-    const theme = useTheme();
     const { push } = useHistory();
 
     return (
         <Fragment>
             {appProfileExists && (
-                <div className={classes.padding}>
+                <Box sx={{ paddingx: 0.5 }}>
                     <IconButton color="inherit" onClick={() => push('/conversations')} size="large">
                         <ConversationsIcon />
                     </IconButton>
-                </div>
+                </Box>
             )}
-            <div className={classes.padding}>
+            <Box sx={{ paddingx: 0.5 }}>
                 <IconButton
                     aria-label="account of current user"
                     aria-controls="menu-appbar"
@@ -45,10 +81,11 @@ const AppMenuRight: React.FC<{ authState: AuthenticatedState }> = ({
                     onClick={() => setUserMenuOpen(!userMenuOpen)}
                     color="inherit"
                     ref={anchorEl}
-                    size="large">
+                    size="large"
+                >
                     <AccountCircle />
                 </IconButton>
-            </div>
+            </Box>
             <Menu
                 id="menu-appbar"
                 anchorEl={anchorEl.current}
@@ -60,7 +97,7 @@ const AppMenuRight: React.FC<{ authState: AuthenticatedState }> = ({
                         {oidcProfile.given_name} {oidcProfile.family_name}
                     </Typography>
                 </MenuItem>
-                <Divider style={{ margin: theme.spacing(0.5, 1) }} />
+                <Divider sx={{ marginx: 1, marginy: 0.5 }} />
                 <MenuItem component={RouterLink} to="/account" onClick={() => setUserMenuOpen(false)}>
                     Account
                 </MenuItem>
@@ -71,51 +108,47 @@ const AppMenuRight: React.FC<{ authState: AuthenticatedState }> = ({
 };
 
 const AppMenu: React.FC = () => {
-    const classes = useAppBarStyles();
     const authState = useAuthentication();
 
     const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
 
     return (
-        <div className={classes.root}>
+        <div>
             <AppDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
-            <AppBar
-                position="fixed"
-                className={classNames(classes.appBar, {
-                    [classes.appBarShift]: drawerOpen,
-                })}
-            >
+            <StyledAppBar position="fixed" drawerOpen={drawerOpen}>
                 <Toolbar>
-                    <IconButton
-                        edge="start"
-                        className={classNames(classes.menuButton, drawerOpen && classes.hide)}
-                        color="inherit"
-                        aria-label="menu"
-                        onClick={() => setDrawerOpen(true)}
-                        size="large">
-                        <MenuIcon />
-                    </IconButton>
+                    <Grid container direction="row" justifyContent="space-between">
+                        <Grid item container direction="row" xs={4} alignItems="center">
+                            <StyledMenuIcon
+                                edge="start"
+                                drawerOpen={drawerOpen}
+                                color="inherit"
+                                aria-label="menu"
+                                onClick={() => setDrawerOpen(true)}
+                                size="large"
+                            >
+                                <MenuIcon />
+                            </StyledMenuIcon>
 
-                    <Typography variant="h6" className={classes.title}>
-                        <Link
-                            component={RouterLink}
-                            to="/"
-                            style={{ color: 'white' }}
-                            underline="hover">
-                            BuddyUp!
-                        </Link>
-                    </Typography>
-
-                    <div className={classes.grow} />
-
-                    {authState.isLoggedIn === true && <AppMenuRight authState={authState} />}
-                    {authState.isLoggedIn === false && (
-                        <div style={{ marginLeft: 'auto', cursor: 'pointer' }}>
-                            <ListItemText onClick={authState.signIn}>Login</ListItemText>
-                        </div>
-                    )}
+                            <Hidden smDown>
+                                <Typography variant="h6">
+                                    <Link component={RouterLink} to="/" style={{ color: 'white' }} underline="hover">
+                                        BuddyUp!
+                                    </Link>
+                                </Typography>
+                            </Hidden>
+                        </Grid>
+                        <Grid item container direction="row" xs={8} alignItems="center" justifyContent="end">
+                            {authState.isLoggedIn === true && <AppMenuRight authState={authState} />}
+                            {authState.isLoggedIn === false && (
+                                <div style={{ marginLeft: 'auto', cursor: 'pointer' }}>
+                                    <ListItemText onClick={authState.signIn}>Login</ListItemText>
+                                </div>
+                            )}
+                        </Grid>
+                    </Grid>
                 </Toolbar>
-            </AppBar>
+            </StyledAppBar>
         </div>
     );
 };

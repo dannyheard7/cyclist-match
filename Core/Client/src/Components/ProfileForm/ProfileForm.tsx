@@ -1,18 +1,8 @@
 import { ErrorMessage } from '@hookform/error-message';
-import { styled } from '@mui/material/styles';
 import { zodResolver } from '@hookform/resolvers/zod';
-import {
-    Avatar,
-    Button,
-    Checkbox,
-    FormControlLabel,
-    Grid,
-    IconButton,
-    InputAdornment,
-    TextField,
-    Theme,
-} from '@mui/material';
 import { MyLocation as GetLocationIcon } from '@mui/icons-material';
+import { Avatar, Button, Checkbox, FormControlLabel, Grid, IconButton, InputAdornment, TextField } from '@mui/material';
+import { styled } from '@mui/material/styles';
 import React, { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import * as zod from 'zod';
@@ -24,18 +14,14 @@ import usePosition from '../../Hooks/usePosition';
 const PREFIX = 'ProfileForm';
 
 const classes = {
-    avatar: `${PREFIX}-avatar`
+    avatar: `${PREFIX}-avatar`,
 };
 
-const Root = styled('form')((
-    {
-        theme: Theme
-    }
-) => ({
+const Root = styled('form')(({ theme: Theme }) => ({
     [`& .${classes.avatar}`]: {
         width: 60,
         height: 60,
-    }
+    },
 }));
 
 const schema = zod.object({
@@ -91,8 +77,6 @@ interface Props {
 }
 
 const ProfileForm: React.FC<Props> = ({ defaultValues, onSubmit: onSubmitCallback, disabled }) => {
-
-
     const resolver = zodResolver(schema);
     const { handleSubmit, register, setValue, control, errors, setError } = useForm({
         defaultValues: {

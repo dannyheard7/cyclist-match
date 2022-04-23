@@ -1,5 +1,4 @@
-import { createTheme, StyledEngineProvider } from '@mui/material';
-import { ThemeProvider } from '@mui/styles';
+import { createTheme, StyledEngineProvider, ThemeProvider } from '@mui/material';
 import React from 'react';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { BrowserRouter } from 'react-router-dom';

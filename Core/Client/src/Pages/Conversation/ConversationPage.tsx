@@ -1,4 +1,4 @@
-import { Box, Theme, Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import React, { useEffect, useRef } from 'react';
 import Message from '../../Components/Conversations/Message';
