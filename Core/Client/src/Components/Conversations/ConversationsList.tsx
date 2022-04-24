@@ -61,10 +61,8 @@ const ConversationsList: React.FC = () => {
                                 <CardContent>
                                     <Typography>{conversation.messages[0].body}</Typography>
 
-                                    <Typography>
-                                        <Box fontWeight="fontWeightLight" marginTop={1} fontSize={11}>
-                                            {formatMessageTimestamp(conversation.messages[0].sentAt)}
-                                        </Box>
+                                    <Typography fontWeight="fontWeightLight" sx={{ marginTop: 1, fontSize: 11 }}>
+                                        {formatMessageTimestamp(conversation.messages[0].sentAt)}
                                     </Typography>
                                 </CardContent>
                             </Card>

@@ -83,13 +83,11 @@ const ConversationPage: React.FC = () => {
     return (
         <Root className={classes.container} ref={containerRef}>
             <div className={classes.participant}>
-                <Typography>
-                    <Box fontWeight="fontWeightBold" m={1}>
-                        {conversation
-                            .filterParticipants(user)
-                            .map((x) => x.userDisplayName)
-                            .join(', ')}
-                    </Box>
+                <Typography fontWeight="fontWeightBold" sx={{ margin: 1 }}>
+                    {conversation
+                        .filterParticipants(user)
+                        .map((x) => x.userDisplayName)
+                        .join(', ')}
                 </Typography>
             </div>
             <div className={classes.messages}>

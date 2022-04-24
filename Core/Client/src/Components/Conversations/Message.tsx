@@ -32,10 +32,8 @@ const MessageComponent: React.FC<{ message: Message; display: 'sender' | 'receiv
                     <Typography style={{ overflowWrap: 'break-word', whiteSpace: 'pre-wrap' }}>
                         {message.body}
                     </Typography>
-                    <Typography>
-                        <Box fontWeight="fontWeightLight" marginTop={1} fontSize={11}>
-                            {formatMessageTimestamp(message.sentAt)}
-                        </Box>
+                    <Typography fontWeight="fontWeightLight" sx={{ marginTop: 1, fontSize: 11 }}>
+                        {formatMessageTimestamp(message.sentAt)}
                     </Typography>
                 </Box>
             </Box>

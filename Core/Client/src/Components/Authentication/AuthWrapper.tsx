@@ -96,8 +96,8 @@ export const AuthWrapper: React.FC<{ children?: React.ReactNode }> = ({ children
             onSuccess: (_) => {
                 if (user?.state?.targetUrl !== undefined && pathname !== user?.state?.targetUrl) {
                     replace(user?.state?.targetUrl);
-                } else {
-                    replace(window.location.pathname); // remove code query param
+                } else if (isCodeCallback) {
+                    replace('/');
                 }
             },
             onError: (error) => {
@@ -165,8 +165,8 @@ export const AuthWrapper: React.FC<{ children?: React.ReactNode }> = ({ children
             value={{
                 loading: initializing,
                 oidcUser: user,
-                signIn: userManager.signinRedirect,
-                signOut: userManager.signoutRedirect,
+                signIn: () => userManager.signinRedirect(),
+                signOut: () => userManager.signoutRedirect(),
                 isError: isError ?? false,
                 profile: apiLoginData ?? null,
             }}

@@ -27,6 +27,7 @@ internal class ChatClient : IChatClient
         ProfileDTO sender)
     {
         return new ConversationMessage(
+            message.Id,
             sender,
             message.SentAt,
             message.Recipients

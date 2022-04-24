@@ -26,67 +26,83 @@ const queryClient = new QueryClient({
 });
 
 const theme = createTheme();
+
+const AppRoutes: React.FC = () => {
+    return (
+        <Routes>
+            <Route
+                path="login"
+                element={
+                    <RequireNoAuth>
+                        <Login />
+                    </RequireNoAuth>
+                }
+            />
+            <Route path="feedback" element={<Feedback />} />
+            <Route path="privacy-policy" element={<PrivacyPolicy />} />
+            <Route
+                path="profile/create"
+                element={
+                    <RequireAuth>
+                        <CreateProfile />
+                    </RequireAuth>
+                }
+            />
+            <Route
+                path="account"
+                element={
+                    <RequireAuth>
+                        <Account />
+                    </RequireAuth>
+                }
+            />
+            <Route
+                path="conversation"
+                element={
+                    <RequireAuth>
+                        <ConversationPage />
+                    </RequireAuth>
+                }
+            />
+            <Route
+                path="conversations"
+                element={
+                    <RequireAuth>
+                        <ConversationsList />
+                    </RequireAuth>
+                }
+            />
+            <Route
+                path="/"
+                element={
+                    <RequireAuth>
+                        <Dashboard />
+                    </RequireAuth>
+                }
+            />
+        </Routes>
+    );
+};
+
 const App: React.FC = () => {
     return (
-        <StyledEngineProvider injectFirst>
-            <ThemeProvider theme={theme}>
-                <QueryClientProvider client={queryClient}>
-                    <AppContextProvider>
-                        <BrowserRouter>
-                            <AuthWrapper>
-                                <Layout>
-                                    <Routes>
-                                        <Route
-                                            path="login"
-                                            element={
-                                                <RequireNoAuth>
-                                                    <Login />
-                                                </RequireNoAuth>
-                                            }
-                                        />
-                                        <Route path="feedback" element={<Feedback />} />
-                                        <Route path="privacy-policy" element={<PrivacyPolicy />} />
-                                        <Route
-                                            path="profile/create"
-                                            element={
-                                                <RequireAuth>
-                                                    <CreateProfile />
-                                                </RequireAuth>
-                                            }
-                                        />
-                                        <Route
-                                            path="account"
-                                            element={
-                                                <RequireAuth>
-                                                    <Account />
-                                                </RequireAuth>
-                                            }
-                                        />
-                                        <Route
-                                            path="conversation"
-                                            element={
-                                                <RequireAuth>
-                                                    <ConversationPage />
-                                                    <Route path="s" element={<ConversationsList />} />
-                                                </RequireAuth>
-                                            }
-                                        />
-                                        <Route
-                                            path="/"
-                                            element={
-                                                <RequireAuth>
-                                                    <Dashboard />
-                                                </RequireAuth>
-                                            }
-                                        />
-                                    </Routes>
-                                </Layout>
-                            </AuthWrapper>
-                        </BrowserRouter>
-                    </AppContextProvider>
-                </QueryClientProvider>
-            </ThemeProvider>
-        </StyledEngineProvider>
+        <StrictMode>
+            <QueryClientProvider client={queryClient}>
+                <AppContextProvider>
+                    <BrowserRouter>
+                        <AuthWrapper>
+                            <StyledEngineProvider injectFirst>
+                                <ThemeProvider theme={theme}>
+                                    <Layout>
+                                        <AppRoutes />
+                                    </Layout>
+                                </ThemeProvider>
+                            </StyledEngineProvider>
+                        </AuthWrapper>
+                    </BrowserRouter>
+                </AppContextProvider>
+            </QueryClientProvider>
+        </StrictMode>
     );
 };
 
