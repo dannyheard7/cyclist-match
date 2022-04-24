@@ -19,21 +19,6 @@ import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { AuthenticatedState, useAuthentication } from '../Authentication/AuthWrapper';
 import ConversationsIcon from '../Conversations/ConversationsIcon';
 import AppDrawer, { DRAWER_WIDTH } from './AppDrawer';
-const PREFIX = 'AppMenu';
-
-const classes = {
-    root: `${PREFIX}-root`,
-    appBar: `${PREFIX}-appBar`,
-    appBarShift: `${PREFIX}-appBarShift`,
-    menuButton: `${PREFIX}-menuButton`,
-    hide: `${PREFIX}-hide`,
-    title: `${PREFIX}-title`,
-    drawer: `${PREFIX}-drawer`,
-    drawerPaper: `${PREFIX}-drawerPaper`,
-    drawerHeader: `${PREFIX}-drawerHeader`,
-    grow: `${PREFIX}-grow`,
-    padding: `${PREFIX}-padding`,
-};
 
 const StyledAppBar = styled(AppBar, {
     shouldForwardProp: (prop) => !prop.toString().startsWith('$'),

@@ -54,14 +54,14 @@ export const AuthWrapper: React.FC<{ children?: React.ReactNode }> = ({ children
     const onUserSignedIn = useCallback(async () => {
         const user = await userManager.getUser();
         setUser(user);
-    }, []);
+    }, [userManager]);
 
     const onUserSignedOut = () => setUser(null);
 
-    const onSilentRenewFailed = () => {
+    const onSilentRenewFailed = useCallback(() => {
         setUser(null);
         userManager.signoutRedirect();
-    };
+    }, [userManager]);
 
     useEffect(() => {
         userManager.events.addUserSignedIn(onUserSignedIn);
@@ -75,7 +75,7 @@ export const AuthWrapper: React.FC<{ children?: React.ReactNode }> = ({ children
             userManager.events.removeSilentRenewError(onSilentRenewFailed);
             userManager.events.removeAccessTokenExpired(onSessionEnd);
         };
-    }, [userManager, onSessionEnd, onSilentRenewFailed]);
+    }, [userManager, onSessionEnd, onSilentRenewFailed, onUserSignedIn]);
 
     const api = useApiCustomAuth(user?.access_token);
     const {
@@ -116,17 +116,15 @@ export const AuthWrapper: React.FC<{ children?: React.ReactNode }> = ({ children
         } else if (!user && !initializing) {
             replace('/');
         }
+        //eslint-disable-next-line
     }, [user, initializing]);
 
-    const onSignIn = useCallback(
-        (user: User | null) => {
-            setUser(user);
-            if (!user) {
-                setInitializing(false);
-            }
-        },
-        [apiLogin],
-    );
+    const onSignIn = useCallback((user: User | null) => {
+        setUser(user);
+        if (!user) {
+            setInitializing(false);
+        }
+    }, []);
 
     const urlParams = new URLSearchParams(search);
     const isCodeCallback = urlParams.has('code');

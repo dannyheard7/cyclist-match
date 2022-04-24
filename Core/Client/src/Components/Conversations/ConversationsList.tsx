@@ -1,4 +1,4 @@
-import { Box, Card, CardContent, CardHeader, Divider, Grid, Typography, useTheme } from '@mui/material';
+import { Card, CardContent, CardHeader, Divider, Grid, Typography, useTheme } from '@mui/material';
 import React from 'react';
 import { useQuery } from 'react-query';
 import { useNavigate } from 'react-router-dom';

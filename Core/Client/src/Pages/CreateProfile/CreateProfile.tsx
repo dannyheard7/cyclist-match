@@ -37,7 +37,7 @@ const CreateProfile: React.FC = () => {
         if (isSuccess) {
             queryClient.refetchQueries('fetchCurrentUser').then(() => navigate('/'));
         }
-    }, [isSuccess, navigate]);
+    }, [isSuccess, navigate, queryClient]);
 
     return (
         <Grid container spacing={2}>

@@ -82,7 +82,6 @@ const ProfileForm: React.FC<Props> = ({ defaultValues, onSubmit: onSubmitCallbac
         handleSubmit,
         register,
         setValue,
-        watch,
         control,
         setError,
         formState: { errors },
