@@ -18,7 +18,12 @@ interface Props {
 
 const MessageBox: React.FC<Props> = ({ onSubmit: onSubmitCallback, disabled }) => {
     const resolver = zodResolver(schema);
-    const { handleSubmit, register, errors, reset } = useForm<SchemaType>({ resolver });
+    const {
+        handleSubmit,
+        register,
+        formState: { errors },
+        reset,
+    } = useForm<SchemaType>({ resolver });
 
     const onSubmit = (values: SchemaType) => {
         onSubmitCallback(values);
@@ -36,9 +41,8 @@ const MessageBox: React.FC<Props> = ({ onSubmit: onSubmitCallback, disabled }) =
     return (
         <form onSubmit={onFormSubmit}>
             <TextField
-                name="body"
                 label="Message"
-                inputRef={register()}
+                inputProps={{ ...register('body') }}
                 fullWidth
                 multiline
                 onKeyDown={onEnterPress}

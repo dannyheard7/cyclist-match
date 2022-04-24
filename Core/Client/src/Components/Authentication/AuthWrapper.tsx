@@ -113,6 +113,8 @@ export const AuthWrapper: React.FC<{ children?: React.ReactNode }> = ({ children
     useEffect(() => {
         if (user && initializing) {
             apiLogin();
+        } else if (!user && !initializing) {
+            replace('/');
         }
     }, [user, initializing]);
 

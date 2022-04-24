@@ -17,7 +17,12 @@ interface FeedbackFormValues {
 
 const Feedback: React.FC = () => {
     const { recaptchaSiteKey } = useAppContext();
-    const { register, handleSubmit, errors, getValues } = useForm<FeedbackFormValues>();
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+        getValues,
+    } = useForm<FeedbackFormValues>();
     const recaptchaRef = useRef<ReCAPTCHA>(null);
     const { isLoggedIn } = useAuthentication();
     const api = useApi();
@@ -69,7 +74,9 @@ const Feedback: React.FC = () => {
                                         aria-label="Email"
                                         placeholder="Email Address"
                                         name="email"
-                                        inputRef={register()}
+                                        inputProps={{
+                                            ...register('email'),
+                                        }}
                                         error={errors.email !== undefined}
                                     />
                                 </FormGroup>
@@ -82,8 +89,9 @@ const Feedback: React.FC = () => {
                                     rows={5}
                                     aria-label="Message"
                                     placeholder="Message"
-                                    name="message"
-                                    inputRef={register({ required: true })}
+                                    inputProps={{
+                                        ...register('message', { required: true }),
+                                    }}
                                     error={errors.message !== undefined}
                                 />
                                 <FormErrorMessage name="message" message="Message is required" errors={errors} />

@@ -17,12 +17,12 @@ const classes = {
     avatar: `${PREFIX}-avatar`,
 };
 
-const Root = styled('form')(({ theme: Theme }) => ({
+const Root = styled('form')({
     [`& .${classes.avatar}`]: {
         width: 60,
         height: 60,
     },
-}));
+});
 
 const schema = zod.object({
     displayName: zod.string().nonempty('Required'),
@@ -78,9 +78,18 @@ interface Props {
 
 const ProfileForm: React.FC<Props> = ({ defaultValues, onSubmit: onSubmitCallback, disabled }) => {
     const resolver = zodResolver(schema);
-    const { handleSubmit, register, setValue, control, errors, setError } = useForm({
+    const {
+        handleSubmit,
+        register,
+        setValue,
+        watch,
+        control,
+        setError,
+        formState: { errors },
+    } = useForm<SchemaType>({
         defaultValues: {
             ...defaultValues,
+            locationName: defaultValues?.location?.name,
             cyclingTypes: Object.entries(CyclingType).map(([key, value]) => ({ key, name: value, selected: false })),
             availability: Object.entries(Availability).map(([key, value]) => ({ key, name: value, selected: false })),
         },
@@ -135,7 +144,9 @@ const ProfileForm: React.FC<Props> = ({ defaultValues, onSubmit: onSubmitCallbac
                     <TextField
                         name="displayName"
                         label="Display Name (Public)"
-                        inputRef={register()}
+                        inputProps={{
+                            ...register('displayName'),
+                        }}
                         fullWidth
                         disabled={disabled}
                     />
@@ -145,9 +156,10 @@ const ProfileForm: React.FC<Props> = ({ defaultValues, onSubmit: onSubmitCallbac
                     <Controller
                         name="locationName"
                         control={control}
-                        as={
+                        render={({ field: { value } }) => (
                             <TextField
                                 disabled
+                                value={value}
                                 label="Location"
                                 error={errors.locationName !== undefined}
                                 InputProps={{
@@ -161,7 +173,7 @@ const ProfileForm: React.FC<Props> = ({ defaultValues, onSubmit: onSubmitCallbac
                                 }}
                                 fullWidth
                             />
-                        }
+                        )}
                         defaultValue={''}
                     />
                     <ErrorMessage name="locationName" errors={errors} />
@@ -173,19 +185,16 @@ const ProfileForm: React.FC<Props> = ({ defaultValues, onSubmit: onSubmitCallbac
                                 key={key}
                                 control={
                                     <Controller
-                                        render={(props) => (
+                                        render={({ field: { onChange, value } }) => (
                                             <Checkbox
                                                 color="primary"
-                                                onChange={(e) =>
-                                                    props.onChange({ ...props.value, selected: e.target.checked })
-                                                }
-                                                checked={props.value.selected || false}
+                                                onChange={(e) => onChange({ ...value, selected: e.target.checked })}
+                                                checked={value.selected || false}
                                                 disabled={disabled}
                                             />
                                         )}
                                         control={control}
-                                        name={`cyclingTypes[${index}]`}
-                                        defaultValue={false}
+                                        name={`cyclingTypes.${index}`}
                                     />
                                 }
                                 label={name}
@@ -203,19 +212,16 @@ const ProfileForm: React.FC<Props> = ({ defaultValues, onSubmit: onSubmitCallbac
                                 key={key}
                                 control={
                                     <Controller
-                                        render={(props) => (
+                                        render={({ field: { onChange, value } }) => (
                                             <Checkbox
                                                 color="primary"
-                                                onChange={(e) =>
-                                                    props.onChange({ ...props.value, selected: e.target.checked })
-                                                }
-                                                checked={props.value.selected || false}
+                                                onChange={(e) => onChange({ ...value, selected: e.target.checked })}
+                                                checked={value.selected || false}
                                                 disabled={disabled}
                                             />
                                         )}
                                         control={control}
-                                        name={`availability[${index}]`}
-                                        defaultValue={false}
+                                        name={`availability.${index}`}
                                     />
                                 }
                                 label={name}
@@ -230,7 +236,7 @@ const ProfileForm: React.FC<Props> = ({ defaultValues, onSubmit: onSubmitCallbac
                     <Controller
                         name="averageDistance"
                         control={control}
-                        render={({ value, onChange }) => (
+                        render={({ field: { value, onChange } }) => (
                             <TextField
                                 onChange={(e) => onChange(parseInt(e.target.value, 10))}
                                 value={value}
@@ -249,7 +255,7 @@ const ProfileForm: React.FC<Props> = ({ defaultValues, onSubmit: onSubmitCallbac
                     <Controller
                         name="averageSpeed"
                         control={control}
-                        render={({ value, onChange }) => (
+                        render={({ field: { value, onChange } }) => (
                             <TextField
                                 onChange={(e) => onChange(parseInt(e.target.value, 10))}
                                 value={value}
