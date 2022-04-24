@@ -102,5 +102,10 @@ namespace Persistence.SQL.Profile
             var results = await dbSet.Include(x => x.User).ToListAsync();
             return results.Select(ProfileMapper.Map);
         }
+
+        public Task Delete(ProfileDTO profile)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

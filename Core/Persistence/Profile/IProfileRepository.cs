@@ -15,5 +15,7 @@ namespace Persistence.Profile
         public Task Create(CreateProfileDTO profile);
         
         public Task<IEnumerable<ProfileDTO>> Get(ProfileFilter filter);
+
+        public Task Delete(ProfileDTO profile);
     }
 }

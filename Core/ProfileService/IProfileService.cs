@@ -9,5 +9,6 @@ namespace ProfileService
         public Task<ProfileDTO?> GetByExternalId(string externalUserId);
         public Task<ProfileDTO?> GetById(Guid userId);
         public Task Create(CreateProfileDTO profileInput);
+        public Task Delete(ProfileDTO profile);
     }
 }

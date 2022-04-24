@@ -1,4 +1,6 @@
-﻿using Persistence.Profile;
+﻿using Hangfire;
+using MatchingService;
+using Persistence.Profile;
 using Persistence.Profile.Filter;
 using Persistence.Profile.Types.DTO;
 
@@ -7,10 +9,12 @@ namespace ProfileService
     internal class ProfileService : IProfileService
     {
         private readonly IProfileRepository _profileRepository;
-        
-        public ProfileService(IProfileRepository profileRepository)
+        private readonly IBackgroundJobClient _backgroundJobClient;
+
+        public ProfileService(IProfileRepository profileRepository, IBackgroundJobClient backgroundJobClient)
         {
-            _profileRepository = profileRepository ?? throw new ArgumentNullException(nameof(profileRepository));
+            _profileRepository = profileRepository;
+            _backgroundJobClient = backgroundJobClient;
         }
 
         public Task<IEnumerable<ProfileDTO>> Get(ProfileFilter filter) => _profileRepository.Get(filter);
@@ -23,8 +27,14 @@ namespace ProfileService
         public async Task Create(CreateProfileDTO profile)
         {
             await _profileRepository.Create(profile);
-            
-            // Once a profile has been created or updated we queue a hangfire job that finds relevant matches
+            _backgroundJobClient.Enqueue<IMatchingService>(service => service.MatchRelevantProfiles(profile.UserId));
+        }
+
+        public async Task Delete(ProfileDTO profile)
+        {
+            // TODO: does this need to orchestrate deleting messages, matches etc.
+            // Maybe it should be a background job?
+            await _profileRepository.Delete(profile);
         }
     }
 }
